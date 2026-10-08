@@ -4,6 +4,7 @@ import { Header } from '@/components/site/Header';
 import { BackgroundLayers } from '@/components/site/BackgroundLayers';
 import { SideNav } from '@/components/site/SideNav';
 import { RevealObserver } from '@/components/site/RevealObserver';
+import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
 import { getSiteSettings } from '@/lib/queries/site';
 import { env } from '@/lib/env';
 import './globals.css';
@@ -24,20 +25,22 @@ export const metadata: Metadata = {
     canonical: new URL(env.SITE_URL ?? 'http://localhost:3000'),
   },
   title: {
-    default: 'Salekin Newaz · web developer',
-    template: '%s · salekin.dev',
+    default: 'Salekin Newaz — Software Engineer',
+    template: '%s · Salekin Newaz',
   },
   description:
-    'Web developer building clean, fast user experiences. Currently shipping internal tools at Braintree Technologies.',
+    'Software engineer building full-stack apps with TypeScript, React, and Next.js. Currently shipping internal tools at Braintree Technologies.',
   applicationName: 'Salekin Newaz',
   authors: [{ name: 'Salekin Newaz' }],
   keywords: [
     'Salekin Newaz',
-    'web developer',
+    'software engineer',
     'full-stack',
     'Next.js',
     'React',
     'TypeScript',
+    'Node.js',
+    'PostgreSQL',
     'portfolio',
   ],
   openGraph: {
@@ -45,23 +48,23 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: 'Salekin Newaz',
-    title: 'Salekin Newaz · web developer',
+    title: 'Salekin Newaz — Software Engineer',
     description:
-      'Web developer building clean, fast user experiences. Currently shipping internal tools at Braintree Technologies.',
+      'Software engineer building full-stack apps with TypeScript, React, and Next.js. Currently shipping internal tools at Braintree Technologies.',
     images: [
       {
         url: '/og',
         width: 1200,
         height: 630,
-        alt: 'Salekin Newaz · web developer',
+        alt: 'Salekin Newaz — Software Engineer',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Salekin Newaz · web developer',
+    title: 'Salekin Newaz — Software Engineer',
     description:
-      'Web developer building clean, fast user experiences. Currently shipping internal tools at Braintree Technologies.',
+      'Software engineer building full-stack apps with TypeScript, React, and Next.js. Currently shipping internal tools at Braintree Technologies.',
     images: ['/og'],
   },
   robots: {
@@ -128,7 +131,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       // useState initializer sees the correct value when hydration runs.
       try {
         var hash = window.location.hash.replace(/^#/, '');
-        var known = ['hero', 'about', 'experience', 'skills', 'education', 'contact'];
+        var known = ['hero', 'work', 'about', 'experience', 'skills', 'contact'];
         if (known.indexOf(hash) >= 0) {
           window.__specmdActive = hash;
           window.dispatchEvent(new CustomEvent('specmd:active-section', { detail: hash }));
@@ -190,6 +193,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <Header />
         <SideNav />
         <RevealObserver />
+        <TerminalEasterEgg />
         <main
           id="main"
           className="relative mx-auto w-full max-w-6xl flex-1 px-5 pb-20 sm:px-8 lg:px-16"

@@ -1,21 +1,28 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+}));
+
 import { HeaderNav } from './HeaderNav';
 
 const allVisible = {
   hero: true,
+  work: true,
   about: true,
   experience: true,
   skills: true,
-  education: true,
   contact: true,
 } as const;
 
 describe('HeaderNav', () => {
   beforeEach(() => {
-    // Provide the sections the observer will try to attach to.
-    for (const id of ['hero', 'about', 'experience', 'skills', 'education', 'contact']) {
+    // Provide the sections the observer will try to attach to. Match
+    // the current NAV_SECTIONS list (Education is no longer a top-nav
+    // destination).
+    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact']) {
       const el = document.createElement('section');
       el.id = id;
       document.body.appendChild(el);
@@ -24,7 +31,7 @@ describe('HeaderNav', () => {
 
   it('renders a link for every visible section', () => {
     render(<HeaderNav visible={allVisible} />);
-    for (const label of ['Home', 'About', 'Work', 'Skills', 'Education', 'Contact']) {
+    for (const label of ['Home', 'Work', 'Experience', 'Stack', 'About', 'Contact']) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
   });
@@ -32,13 +39,18 @@ describe('HeaderNav', () => {
   it('hides links for sections turned off in admin settings', () => {
     render(
       <HeaderNav
-        visible={{ ...allVisible, skills: false, education: false, experience: false }}
+        visible={{
+          ...allVisible,
+          skills: false,
+          experience: false,
+          work: false,
+        }}
       />,
     );
-    expect(screen.queryByText('Skills')).not.toBeInTheDocument();
-    expect(screen.queryByText('Education')).not.toBeInTheDocument();
+    expect(screen.queryByText('Stack')).not.toBeInTheDocument();
+    expect(screen.queryByText('Experience')).not.toBeInTheDocument();
     expect(screen.queryByText('Work')).not.toBeInTheDocument();
-    expect(screen.queryAllByText('About').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('About').length).toBeGreaterThan(0);
   });
 
   it('toggles the mobile drawer when the hamburger is clicked', () => {
@@ -82,9 +94,28 @@ describe('HeaderNav', () => {
     return import('@/lib/hooks/use-active-section').then((m) => {
       m.__resetActiveSectionForTests('skills');
       render(<HeaderNav visible={allVisible} />);
-      const skills = screen.getByRole('link', { name: /^skills$/i });
+      const skills = screen.getByRole('link', { name: /^stack$/i });
       expect(skills.dataset.active).toBe('true');
       expect(skills.querySelector('.pill-nav__indicator')).toBeInTheDocument();
     });
+  });
+});
+
+describe('HeaderNav off-home behaviour', () => {
+  beforeEach(() => {
+    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact']) {
+      const el = document.createElement('section');
+      el.id = id;
+      document.body.appendChild(el);
+    }
+    vi.resetModules();
+    vi.doMock('next/navigation', () => ({ usePathname: () => '/projects' }));
+  });
+
+  it('routes section links back to /#section when not on home', async () => {
+    const { HeaderNav: OffHomeNav } = await import('./HeaderNav');
+    render(<OffHomeNav visible={allVisible} />);
+    const work = screen.getAllByRole('link', { name: /^work$/i })[0];
+    expect(work?.getAttribute('href')).toBe('/#work');
   });
 });

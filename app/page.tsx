@@ -1,19 +1,25 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getSiteSettings } from '@/lib/queries/site';
 import { listExperiencesOrdered } from '@/lib/queries/experiences';
 import { listEducationOrdered } from '@/lib/queries/education';
 import { Hero } from '@/components/site/Hero';
+import { FeaturedProjects } from '@/components/site/FeaturedProjects';
+import { CurrentlyBuildingSection } from '@/components/site/CurrentlyBuildingSection';
 import { AboutSection } from '@/components/site/AboutSection';
+import { ApproachSection } from '@/components/site/ApproachSection';
+import { DifferentiationSection } from '@/components/site/DifferentiationSection';
 import { ExperienceTimeline } from '@/components/site/ExperienceTimeline';
 import { SkillGrid } from '@/components/site/SkillGrid';
 import { EducationList } from '@/components/site/EducationList';
 import { ContactSection } from '@/components/site/ContactSection';
 import { SectionDivider } from '@/components/site/SectionDivider';
+import { env } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: 'Home',
   description:
-    'Web developer shipping clean, fast user experiences. See experience, skills, and how to get in touch.',
+    'Software engineer building full-stack apps with TypeScript, React, and Next.js. See my work, experience, stack, and how to get in touch.',
 };
 
 export default async function HomePage() {
@@ -24,14 +30,54 @@ export default async function HomePage() {
   ]);
 
   const { identity, sections } = site;
+  const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
+
+  // WebSite + Person + BreadcrumbList JSON-LD for SEO. All values come
+  // from real identity / settings data — no invented profiles.
+  const websiteJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'salekin.dev',
+    url: siteUrl,
+    description: metadata.description,
+  };
+  const personJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: identity.siteTitle,
+    jobTitle: 'Software Engineer',
+    url: siteUrl,
+    email: identity.contactEmail ?? undefined,
+    address: identity.contactLocation ?? undefined,
+    sameAs: [
+      identity.socialGithub,
+      identity.socialLinkedin,
+      identity.socialFacebook,
+      identity.socialX,
+    ].filter((x): x is string => Boolean(x)),
+  };
 
   return (
     <div className="flex flex-col">
-      {sections.showHero ? (
-        <Hero identity={identity} />
-      ) : null}
+      {sections.showHero ? <Hero identity={identity} /> : null}
+
+      {/* Featured Work — pulled from the same listPublishedProjects()
+          query the /projects page uses. Renders nothing if empty.
+          Wrapped in <Suspense> so it streams independently of the
+          page's main data fetch (and so the test renderer can
+          resolve it through a Suspense boundary). */}
+      <Suspense fallback={null}>
+        <FeaturedProjects limit={3} />
+      </Suspense>
+
+      {/* Currently Building — promoted from inside AboutSection. */}
+      <CurrentlyBuildingSection experiences={experiences} />
 
       {sections.showAbout ? <AboutSection identity={identity} /> : null}
+
+      <ApproachSection />
+
+      <DifferentiationSection />
 
       {sections.showExperience ? (
         <section
@@ -91,6 +137,15 @@ export default async function HomePage() {
       ) : null}
 
       {sections.showContact ? <ContactSection identity={identity} /> : null}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
     </div>
   );
 }

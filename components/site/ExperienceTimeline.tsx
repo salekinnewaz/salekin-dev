@@ -135,20 +135,38 @@ export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
       />
 
       <ol className="flex flex-col gap-6 sm:gap-8">
-        {experiences.map((exp, i) => (
-          <li key={exp.id} className="relative pl-12 sm:pl-16">
-            {/* Timeline dot */}
-            <span
-              className="timeline-dot absolute left-[12px] top-7 sm:left-[19px]"
-              aria-hidden="true"
-            />
-            <ExperienceCard
-              experience={exp}
-              isLast={i === experiences.length - 1}
-              index={i + 1}
-            />
-          </li>
-        ))}
+        {experiences.map((exp, i) => {
+          const startYear = exp.startDate.getUTCFullYear();
+          return (
+            <li
+              key={exp.id}
+              className="relative flex flex-col gap-2 pl-12 sm:flex-row sm:items-start sm:gap-4 sm:pl-16"
+            >
+              {/* Timeline dot — sits on the vertical line, vertically
+                  aligned to the title row of the card. */}
+              <span
+                className="timeline-dot absolute left-[12px] top-7 sm:left-[19px]"
+                aria-hidden="true"
+              />
+              {/* Year marker — its own column to the right of the dot.
+                  Right-aligned in a fixed width so the digits line up
+                  vertically (a tiny extra axis the reader's eye can use). */}
+              <span
+                aria-hidden="true"
+                className="select-none font-mono text-sm font-semibold text-accent-2 sm:absolute sm:left-12 sm:top-7 sm:w-10 sm:text-right sm:text-xs"
+              >
+                {startYear}
+              </span>
+              <div className="flex-1 sm:pl-16">
+                <ExperienceCard
+                  experience={exp}
+                  isLast={i === experiences.length - 1}
+                  index={i + 1}
+                />
+              </div>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

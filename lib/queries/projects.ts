@@ -115,6 +115,36 @@ export async function getFeaturedProjects(
   return rows.map(toCard);
 }
 
+/**
+ * Featured projects for the home page, with an honest fallback when
+ * the admin hasn't flagged anything yet. Returns up to `limit` rows:
+ *   - first: anything with featured=true (ordered by featuredOrder)
+ *   - then:  fill the remaining slots with the most recent published
+ *            projects, so the home page never looks empty just because
+ *            curation hasn't happened yet.
+ * No fabricated data — if zero projects are published, the section
+ * hides itself.
+ */
+export async function getHomepageProjects(
+  limit = 3,
+): Promise<ProjectCard[]> {
+  const safeLimit = Math.max(1, Math.floor(limit));
+  const featured = await getFeaturedProjects(safeLimit);
+  if (featured.length >= safeLimit) return featured;
+
+  const seenIds = new Set(featured.map((p) => p.id));
+  const fillers = await db.project.findMany({
+    where: {
+      publishedAt: { not: null },
+      id: seenIds.size > 0 ? { notIn: Array.from(seenIds) } : undefined,
+    },
+    orderBy: { publishedAt: 'desc' },
+    take: safeLimit - featured.length,
+    select: cardSelect,
+  });
+  return [...featured, ...fillers.map(toCard)];
+}
+
 /** Single project by URL slug. Returns null if not found. */
 export async function getProjectBySlug(
   slug: string,

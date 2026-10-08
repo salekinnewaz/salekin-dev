@@ -2,47 +2,74 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { listPublishedProjects } from '@/lib/queries/projects';
 import { ProjectCard } from '@/components/site/ProjectCard';
-import { SectionDivider } from '@/components/site/SectionDivider';
 
 export const metadata: Metadata = {
   title: 'Projects',
   description:
-    'A small archive of things I have built — full-stack apps, internal tools, and freelance client work.',
+    'Case studies of full-stack apps, internal tools, and freelance work I have built and shipped.',
 };
 
 /**
- * Projects index.
+ * Projects index — the case-studies landing page.
  *
- * Pulls published projects from the DB and renders them as a responsive
- * grid of <ProjectCard> tiles. Each card already does its own hover lift
- * + gradient cover, so the page-level chrome stays quiet: just a
- * divider, a display heading, a count, and the grid.
- *
- * The empty state is intentional — a fresh install (no seed projects)
- * should still feel like a real page rather than a broken route.
+ * The header reads as a small editorial brief: who built this, what
+ * kind of work is here, and a count. The grid is the same responsive
+ * 1/2/3-col layout. Below the grid we surface a quick "filter by
+ * stack" chip row derived from the actual project data — no fake
+ * categories, just a useful "jump to" affordance.
  */
 export default async function ProjectsPage() {
   const projects = await listPublishedProjects();
   const count = projects.length;
 
+  // Distinct tech tags, sorted by frequency then alphabetical. Used
+  // for the filter chip row; never invented.
+  const tagCounts = new Map<string, number>();
+  for (const p of projects) {
+    for (const tag of p.techStack) {
+      tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+    }
+  }
+  const topTags = Array.from(tagCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 12)
+    .map(([t]) => t);
+
   return (
-    <div className="flex flex-col gap-10 pt-12 pb-20 sm:pt-16">
-      <header className="flex flex-col gap-4 reveal">
+    <div className="flex flex-col gap-12 pt-12 pb-20 sm:pt-16">
+      <header className="flex flex-col gap-5 reveal">
         <div className="flex items-center gap-3">
-          <span className="eyebrow">Projects</span>
+          <span className="eyebrow">Case studies</span>
           <span className="eyebrow__index">{count.toString().padStart(2, '0')}</span>
         </div>
         <h1 className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl">
           <span className="block font-mono text-accent-2">$</span>{' '}
-          <span className="block">ls ./projects</span>{' '}
+          <span className="block">ls</span>{' '}
+          <span className="block">./projects</span>{' '}
           <span className="block text-muted">--published</span>
         </h1>
         <p className="max-w-2xl text-base text-fg-2 sm:text-lg text-pretty">
-          A small archive of full-stack apps, internal tools, and freelance
-          work. Each one is a real project — pick one to see the long-form
-          write-up, repo, and live link.
+          A small archive of full-stack apps, internal tools, and
+          freelance work. Each one is a real project — pick one to see
+          the long-form write-up, repo, and live link.
         </p>
       </header>
+
+      {topTags.length > 0 ? (
+        <div
+          aria-label="Filter by stack"
+          className="flex flex-wrap items-center gap-2 reveal"
+        >
+          <span className="font-mono text-xs uppercase tracking-widest text-muted">
+            stack ·
+          </span>
+          {topTags.map((t) => (
+            <span key={t} className="tag">
+              {t}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       {count === 0 ? (
         <EmptyState />
@@ -59,7 +86,7 @@ export default async function ProjectsPage() {
 
       <nav
         aria-label="Back to home"
-        className="mt-8 flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted"
+        className="mt-4 flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted"
       >
         <Link href="/" className="hover:text-accent">
           <span aria-hidden="true">← </span>cd ..
@@ -78,8 +105,9 @@ function EmptyState() {
         <span className="text-accent-2">$</span> ls ./projects
       </span>
       <p className="max-w-prose text-base text-fg-2 text-pretty">
-        No published projects yet. New case studies are added through the
-        admin panel — they will show up here as soon as they are published.
+        No published projects yet. New case studies are added through
+        the admin panel — they will show up here as soon as they are
+        published.
       </p>
     </div>
   );

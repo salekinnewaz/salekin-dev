@@ -1,5 +1,4 @@
 import type { SiteIdentity } from '@/lib/queries/site';
-import { NowWidget } from './NowWidget';
 import { CountUpStat } from './CountUpStat';
 import { SectionDivider } from './SectionDivider';
 
@@ -7,26 +6,12 @@ type AboutSectionProps = {
   identity: SiteIdentity;
 };
 
-const DEFAULT_NOW = {
-  building:
-    'Internal tooling at Braintree — shipping fast, scrappy, and small.',
-  learning: 'Distributed systems and Postgres internals.',
-  reading: '"Designing Data-Intensive Applications" — again.',
-};
-
 /**
- * About panel: pull-quote, bio paragraph, "Currently" trio with a live
- * UTC+6 clock, then the count-up stats row.
+ * About panel: pull-quote, bio paragraph, then the count-up stats row.
  *
- * The "Currently" trio replaces the original "wall of bio" with three
- * cards that each answer a different question a hiring manager asks:
- *   - what are you shipping right now?
- *   - what are you learning right now?
- *   - what are you reading right now?
- *
- * The first card has a live ticking clock, so the section visibly
- * updates while the page sits there — the same trick Linear and
- * Vercel use to make their sites feel "alive."
+ * The "Currently building / learning / reading" trio that used to live
+ * here has been promoted to its own `CurrentlyBuildingSection` further
+ * up the page, so a recruiter's eye doesn't have to jump around.
  */
 export function AboutSection({ identity }: AboutSectionProps) {
   const bio = identity.aboutBio;
@@ -57,12 +42,6 @@ export function AboutSection({ identity }: AboutSectionProps) {
           ) : (
             <p className="text-sm text-muted">No bio available.</p>
           )}
-
-          <NowWidget
-            building={DEFAULT_NOW.building}
-            learning={DEFAULT_NOW.learning}
-            reading={DEFAULT_NOW.reading}
-          />
 
           <div className="grid grid-cols-3 gap-6 border-t border-border pt-6 reveal-stagger">
             <CountUpStat value={5} suffix="+" tone="accent" label="Years coding" />

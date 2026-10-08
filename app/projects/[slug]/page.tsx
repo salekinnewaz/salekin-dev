@@ -6,9 +6,10 @@ import {
   listPublishedProjects,
 } from '@/lib/queries/projects';
 import { ProjectCard } from '@/components/site/ProjectCard';
+import { ProjectHero } from '@/components/site/ProjectHero';
 import { ProjectMarkdown } from '@/components/site/ProjectMarkdown';
-import { Pill } from '@/components/site/Pill';
-import { SectionDivider } from '@/components/site/SectionDivider';
+import { ProjectToc } from '@/components/site/ProjectToc';
+import { env } from '@/lib/env';
 
 type Params = { slug: string };
 
@@ -26,9 +27,16 @@ export async function generateMetadata({
     title: project.title,
     description: project.description,
     openGraph: {
+      type: 'article',
       title: project.title,
       description: project.description,
       ...(project.imageUrl ? { images: [{ url: project.imageUrl }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: project.title,
+      description: project.description,
+      ...(project.imageUrl ? { images: [project.imageUrl] } : {}),
     },
   };
 }
@@ -36,11 +44,10 @@ export async function generateMetadata({
 /**
  * Long-form project page.
  *
- *   - Eyebrow + back link
- *   - Hero: title + tagline + tech pills + repo/live CTAs
- *   - Cover (16:9 with deterministic gradient fallback)
- *   - Body rendered by the safe <ProjectMarkdown> renderer
- *   - "More projects" rail of up to 3 siblings
+ *   - ProjectHero (breadcrumb, slug, title, description, tech stack, links)
+ *   - Cover image
+ *   - Two-column body: ProjectMarkdown + sticky ProjectToc
+ *   - More-projects rail of up to 3 siblings
  *
  * `notFound()` (404) when the slug doesn't resolve — so bad URLs don't
  * silently render an empty shell.
@@ -57,90 +64,38 @@ export default async function ProjectSlugPage({
   const all = await listPublishedProjects();
   const more = all.filter((p) => p.slug !== project.slug).slice(0, 3);
 
-  const publishedLabel = project.publishedAt
-    ? new Date(project.publishedAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-      })
+  // JSON-LD Article schema for SEO. Only emit when the project has
+  // enough information to be meaningful (title + description).
+  const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
+  const jsonLd: Record<string, unknown> | null = project.description
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: project.title,
+        description: project.description,
+        ...(project.imageUrl ? { image: project.imageUrl } : {}),
+        ...(project.publishedAt
+          ? { datePublished: new Date(project.publishedAt).toISOString() }
+          : {}),
+        ...(project.updatedAt
+          ? { dateModified: new Date(project.updatedAt).toISOString() }
+          : {}),
+        mainEntityOfPage: `${siteUrl}/projects/${project.slug}`,
+        ...(project.repoUrl ? { sameAs: project.repoUrl } : {}),
+      }
     : null;
 
   return (
     <article className="flex flex-col gap-12 pt-12 pb-20 sm:pt-16">
-      {/* Header / breadcrumb */}
-      <header className="flex flex-col gap-5 reveal">
-        <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted">
-          <Link href="/projects" className="hover:text-accent">
-            <span aria-hidden="true">← </span>ls ..
-          </Link>
-          {publishedLabel ? (
-            <>
-              <span aria-hidden="true">/</span>
-              <time dateTime={new Date(project.publishedAt!).toISOString()}>
-                {publishedLabel}
-              </time>
-            </>
-          ) : null}
-        </div>
-
-        <SectionDivider name={project.slug} trailing="// case study" />
-
-        <h1 className="heading-display heading-gradient text-4xl sm:text-5xl lg:text-6xl">
-          {project.title}
-        </h1>
-
-        {project.description ? (
-          <p className="max-w-3xl text-lg leading-relaxed text-fg-2 sm:text-xl text-pretty">
-            {project.description}
-          </p>
-        ) : null}
-
-        {project.techStack.length > 0 ? (
-          <ul className="flex flex-wrap gap-2">
-            {project.techStack.map((tag) => (
-              <li key={tag}>
-                <Pill>{tag}</Pill>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          {project.liveUrl ? (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary magnetic"
-            >
-              View live
-              <span aria-hidden="true">↗</span>
-            </a>
-          ) : null}
-          {project.repoUrl ? (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline magnetic"
-            >
-              Source
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-              </svg>
-            </a>
-          ) : null}
-        </div>
-      </header>
+      <ProjectHero
+        slug={project.slug}
+        title={project.title}
+        description={project.description}
+        techStack={project.techStack}
+        publishedAt={project.publishedAt}
+        repoUrl={project.repoUrl}
+        liveUrl={project.liveUrl}
+      />
 
       {/* Cover */}
       <div
@@ -154,6 +109,7 @@ export default async function ProjectSlugPage({
             alt=""
             className="h-full w-full object-cover"
             loading="lazy"
+            decoding="async"
           />
         ) : (
           <svg
@@ -170,8 +126,16 @@ export default async function ProjectSlugPage({
                 x2="1"
                 y2="1"
               >
-                <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.55" />
-                <stop offset="100%" stopColor="var(--color-accent-2)" stopOpacity="0.55" />
+                <stop
+                  offset="0%"
+                  stopColor="var(--color-accent)"
+                  stopOpacity="0.55"
+                />
+                <stop
+                  offset="100%"
+                  stopColor="var(--color-accent-2)"
+                  stopOpacity="0.55"
+                />
               </linearGradient>
             </defs>
             <rect width="320" height="180" fill={`url(#pd-${project.id})`} />
@@ -188,13 +152,17 @@ export default async function ProjectSlugPage({
         )}
       </div>
 
-      {/* Body */}
-      <section
-        className="mx-auto w-full max-w-3xl"
-        data-testid="project-body"
-      >
-        <ProjectMarkdown source={project.body} />
-      </section>
+      {/* Two-column body. Body on the left, sticky TOC on the right
+          (only when the body has 2+ h2 headings). */}
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_14rem]">
+        <section
+          className="mx-auto w-full max-w-3xl"
+          data-testid="project-body"
+        >
+          <ProjectMarkdown source={project.body} />
+        </section>
+        <ProjectToc markdown={project.body} />
+      </div>
 
       {/* More projects */}
       {more.length > 0 ? (
@@ -214,6 +182,13 @@ export default async function ProjectSlugPage({
             ))}
           </div>
         </section>
+      ) : null}
+
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       ) : null}
     </article>
   );

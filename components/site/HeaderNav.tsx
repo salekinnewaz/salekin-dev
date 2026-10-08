@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   NAV_SECTIONS,
@@ -20,14 +19,18 @@ type Props = {
  * Centered pill navigation. The active link gets a sliding gradient
  * background that animates between sections as the user scrolls.
  * Collapses to a hamburger drawer on small screens.
+ *
+ * When the user is on a non-home page, clicking a section pill
+ * navigates back to `/` with the section as a hash so the in-page
+ * scroll-spy still highlights correctly.
  */
 export function HeaderNav({ visible }: Props) {
   const active = useActiveSection();
   const pathname = usePathname();
+  const onHome = pathname === '/';
   const items = NAV_SECTIONS.filter((s) => visible[s.id]);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const onProjectsRoute = pathname?.startsWith('/projects') ?? false;
 
   // Shrink the pill slightly after the user has scrolled away from the top
   // — small detail, big polish.
@@ -38,10 +41,13 @@ export function HeaderNav({ visible }: Props) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close the mobile drawer when navigating to a section.
+  // Close the mobile drawer when the active section changes (i.e. the
+  // user navigated). Don't close on the non-home page where `active`
+  // doesn't update — keep the drawer state under the user's control.
   useEffect(() => {
-    setOpen(false);
-  }, [active]);
+    if (onHome) setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, onHome]);
 
   // Lock body scroll when the drawer is open.
   useEffect(() => {
@@ -74,11 +80,13 @@ export function HeaderNav({ visible }: Props) {
       >
         <ul className="pill-nav__list" role="list">
           {items.map((s) => {
-            const isActive = active === s.id;
+            const isActive = active === s.id && onHome;
             return (
               <li key={s.id} className="pill-nav__item">
                 <a
-                  href={`#${s.id}`}
+                  // On non-home pages, route to home with the section
+                  // hash so the in-page scroll-spy can take over there.
+                  href={onHome ? `#${s.id}` : `/#${s.id}`}
                   className="pill-nav__link"
                   data-active={isActive || undefined}
                   aria-current={isActive ? 'location' : undefined}
@@ -92,21 +100,6 @@ export function HeaderNav({ visible }: Props) {
               </li>
             );
           })}
-          {/* Route link: a real /projects page, not a hash anchor.
-             Highlights when the user is on any /projects/* route. */}
-          <li className="pill-nav__item">
-            <Link
-              href="/projects"
-              className="pill-nav__link"
-              data-active={onProjectsRoute || undefined}
-              aria-current={onProjectsRoute ? 'page' : undefined}
-            >
-              {onProjectsRoute ? (
-                <span aria-hidden="true" className="pill-nav__indicator" />
-              ) : null}
-              <span className="pill-nav__label">Projects</span>
-            </Link>
-          </li>
         </ul>
       </nav>
 
@@ -164,7 +157,7 @@ export function HeaderNav({ visible }: Props) {
           </div>
           <ul className="drawer__list" role="list">
             {items.map((s, i) => {
-              const isActive = active === s.id;
+              const isActive = active === s.id && onHome;
               return (
                 <li
                   key={s.id}
@@ -172,7 +165,7 @@ export function HeaderNav({ visible }: Props) {
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
                   <a
-                    href={`#${s.id}`}
+                    href={onHome ? `#${s.id}` : `/#${s.id}`}
                     className="drawer__link"
                     data-active={isActive || undefined}
                     aria-current={isActive ? 'location' : undefined}
@@ -192,26 +185,6 @@ export function HeaderNav({ visible }: Props) {
                 </li>
               );
             })}
-            <li
-              className="drawer__item"
-              style={{ animationDelay: `${items.length * 40}ms` }}
-            >
-              <Link
-                href="/projects"
-                className="drawer__link"
-                data-active={onProjectsRoute || undefined}
-                aria-current={onProjectsRoute ? 'page' : undefined}
-                onClick={() => setOpen(false)}
-              >
-                <span className="drawer__index" aria-hidden="true">
-                  0{items.length + 1}
-                </span>
-                <span className="drawer__label">Projects</span>
-                {onProjectsRoute ? (
-                  <span className="drawer__dot" aria-hidden="true" />
-                ) : null}
-              </Link>
-            </li>
           </ul>
           <div className="drawer__foot">
             <span className="drawer__hint">tap a section to jump</span>

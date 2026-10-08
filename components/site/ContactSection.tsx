@@ -30,13 +30,34 @@ export function ContactSection({ identity }: ContactSectionProps) {
           <SectionDivider name="contact" trailing="// POST /messages" />
           <h2 className="heading-display text-4xl sm:text-5xl">
             <span className="font-mono text-accent-2">$</span>{' '}
-            <span className="text-fg">curl -X POST</span>{' '}
-            <span className="heading-gradient">salekin.dev</span>
+            <span className="text-fg">open</span>{' '}
+            <span className="text-muted">--new</span>{' '}
+            <span className="heading-gradient">/contact</span>
           </h2>
           <p className="max-w-md text-base leading-relaxed text-fg-2">
-            Have a project, a role, or just want to talk shop? Drop a message
-            below — I read everything and reply within a day or two.
+            Have a project, a role, or just want to talk shop? Drop a
+            message below — I read everything and reply within a day or
+            two.
           </p>
+
+          <ul
+            aria-label="Open to"
+            className="flex flex-wrap items-center gap-2"
+          >
+            <li className="font-mono text-xs uppercase tracking-widest text-muted">
+              open to ·
+            </li>
+            {[
+              'full-time',
+              'contract',
+              'consulting',
+              'open source',
+            ].map((kind) => (
+              <li key={kind}>
+                <span className="tag">{kind}</span>
+              </li>
+            ))}
+          </ul>
 
           <ul className="mt-2 flex flex-col gap-3">
               {identity.contactEmail ? (

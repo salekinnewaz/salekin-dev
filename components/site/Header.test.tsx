@@ -1,6 +1,11 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+}));
+
 import { Header } from './Header';
 
 vi.mock('@/lib/queries/site', () => ({

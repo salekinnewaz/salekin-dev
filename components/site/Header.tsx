@@ -20,12 +20,14 @@ export async function Header() {
   const initials = identity.siteInitials || 'SN';
 
   // Hide links for sections turned off in admin settings.
+  // `education` is intentionally not surfaced in the top nav — it's a
+  // small footer-style row, not a primary destination.
   const visibleSections = {
     hero: sections.showHero,
+    work: sections.showExperience, // work section piggybacks on experience toggle for now
     about: sections.showAbout,
     experience: sections.showExperience,
     skills: sections.showSkills,
-    education: sections.showEducation,
     contact: sections.showContact,
   };
 

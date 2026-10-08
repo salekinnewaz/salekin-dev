@@ -5,13 +5,18 @@ import { useEffect, useState } from 'react';
 /**
  * Section IDs that the scroll-spy tracks. Kept in sync with SideNav
  * and HeaderNav so they highlight the same section at the same time.
+ *
+ * Order here = order rendered on the page. We surface "Work" (the
+ * case studies section) ahead of the static experience section, and
+ * demote Education out of the top-nav since it's a small footer-style
+ * row. The order below is what both header and side nav reflect.
  */
 export const NAV_SECTIONS = [
   { id: 'hero', label: 'Home' },
+  { id: 'work', label: 'Work' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'skills', label: 'Stack' },
   { id: 'about', label: 'About' },
-  { id: 'experience', label: 'Work' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'education', label: 'Education' },
   { id: 'contact', label: 'Contact' },
 ] as const;
 

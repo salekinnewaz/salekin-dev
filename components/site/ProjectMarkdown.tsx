@@ -63,7 +63,10 @@ function BlockView({ block }: { block: Block }) {
       );
     case 'h2':
       return (
-        <h2 className="heading-display mt-4 text-2xl text-fg sm:text-3xl">
+        <h2
+          id={slugify(block.text)}
+          className="heading-display mt-4 text-2xl text-fg sm:text-3xl scroll-mt-28"
+        >
           {block.text}
         </h2>
       );
@@ -307,3 +310,21 @@ function parseInline(text: string): Inline[] {
 
 // Re-export cn so consumer doesn't have to import separately
 export const _cn = cn;
+
+/**
+ * Slugify a heading text to a stable DOM id. Lowercase, strip
+ * non-alphanumerics, collapse whitespace to dashes. Used by the TOC
+ * and by the heading elements themselves — they must agree, so the
+ * slug logic lives here once and is exported as a helper.
+ */
+export function slugifyHeading(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+function slugify(text: string): string {
+  return slugifyHeading(text);
+}

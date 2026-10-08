@@ -1074,6 +1074,50 @@
   }
 }
 
+/* ─── Terminal easter-egg overlay ──────────────────────────────── */
+
+.terminal-overlay {
+  animation: terminal-overlay-in 180ms ease-out;
+}
+.terminal-overlay__panel {
+  animation: terminal-panel-in 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes terminal-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes terminal-panel-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .terminal-overlay,
+  .terminal-overlay__panel {
+    animation: none;
+  }
+}
+.terminal-trigger {
+  box-shadow:
+    0 10px 30px -10px color-mix(in oklab, var(--color-accent) 40%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #ffffff 6%, transparent);
+}
+
+/* ─── Editorial cards (approach / differentiation) ─────────────── */
+
+.approach-card,
+.differentiation-card {
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+.approach-card:hover,
+.differentiation-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-strong);
+  background-color: var(--color-card-hover);
+}
+
 /* ─── Reduced motion ───────────────────────────────────────────── */
 /*   Pause infinite animations; flatten reveals to instant visible;   */
 /*   skip mesh drift and marquee scroll. Respects user OS preference. */
