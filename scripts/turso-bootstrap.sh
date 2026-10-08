@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# Provision a Turso database, push the Prisma schema, and seed it.
+# Manual Turso provisioning path.
+#
+# The Vercel Marketplace integration (see DEPLOY.md) is the recommended
+# way to provision a Turso DB for this project — it sets env vars
+# automatically, rotates the OIDC token, and shows usage in the Vercel
+# dashboard. This script is the alternative path for cases where the
+# integration isn't an option (e.g. local-only dev, or a different
+# deployment target).
+#
 # Requires: `turso auth login` already completed by the user.
 #
 # Usage:  pnpm turso:bootstrap
@@ -7,11 +15,10 @@
 # Side effects:
 #   - Creates a Turso DB named "salekin-dev" in the closest region
 #   - Creates a non-expiring auth token for it
-#   - Writes .env.local with TURSO_DATABASE_URL + TURSO_AUTH_TOKEN + DATABASE_URL
 #   - Pushes the Prisma schema and seeds it
 #
-# Prints the resulting TURSO_DATABASE_URL + TURSO_AUTH_TOKEN to stdout so
-# they can be copy-pasted into the Vercel dashboard env vars.
+# Prints the resulting TURSO_DATABASE_URL + TURSO_AUTH_TOKEN at the end
+# so they can be copy-pasted into the Vercel dashboard env vars.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -19,7 +26,9 @@ cd "$(dirname "$0")/.."
 DB_NAME="salekin-dev"
 
 if ! command -v turso >/dev/null 2>&1; then
-  echo "✗ turso CLI not found. Install: brew install tursodatabase/tap/turso" >&2
+  echo "✗ turso CLI not found." >&2
+  echo "  Install via Homebrew:  brew install tursodatabase/tap/turso" >&2
+  echo "  Or download from:      https://github.com/tursodatabase/turso-cli/releases" >&2
   exit 1
 fi
 
