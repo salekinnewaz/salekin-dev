@@ -29,11 +29,16 @@ describe('HeaderNav', () => {
     }
   });
 
-  it('renders a link for every visible section', () => {
+  it('renders a link for every visible section (except hero, which is the brand)', () => {
     render(<HeaderNav visible={allVisible} />);
-    for (const label of ['Home', 'Work', 'Experience', 'Stack', 'About', 'Contact']) {
+    // "Home" is intentionally NOT in the pill nav — the brand mark on
+    // the left of the header already serves as the "go home" link, and
+    // rendering both would visually mark two items as the current page
+    // on `/`.
+    for (const label of ['Work', 'Experience', 'Stack', 'About', 'Contact']) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
+    expect(screen.queryByRole('link', { name: /^home$/i })).toBeNull();
   });
 
   it('hides links for sections turned off in admin settings', () => {
@@ -71,18 +76,20 @@ describe('HeaderNav', () => {
 
   it('clicking a desktop pill moves the active highlight to that section', () => {
     render(<HeaderNav visible={allVisible} />);
-    // Initially Home is active.
-    const home = screen.getByRole('link', { name: /^home/i });
-    expect(home.dataset.active).toBe('true');
-    expect(home.querySelector('.pill-nav__indicator')).toBeInTheDocument();
+    // "Home" is intentionally not in the pill nav (the brand mark
+    // serves as the "go home" link). No pill is active until the
+    // user clicks one or the scroll-spy IO fires.
+    const work = screen.getAllByRole('link', { name: /^work$/i })[0]!;
+    expect(work.dataset.active).toBeUndefined();
+    expect(work.querySelector('.pill-nav__indicator')).not.toBeInTheDocument();
 
     const about = screen.getByRole('link', { name: /^about$/i });
     expect(about.dataset.active).toBeUndefined();
     fireEvent.click(about);
     expect(about.dataset.active).toBe('true');
     expect(about.querySelector('.pill-nav__indicator')).toBeInTheDocument();
-    expect(home.dataset.active).toBeUndefined();
-    expect(home.querySelector('.pill-nav__indicator')).not.toBeInTheDocument();
+    expect(work.dataset.active).toBeUndefined();
+    expect(work.querySelector('.pill-nav__indicator')).not.toBeInTheDocument();
   });
 
   it('honours a primed active section from the URL hash', () => {

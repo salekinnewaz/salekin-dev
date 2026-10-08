@@ -29,7 +29,12 @@ export function HeaderNav({ visible }: Props) {
   const active = useActiveSection();
   const pathname = usePathname();
   const onHome = pathname === '/';
-  const items = NAV_SECTIONS.filter((s) => visible[s.id]);
+  // Skip the "hero" entry: the brand mark in the header already serves
+  // as the "go home" link, and rendering both would visually mark two
+  // items as the current page on `/`.
+  const items = NAV_SECTIONS.filter(
+    (s) => s.id !== 'hero' && visible[s.id],
+  );
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
