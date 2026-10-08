@@ -63,18 +63,23 @@ export function ProfilePhoto({
         </defs>
 
         {/* Photo, clipped to a circle.
-            The subject's head sits in the upper-right of the source
-            image (portrait has empty wall space on the left), so we
-            anchor the slice to the top and offset slightly toward
-            the right — keeps the head inside the circular crop on
-            every breakpoint. */}
+            The source is 800×800 with the subject's head in the
+            upper-right (portrait has empty wall space on the left).
+            To frame the head inside the circle with breathing room
+            on every breakpoint we:
+              1. scale the image to 220×220 (slightly larger than the
+                 200×200 viewBox so it always overflows),
+              2. offset it by -40, -5 to recenter the head inside the
+                 circle, and
+              3. use preserveAspectRatio="meet" so nothing is sliced
+                 off — the circle clip handles the corners. */}
         <image
           href={src}
-          x="0"
-          y="0"
-          width="200"
-          height="200"
-          preserveAspectRatio="xMaxYMin slice"
+          x="-40"
+          y="-5"
+          width="220"
+          height="220"
+          preserveAspectRatio="xMidYMid meet"
           clipPath="url(#pf-clip)"
         />
         {/* Soft top-left highlight to match the previous glassy feel */}
