@@ -42,6 +42,7 @@ export function Hero({ identity }: HeroProps) {
   return (
     <section
       id="hero"
+      tabIndex={-1}
       className="section-anchor relative flex min-h-[88vh] flex-col justify-center pb-16 pt-12 sm:pt-16"
     >
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto]">

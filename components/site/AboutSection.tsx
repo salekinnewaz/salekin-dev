@@ -19,6 +19,7 @@ export function AboutSection({ identity }: AboutSectionProps) {
   return (
     <section
       id="about"
+      tabIndex={-1}
       className="section-anchor relative py-20 sm:py-28"
     >
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_3fr]">

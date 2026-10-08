@@ -82,6 +82,7 @@ export default async function HomePage() {
       {sections.showExperience ? (
         <section
           id="experience"
+          tabIndex={-1}
           className="section-anchor relative py-20 sm:py-28"
         >
           <div className="flex flex-col gap-4 reveal">
@@ -100,6 +101,7 @@ export default async function HomePage() {
       {sections.showSkills ? (
         <section
           id="skills"
+          tabIndex={-1}
           className="section-anchor relative py-20 sm:py-28"
         >
           <div className="flex flex-col gap-4 reveal">

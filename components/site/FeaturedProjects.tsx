@@ -26,6 +26,7 @@ export async function FeaturedProjects({ limit = 3 }: Props) {
   return (
     <section
       id="work"
+      tabIndex={-1}
       className="section-anchor relative py-20 sm:py-28"
     >
       <div className="flex flex-col gap-4 reveal">

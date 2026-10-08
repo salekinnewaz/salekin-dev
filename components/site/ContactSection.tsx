@@ -23,6 +23,7 @@ export function ContactSection({ identity }: ContactSectionProps) {
   return (
     <section
       id="contact"
+      tabIndex={-1}
       className="section-anchor relative py-20 sm:py-28"
     >
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">

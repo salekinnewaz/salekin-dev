@@ -5,6 +5,7 @@ import { BackgroundLayers } from '@/components/site/BackgroundLayers';
 import { SideNav } from '@/components/site/SideNav';
 import { RevealObserver } from '@/components/site/RevealObserver';
 import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
+import { HashScrollController } from '@/components/site/HashScrollController';
 import { getSiteSettings } from '@/lib/queries/site';
 import { env } from '@/lib/env';
 import './globals.css';
@@ -193,6 +194,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <Header />
         <SideNav />
         <RevealObserver />
+        <HashScrollController />
         <TerminalEasterEgg />
         <main
           id="main"
