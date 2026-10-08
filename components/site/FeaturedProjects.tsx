@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getHomepageProjects } from '@/lib/queries/projects';
-import { SectionDivider } from './SectionDivider';
 import { Pill } from './Pill';
 
 type Props = {
@@ -9,11 +8,16 @@ type Props = {
 };
 
 /**
- * Home-page "Featured Work" — 1 large hero project card plus up to 2
- * smaller cards. Falls back to the most recent published projects if
- * no `featured` flag is set in the admin yet, so the section is never
- * a blank placeholder. If nothing is published at all, the section
- * renders nothing at all.
+ * Home-page "Featured Work" — the visual centerpiece of the site.
+ *
+ * One large card on the left, two smaller cards stacked on the right.
+ * Plain "Featured Work" heading (no terminal prefix). No index badges,
+ * no view-all rail, no `ls --featured` heading.
+ *
+ * Falls back to the most recent published projects if no `featured`
+ * flag is set in admin yet, so the section is never a blank
+ * placeholder. If nothing is published at all, the section renders
+ * nothing.
  */
 export async function FeaturedProjects({ limit = 3 }: Props) {
   const projects = await getHomepageProjects(limit);
@@ -29,51 +33,27 @@ export async function FeaturedProjects({ limit = 3 }: Props) {
       tabIndex={-1}
       className="section-anchor relative py-20 sm:py-28"
     >
-      <div className="flex flex-col gap-4 reveal">
-        <SectionDivider name="work" trailing="// case studies" />
-        <h2 className="heading-display text-4xl sm:text-5xl">
-          <span className="font-mono text-accent-2">$</span>{' '}
-          <span className="text-fg">ls</span>{' '}
-          <span className="heading-gradient">./projects --featured</span>
-        </h2>
-        <p className="max-w-2xl text-base leading-relaxed text-fg-2 sm:text-lg text-pretty">
-          <span className="font-mono text-accent-2">{'> '}</span>
-          A small archive of full-stack apps, internal tools, and
-          freelance work. Each one is a real project — pick one to see
-          the long-form write-up, repo, and live link.
-        </p>
+      <div className="mb-12 flex flex-col gap-3 reveal">
+        <span className="font-mono text-xs uppercase tracking-widest text-muted">
+          Selected work
+        </span>
+        <h2 className="heading-display text-4xl sm:text-5xl">Featured Work</h2>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3 reveal-stagger">
-        {/* Primary card — full width on its own row, then a 2-up grid. */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 reveal-stagger">
         <FeaturedCard
           project={primary}
-          index={1}
           size="lg"
-          className="lg:col-span-3"
+          className="lg:col-span-2"
         />
 
-        {rest.map((p, i) => (
+        {rest.map((p) => (
           <FeaturedCard
             key={p.id}
             project={p}
-            index={i + 2}
             className="lg:col-span-1"
           />
         ))}
-      </div>
-
-      <div className="mt-8 flex items-center justify-between reveal">
-        <p className="font-mono text-xs uppercase tracking-widest text-muted">
-          {String(projects.length).padStart(2, '0')}
-          <span className="text-accent-2"> · </span>
-          {projects.length === 1 ? 'entry' : 'entries'}
-        </p>
-        <Link href="/projects" className="btn-outline magnetic">
-          <span aria-hidden="true" className="font-mono text-fg-2/80">$</span>
-          view all
-          <span aria-hidden="true">→</span>
-        </Link>
       </div>
     </section>
   );
@@ -81,14 +61,12 @@ export async function FeaturedProjects({ limit = 3 }: Props) {
 
 type FeaturedCardProps = {
   project: import('@/lib/queries/projects').ProjectCard;
-  index: number;
   size?: 'lg' | 'sm';
   className?: string;
 };
 
 function FeaturedCard({
   project,
-  index,
   size = 'sm',
   className = '',
 }: FeaturedCardProps) {
@@ -102,7 +80,7 @@ function FeaturedCard({
     >
       <div
         className={`relative w-full overflow-hidden ${
-          isLg ? 'aspect-[21/9]' : 'aspect-[16/9]'
+          isLg ? 'aspect-[16/9]' : 'aspect-[4/3]'
         }`}
       >
         {imageUrl ? (
@@ -122,48 +100,23 @@ function FeaturedCard({
               className="h-full w-full opacity-90"
             >
               <defs>
-                <linearGradient
-                  id={`fc-${index}`}
-                  x1="0"
-                  y1="0"
-                  x2="1"
-                  y2="1"
-                >
+                <linearGradient id={`fc-${slug}`} x1="0" y1="0" x2="1" y2="1">
                   <stop
                     offset="0%"
                     stopColor="var(--color-accent)"
-                    stopOpacity="0.55"
+                    stopOpacity="0.45"
                   />
                   <stop
                     offset="100%"
                     stopColor="var(--color-accent-2)"
-                    stopOpacity="0.55"
+                    stopOpacity="0.45"
                   />
                 </linearGradient>
               </defs>
-              <rect width="320" height="180" fill={`url(#fc-${index})`} />
-              <line
-                x1="60"
-                y1="140"
-                x2="240"
-                y2="40"
-                stroke="rgba(255,255,255,0.18)"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
+              <rect width="320" height="180" fill={`url(#fc-${slug})`} />
             </svg>
           </div>
         )}
-
-        <span
-          aria-hidden="true"
-          className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-2.5 py-1 font-mono text-[10px] tracking-widest text-white backdrop-blur"
-        >
-          <span className="text-accent-2">
-            [{String(index).padStart(2, '0')}]
-          </span>
-          {isLg ? 'case study' : 'shipped'}
-        </span>
       </div>
 
       <div
@@ -171,21 +124,13 @@ function FeaturedCard({
           isLg ? 'p-6 sm:p-8' : 'p-5'
         }`}
       >
-        <div className="flex items-baseline justify-between gap-4">
-          <h3
-            className={`heading-display text-fg transition-colors group-hover:text-accent ${
-              isLg ? 'text-3xl sm:text-4xl' : 'text-xl'
-            }`}
-          >
-            {title}
-          </h3>
-          <span
-            aria-hidden="true"
-            className="font-mono text-xs text-accent opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            cat →
-          </span>
-        </div>
+        <h3
+          className={`heading-display text-fg transition-colors group-hover:text-accent ${
+            isLg ? 'text-2xl sm:text-3xl' : 'text-lg'
+          }`}
+        >
+          {title}
+        </h3>
         {description ? (
           <p
             className={`text-fg-2 text-pretty ${
@@ -197,27 +142,17 @@ function FeaturedCard({
         ) : null}
         {techStack.length > 0 ? (
           <ul className="mt-1 flex flex-wrap gap-1.5">
-            {techStack.slice(0, isLg ? 8 : 4).map((tag) => (
+            {techStack.slice(0, isLg ? 4 : 3).map((tag) => (
               <li key={tag}>
                 <Pill>{tag}</Pill>
               </li>
             ))}
-            {techStack.length > (isLg ? 8 : 4) ? (
-              <li>
-                <Pill>+{techStack.length - (isLg ? 8 : 4)}</Pill>
-              </li>
-            ) : null}
           </ul>
         ) : null}
-        <div className="mt-1 flex items-center justify-between font-mono text-xs text-muted">
-          <span>./README.md</span>
-          <span
-            aria-hidden="true"
-            className="text-accent opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            cat →
-          </span>
-        </div>
+        <span className="mt-2 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted transition-colors group-hover:text-accent">
+          <span>view case study</span>
+          <span aria-hidden="true">→</span>
+        </span>
       </div>
     </Link>
   );

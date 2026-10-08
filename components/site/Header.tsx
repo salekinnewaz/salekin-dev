@@ -24,7 +24,7 @@ export async function Header() {
   // small footer-style row, not a primary destination.
   const visibleSections = {
     hero: sections.showHero,
-    work: sections.showExperience, // work section piggybacks on experience toggle for now
+    work: true, // Featured Work is its own section, always visible
     about: sections.showAbout,
     experience: sections.showExperience,
     skills: sections.showSkills,

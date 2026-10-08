@@ -1,6 +1,3 @@
-'use client';
-
-import { useRef, type MouseEvent } from 'react';
 import type { ExperienceItem as ExperienceItemType } from '@/lib/queries/experiences';
 
 const MONTHS = [
@@ -14,94 +11,65 @@ function formatMonthYear(date: Date): string {
 
 type ExperienceCardProps = {
   experience: ExperienceItemType;
-  isLast: boolean;
-  /** 1-based index used for the [NN] marker on the card. */
   index: number;
 };
 
-function ExperienceCard({ experience, isLast, index }: ExperienceCardProps) {
+function ExperienceCard({ experience, index }: ExperienceCardProps) {
   const { company, role, startDate, endDate, description, bullets } = experience;
   const end = endDate ? formatMonthYear(endDate) : 'present';
   const isCurrent = endDate === null;
 
-  const ref = useRef<HTMLDivElement>(null);
-
-  function onMove(e: MouseEvent<HTMLDivElement>) {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    el.style.setProperty('--mouse-x', `${x}px`);
-    el.style.setProperty('--mouse-y', `${y}px`);
-  }
-
   return (
-    <div
-      ref={ref}
-      onMouseMove={onMove}
-      className="glow-card relative p-6 sm:p-7 reveal"
-    >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+    <article className="flex flex-col gap-3 p-6 sm:p-7">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
         <div className="flex flex-col gap-1">
           <h3 className="heading-display text-xl text-fg sm:text-2xl">
-            <span className="font-mono text-sm text-accent-2">
-              [{String(index).padStart(2, '0')}]
-            </span>{' '}
             {role}
           </h3>
-          <p className="font-mono text-sm text-accent-2">
-            @ {company}
-          </p>
+          <p className="text-sm text-fg-2">{company}</p>
         </div>
-        <div className="flex items-center gap-2 sm:flex-col sm:items-end sm:gap-1">
-          <span
-            className={
-              isCurrent
-                ? 'inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-2.5 py-0.5 font-mono text-xs uppercase tracking-wider text-accent'
-                : 'font-mono text-xs uppercase tracking-wider text-muted'
-            }
-          >
-            {isCurrent ? (
-              <span className="relative inline-flex h-1.5 w-1.5">
+        <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-muted">
+          {isCurrent ? (
+            <span className="inline-flex items-center gap-1.5 text-accent">
+              <span className="relative inline-flex h-1.5 w-1.5" aria-hidden="true">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
               </span>
-            ) : null}
-            {isCurrent ? 'in progress' : 'merged'}
-          </span>
-          <p className="font-mono text-xs uppercase tracking-wider text-muted">
+              in progress
+            </span>
+          ) : null}
+          <span>
             {formatMonthYear(startDate)} — {end}
-          </p>
+          </span>
+          <span className="hidden text-muted/60 sm:inline" aria-hidden="true">
+            · {String(index).padStart(2, '0')}
+          </span>
         </div>
       </div>
 
       {description ? (
-        <p className="mt-3 text-sm leading-relaxed text-fg-2">
-          <span className="font-mono text-accent-2/80">{'> '}</span>
+        <p className="max-w-2xl text-sm leading-relaxed text-fg-2 text-pretty sm:text-base">
           {description}
         </p>
       ) : null}
 
       {bullets.length > 0 ? (
-        <ul className="mt-4 flex flex-col gap-2">
-          {bullets.map((b, i) => (
+        <ul className="mt-1 flex flex-col gap-1.5">
+          {bullets.slice(0, 2).map((b, i) => (
             <li
               key={i}
               className="flex gap-2.5 text-sm leading-relaxed text-fg-2"
             >
               <span
-                className="mt-0.5 inline-block shrink-0 font-mono text-xs text-accent"
+                className="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-accent"
                 aria-hidden="true"
-              >
-                ▸
-              </span>
+              />
               <span>{b}</span>
             </li>
           ))}
         </ul>
       ) : null}
-    </div>
+    </article>
   );
 }
 
@@ -112,57 +80,39 @@ type ExperienceTimelineProps = {
 export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
   if (experiences.length === 0) {
     return (
-      <p className="font-mono text-sm text-muted">
-        <span className="text-accent-2">$</span> git log --oneline
-        <span className="block pl-4 opacity-70">
-          # nothing to show yet
-        </span>
-      </p>
+      <p className="font-mono text-sm text-muted">No roles yet.</p>
     );
   }
 
   return (
     <div className="relative">
-      {/* Vertical timeline line with gradient */}
+      {/* Vertical timeline line — calm, low-contrast. */}
       <div
         aria-hidden="true"
-        className="absolute left-[19px] top-2 bottom-2 w-px sm:left-6"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent, var(--color-accent) 12%, var(--color-accent-2) 50%, var(--color-accent) 88%, transparent)',
-          opacity: 0.4,
-        }}
+        className="absolute left-[5px] top-3 bottom-3 w-px sm:left-[7px]"
+        style={{ backgroundColor: 'var(--color-border)' }}
       />
 
-      <ol className="flex flex-col gap-6 sm:gap-8">
+      <ol className="flex flex-col gap-10 sm:gap-12">
         {experiences.map((exp, i) => {
           const startYear = exp.startDate.getUTCFullYear();
           return (
             <li
               key={exp.id}
-              className="relative flex flex-col gap-2 pl-12 sm:flex-row sm:items-start sm:gap-4 sm:pl-16"
+              className="relative flex flex-col gap-2 pl-8 sm:pl-10"
             >
-              {/* Timeline dot — sits on the vertical line, vertically
-                  aligned to the title row of the card. */}
               <span
-                className="timeline-dot absolute left-[12px] top-7 sm:left-[19px]"
+                className="timeline-dot absolute left-0 top-7 sm:left-0.5"
                 aria-hidden="true"
               />
-              {/* Year marker — its own column to the right of the dot.
-                  Right-aligned in a fixed width so the digits line up
-                  vertically (a tiny extra axis the reader's eye can use). */}
               <span
                 aria-hidden="true"
                 className="select-none font-mono text-sm font-semibold text-accent-2 sm:absolute sm:left-12 sm:top-7 sm:w-10 sm:text-right sm:text-xs"
               >
                 {startYear}
               </span>
-              <div className="flex-1 sm:pl-16">
-                <ExperienceCard
-                  experience={exp}
-                  isLast={i === experiences.length - 1}
-                  index={i + 1}
-                />
+              <div className="sm:pl-16">
+                <ExperienceCard experience={exp} index={i + 1} />
               </div>
             </li>
           );

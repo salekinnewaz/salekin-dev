@@ -133,31 +133,27 @@ describe('HomePage', () => {
     ]);
     const ui = await HomePage();
     await renderHomePage(ui);
-    // Section headings (h2) — order-independent matches
+    // Section headings (h2) — plain editorial labels, no terminal
+    // prefixes. The seven on-page sections are: Featured Work,
+    // Experience, How I Build, Core Stack, About, Contact. Plus the
+    // h1 in the Hero.
     expect(
-      screen.getByRole('heading', { level: 2, name: /whoami/i }),
+      screen.getByRole('heading', { level: 2, name: /featured work/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /career\.log/i }),
+      screen.getByRole('heading', { level: 2, name: /where i.{0,3}ve worked/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /tech.*tool.*skill/i }),
+      screen.getByRole('heading', { level: 2, name: /how i build/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /\bman\b.*salekin/i }),
+      screen.getByRole('heading', { level: 2, name: /core stack/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /open/i }),
-    ).toBeInTheDocument(); // contact section
-    // New sections introduced by the upgrade
-    expect(
-      screen.getByRole('heading', { level: 2, name: /featured/i }),
+      screen.getByRole('heading', { level: 2, name: /a bit about me/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /now/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /principles/i }),
+      screen.getByRole('heading', { level: 2, name: /let.?s build something/i }),
     ).toBeInTheDocument();
   });
 
@@ -213,10 +209,11 @@ describe('HomePage', () => {
     ]);
     const ui = await HomePage();
     await renderHomePage(ui);
-    // "Jr. Engineer" also appears in CurrentlyBuildingSection's current
-    // role card — use getAllByText to assert presence, not uniqueness.
-    expect(screen.getAllByText('Jr. Engineer').length).toBeGreaterThan(0);
-    expect(screen.getByText('Full-Stack')).toBeInTheDocument();
+    // "Full-Stack Developer (Freelance / Inventory project)" contains
+    // "Full-Stack", and the hero role strap also contains it. Use
+    // a substring matcher so the assertion is robust to either
+    // appearance.
+    expect(screen.getAllByText(/Full-Stack/i).length).toBeGreaterThan(0);
     expect(screen.getByText('Shipped A')).toBeInTheDocument();
     expect(screen.getByText('Built inventory.')).toBeInTheDocument();
   });
@@ -242,8 +239,11 @@ describe('HomePage', () => {
     ]);
     const ui = await HomePage();
     await renderHomePage(ui);
-    // BSc/DIU should appear at least once on the page.
-    expect(screen.getAllByText('BSc').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('DIU').length).toBeGreaterThan(0);
+    // BSc/DIU should appear at least once on the page. After the
+    // refinement, the education row is a quiet line inside the
+    // About section, not a dedicated card — substring matchers keep
+    // the test robust to either placement.
+    expect(screen.getAllByText(/B\.?Sc/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/DIU/i).length).toBeGreaterThan(0);
   });
 });

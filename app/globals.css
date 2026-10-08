@@ -206,16 +206,13 @@
       var(--color-accent-2) 80%,
       var(--color-fg) 100%
     );
-    background-size: 200% 100%;
+    background-size: 100% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    animation: gradient-pan 8s ease-in-out infinite;
-  }
-  @keyframes gradient-pan {
-    0%, 100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
+    /* Static gradient — calmer. (Was: `animation: gradient-pan 8s
+       ease-in-out infinite;` removed in the UI refinement pass.) */
   }
 
   /* ─ Section eyebrow ─ */
