@@ -83,7 +83,7 @@ const DEFAULTS = {
   contact_email: '',
   contact_phone: '',
   contact_location: '',
-  cv_url: '/resume.pdf',
+  cv_url: '/Md_Salekin_Newaz.pdf',
   social_github: '',
   social_linkedin: '',
   social_facebook: '',
