@@ -51,20 +51,24 @@ export function NowWidget({ building, learning, reading }: Props) {
           key={c.label}
           className="glass-card glass-card-hover relative flex flex-col gap-2 overflow-hidden p-4"
         >
-          {/* Top-right live clock for the first card only — gives the
-              whole trio a subtle "this page is alive" signal. */}
-          {i === 0 ? (
-            <span
-              aria-hidden="true"
-              className="absolute right-3 top-3 font-mono text-[10px] tabular-nums text-muted"
-            >
-              {now || '--:--:--'} <span className="text-accent">UTC+6</span>
+          {/* Card header: label on the left, live clock (first card
+              only) on the right. Flex row so the clock has its own
+              layout slot instead of overlapping the label. */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              <span className="text-accent-2">$</span> {c.label}
             </span>
-          ) : null}
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-            <span className="text-accent-2">$</span> {c.label}
-          </span>
-          <p className="pr-12 text-sm leading-relaxed text-fg-2 text-pretty">
+            {i === 0 ? (
+              <span
+                aria-hidden="true"
+                className="font-mono text-[10px] tabular-nums text-muted"
+              >
+                {now || '--:--:--'}{' '}
+                <span className="text-accent">UTC+6</span>
+              </span>
+            ) : null}
+          </div>
+          <p className="text-sm leading-relaxed text-fg-2 text-pretty">
             {c.value}
           </p>
         </div>
