@@ -255,6 +255,17 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             Google-recognized signal that this site is the same person
             as the linked external profile (used for E-E-A-T). */}
         <link rel="author" href={`${siteUrl}/#about`} />
+        {/* Google Search Console ownership verification. The user pastes
+            the value GSC gives them in `vercel env add
+            GOOGLE_SITE_VERIFICATION production`; we render it as a meta
+            tag. Only emitted when the env var is set so local/dev builds
+            don't ship a stub tag pointing nowhere. */}
+        {env.GOOGLE_SITE_VERIFICATION ? (
+          <meta
+            name="google-site-verification"
+            content={env.GOOGLE_SITE_VERIFICATION}
+          />
+        ) : null}
         {identity.socialGithub ? (
           <link rel="me" href={identity.socialGithub} />
         ) : null}

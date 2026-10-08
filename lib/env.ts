@@ -15,6 +15,15 @@ const envSchema = z.object({
   // Format: libsql://<db>.<org>.turso.io
   TURSO_DATABASE_URL: z.string().url().optional(),
   TURSO_AUTH_TOKEN: z.string().optional(),
+  // SEO: Google Search Console HTML verification tag. The user pastes
+  // this value into Vercel env after claiming the property in GSC; the
+  // layout renders it as <meta name="google-site-verification"> so the
+  // claim succeeds.
+  GOOGLE_SITE_VERIFICATION: z.string().optional(),
+  // SEO: IndexNow key. The same value is hosted at
+  // public/${INDEXNOW_KEY}.txt and pinged from scripts/indexnow-ping.mjs
+  // after every Vercel build.
+  INDEXNOW_KEY: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -4,11 +4,14 @@ import { listPublishedProjects } from '@/lib/queries/projects';
 
 // Sitemap policy notes:
 //
-//   - /about and /contact are intentionally OMITTED. They server-redirect
-//     to /#about and /#contact respectively (see app/about/page.tsx and
-//     app/contact/page.tsx). Listing the redirect sources here would waste
-//     crawl budget and trigger soft-404 noise. The hash anchors ARE
-//     listed below so the sections themselves are surfaced.
+//   - /about is INCLUDED. It's a real standalone page (was previously a
+//     server-redirect to /#about). Listed separately so crawlers index
+//     it as a distinct URL with its own canonical, OG, and JSON-LD.
+//
+//   - /contact is still a server-redirect to /#contact (see
+//     app/contact/page.tsx). The hash anchor is listed below so the
+//     section itself is surfaced without burning crawl budget on a
+//     redirect target.
 //
 //   - /admin/* is omitted because robots.txt disallows it (see
 //     app/robots.ts). The same rule applies for any future auth-gated
@@ -32,6 +35,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.8,
+    },
+    // Standalone /about — built deliberately for the "Md Salekin Newaz" name
+    // query. Highest priority of the secondary routes because it's the
+    // strongest indexable landing surface for the personal name aside from /.
+    {
+      url: `${base}/about`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.9,
     },
     ...projects.map((p) => ({
       url: `${base}/projects/${p.slug}`,
