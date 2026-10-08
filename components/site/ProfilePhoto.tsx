@@ -62,14 +62,19 @@ export function ProfilePhoto({
           </clipPath>
         </defs>
 
-        {/* Photo, clipped to a circle */}
+        {/* Photo, clipped to a circle.
+            The subject's head sits in the upper-right of the source
+            image (portrait has empty wall space on the left), so we
+            anchor the slice to the top and offset slightly toward
+            the right — keeps the head inside the circular crop on
+            every breakpoint. */}
         <image
           href={src}
           x="0"
           y="0"
           width="200"
           height="200"
-          preserveAspectRatio="xMidYMid slice"
+          preserveAspectRatio="xMaxYMin slice"
           clipPath="url(#pf-clip)"
         />
         {/* Soft top-left highlight to match the previous glassy feel */}
