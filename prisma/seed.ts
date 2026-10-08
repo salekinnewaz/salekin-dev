@@ -1,10 +1,14 @@
 /**
  * Idempotent seed. All writes are upserts.
  * Content sourced from `data/Md_Salekin_Newaz.pdf`.
+ *
+ * Uses the shared `db` from `lib/db.ts` rather than `new PrismaClient()`
+ * so the seed hits the same driver the app uses at runtime. In dev that's
+ * the file-backed SQLite at `prisma/dev.db`; in production it's the
+ * libSQL/Turso adapter. This is what makes the seed portable across
+ * environments without forking the script.
  */
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { db as prisma } from '../lib/db';
 
 type SeedProject = {
   slug: string;

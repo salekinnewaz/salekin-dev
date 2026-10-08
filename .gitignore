@@ -42,6 +42,9 @@ next.trace
 .claude/
 .specsmd/
 memory-bank/
+# Vercel CLI's "agent skills" install (downloads provider docs into the repo)
+.agents/
+skills-lock.json
 
 # Source PDF for the CV (the public/ copy is what gets shipped)
 data/
