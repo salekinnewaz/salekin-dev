@@ -28,6 +28,10 @@ export function Hero({ identity }: HeroProps) {
     identity.siteTagline ||
     'Building quality infrastructure that enables engineering teams to release with confidence.';
   const initials = identity.siteInitials || 'SN';
+  // Real profile photo (served from /public). Falls back to the SVG
+  // initials avatar only if the asset is missing.
+  const photoSrc = '/images/profile.jpg';
+  const photoAlt = `${title} — Senior Software QA Engineer`;
 
   // 5 stack chips from brief §2. These are the only technologies we
   // surface on the home page above the fold — the full QA stack is
@@ -114,7 +118,7 @@ export function Hero({ identity }: HeroProps) {
           </p>
         </div>
 
-        <HeroStage initials={initials} />
+        <HeroStage src={photoSrc} alt={photoAlt} />
       </div>
     </section>
   );

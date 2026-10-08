@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { InitialsAvatar } from './InitialsAvatar';
+import { ProfilePhoto } from './ProfilePhoto';
 import { HeroTerminal } from './HeroTerminal';
 
 type Props = {
-  initials: string;
+  src: string;
+  alt: string;
 };
 
 const PARALLAX_RANGE_PX = 600;
@@ -23,7 +24,7 @@ const PARALLAX_AVATAR_PX = 60;
  *      side-by-side (avatar top-right, terminal below); tablet just
  *      shows the terminal; phone just shows the avatar.
  */
-export function HeroStage({ initials }: Props) {
+export function HeroStage({ src, alt }: Props) {
   const avatarRef = useRef<HTMLDivElement | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -89,13 +90,13 @@ export function HeroStage({ initials }: Props) {
             transformStyle: 'preserve-3d',
           }}
         >
-          <InitialsAvatar initials={initials} size={180} />
+          <ProfilePhoto src={src} alt={alt} size={180} />
         </div>
       </div>
       {/* On phones, the avatar column is hidden (sm:hidden). Render a
           smaller avatar above the terminal for narrow viewports. */}
       <div className="block sm:hidden">
-        <InitialsAvatar initials={initials} size={120} />
+        <ProfilePhoto src={src} alt={alt} size={120} />
       </div>
       <div className="hidden w-full max-w-md sm:block">
         <HeroTerminal />
