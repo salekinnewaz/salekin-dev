@@ -2,6 +2,12 @@
 
 Single-author personal site. Vercel for hosting, Turso for the database (libSQL-compatible SQLite, free tier is plenty).
 
+## Current state (as of last deploy)
+
+✅ **Deployed to Vercel** at https://salekin-dev.vercel.app. Build is green, all 13 routes serve 200, `/projects` lists the 3 projects from the local `dev.db` that was bundled into the build image.
+
+⚠️ **DB is ephemeral on Vercel**: the deployed build is using `file:./dev.db` from the build context, which is a *snapshot* at build time. The next deploy will rebuild it from the same source — fine for now, but any admin-panel edits you make on the live site will NOT persist across deploys. Fix this by adding Turso (below).
+
 ## Architecture
 
 - **App**: Next.js 15 App Router, React 19, server components + server actions.
@@ -12,22 +18,32 @@ Single-author personal site. Vercel for hosting, Turso for the database (libSQL-
 
 ## One-time setup
 
-### 1. Turso
+### 1. Turso (the missing piece)
 
-1. Install the CLI: `brew install tursodatabase/tap/turso` (or `npm i -g @tursodatabase/cli`).
-2. `turso auth login`.
-3. Create a DB: `turso db create salekin-dev` (pick something near your Vercel region, e.g. `lhr`).
-4. Create a token: `turso db tokens create salekin-dev --expiration none` (use a named token if you'd rather rotate).
-5. Capture two values:
-   - `TURSO_DATABASE_URL` — looks like `libsql://salekin-dev-<org>.turso.io`
-   - `TURSO_AUTH_TOKEN` — the token string from step 4.
+The site is deployable without Turso (the `lib/db.ts` branch falls
+through to the placeholder `DATABASE_URL=file:./dev.db` if Turso vars
+are unset), but admin edits won't persist. To get a real production DB:
+
+**Easiest path** (no CLI): open the Vercel dashboard →
+[salekin-dev project → Storage tab → Marketplace → search "Turso"]
+(https://vercel.com/marketplace/turso). One click provisions a Turso
+DB AND sets the `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` env vars in
+the project. Then skip to step 3.
+
+**Manual path** (if you want explicit control):
+
+1. `npm i -g @tursodatabase/cli` (or `brew install tursodatabase/tap/turso`).
+2. `turso auth login` (opens a browser).
+3. `turso db create salekin-dev` (pick a region near Vercel, e.g. `lhr`).
+4. `turso db tokens create salekin-dev --expiration none`.
+5. Capture `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`.
 
 ### 2. Prisma: switch from native SQLite to the libSQL adapter
 
 > **Status:** ✅ done. `prisma/schema.prisma` enables the
 > `driverAdapters` preview feature, `lib/db.ts` branches on `NODE_ENV`
 > to use `PrismaLibSQL` in production, and `lib/env.ts` accepts the
-> `TURSO_*` variables. Verified: `pnpm typecheck && pnpm test (169/169) &&
+> `TURSO_*` variables. Verified: `pnpm typecheck && pnpm test (176/176) &&
 > pnpm build` all pass; the production code path loads cleanly when
 > imported with stub Turso credentials.
 
@@ -52,7 +68,7 @@ structural type that doesn't match the libSQL adapter's runtime shape
 (verified at boot by `prisma db push`). The `as unknown as never` cast
 is local to the one construction site in `lib/db.ts`.
 
-### 3. Push the schema
+### 3. Push the schema to Turso
 
 ```bash
 # Local first, sanity check:
@@ -76,30 +92,47 @@ TURSO_AUTH_TOKEN=... \
   pnpm db:seed:turso
 ```
 
-### 4. Vercel project
+### 4. Vercel project (already created)
 
-1. Push the repo to GitHub.
-2. Import in Vercel — it auto-detects Next.js.
-3. **Build command**: leave as default (`next build`).
-4. **Environment variables** (Project Settings → Environment Variables, all "Production"):
-   - `NODE_ENV` = `production` (Vercel sets this by default, but be explicit)
-   - `DATABASE_URL` = `file:./dev.db` (used only at build time for `prisma generate`; never reached at runtime)
-   - `TURSO_DATABASE_URL` = the libsql:// URL from step 1
-   - `TURSO_AUTH_TOKEN` = the token from step 1
-   - `SITE_URL` = `https://salekin.dev`
-   - `ADMIN_PASSWORD` = a strong password (you'll type this on /admin/login)
-   - `ADMIN_SESSION_SECRET` = a 32+ char random string — `openssl rand -base64 48`
-5. **Domain**: Settings → Domains → add `salekin.dev`. Follow the DNS instructions at your registrar (Vercel shows the exact A/ALIAS/CNAME records). www → apex redirect: toggle in the project settings.
-6. **TLS** is automatic once DNS resolves.
+The project `salekin-dev` is already on Vercel and has been deployed to
+production at https://salekin-dev.vercel.app.
+
+**To make it git-driven** (auto-deploy on push to main), you need to
+connect the GitHub account in the Vercel dashboard one time:
+Project → Settings → Git → Connect → pick `salekinnewaz/salekin-dev`.
+This is a single click in the dashboard; the Vercel CLI can't do it
+without that one-time OAuth handshake.
+
+Until that handshake is done, deploy via:
+
+```bash
+pnpm deploy          # runs scripts/deploy.sh, which is `vercel deploy --target production`
+```
+
+The current Vercel env vars on the `salekin-dev` project are empty —
+no `TURSO_*` etc. Set them in Project → Settings → Environment Variables
+**Production** when you have the Turso credentials:
+
+- `DATABASE_URL` = `file:./dev.db` (build-time only, for `prisma generate`)
+- `TURSO_DATABASE_URL` = the `libsql://` URL
+- `TURSO_AUTH_TOKEN` = the token
+- `SITE_URL` = `https://salekin.dev`
+- `ADMIN_PASSWORD` = a strong password
+- `ADMIN_SESSION_SECRET` = `openssl rand -base64 48`
+
+**Custom domain**: Settings → Domains → add `salekin.dev` → set the DNS
+records Vercel shows at your registrar. (The `salekinnewaz.vercel.app`
+URL is from a separate v0 project, not this one.)
 
 ## Continuous deployment
 
-Push to `main` → Vercel builds. No extra steps.
+After the one-time GitHub handshake, push to `main` → Vercel auto-builds.
+
+Until then: `pnpm deploy` (or `vercel deploy --target production`).
 
 If you add an admin-only migration or seed change:
 
 ```bash
-# After committing the seed change:
 TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... pnpm db:seed:turso
 ```
 
@@ -115,21 +148,20 @@ Two paths:
 ## Smoke test after deploy
 
 ```bash
-curl -fsSL https://salekin.dev/ > /dev/null && echo "home OK"
-curl -fsSL https://salekin.dev/admin > /dev/null && echo "admin OK"
-curl -fsSL https://salekin.dev/admin/export -o /tmp/snap.json \
-  -b "admin_session=$(node -e '...forge cookie...')" && echo "export OK"
+curl -fsSL https://salekin-dev.vercel.app/ > /dev/null && echo "home OK"
+curl -fsSL https://salekin-dev.vercel.app/projects > /dev/null && echo "projects OK"
+curl -fsSL https://salekin-dev.vercel.app/admin/login > /dev/null && echo "admin OK"
 ```
 
-Then open `/admin` in a browser, sign in, hit "export data", eyeball the JSON.
+Then open `/admin/login` in a browser, sign in, hit "export data", eyeball the JSON.
 
 ## What can go wrong
 
-- **`prisma generate` runs on Vercel but the adapter is missing** → install `@prisma/adapter-libsql` and `@libsql/client` as regular `dependencies`, not `devDependencies`. (See step 2 — this swap is not yet committed.)
+- **DB resets on every redeploy** — add Turso (step 1) so the DB is persistent.
 - **Cold-start latency** — first request after idle is ~300ms-1s on the Vercel free tier. Acceptable for a personal site.
-- **`/admin/export` auth** — the route gates on `ADMIN_PASSWORD`. If unset, the gate is off (handy for previews). In production: **always** set `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` to non-trivial values.
+- **`/admin/export` auth** — the route gates on `ADMIN_PASSWORD`. If unset, the gate is off. In production: **always** set `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` to non-trivial values.
 - **Forgotten `SITE_URL`** — OpenGraph and canonical URLs fall back to `http://localhost:3000`. Set `SITE_URL=https://salekin.dev` before going live or social previews will look broken.
-- **CV file** — `prisma/seed.ts` writes `/Md_Salekin_Newaz.pdf` as the `cv_url` setting. Drop it there before the first deploy.
+- **CV file** — `public/Md_Salekin_Newaz.pdf` is already in the repo and gets served at the `cv_url` setting. The seed points at `/Md_Salekin_Newaz.pdf` which Next serves from `public/`.
 
 ## Local development with Turso
 
