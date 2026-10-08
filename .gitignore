@@ -45,3 +45,5 @@ memory-bank/
 
 # Source PDF for the CV (the public/ copy is what gets shipped)
 data/
+.vercel
+.env*
