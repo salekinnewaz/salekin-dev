@@ -25,10 +25,13 @@ function socialLinks(identity: SiteIdentity): SocialLink[] {
 }
 
 /**
- * Contact — calm final section. Plain heading, single line of copy,
- * the form, then three social buttons. The previous iteration had a
- * `$ open --new /contact` terminal prefix, an "Open to" chip row,
- * and a verbose email/phone/location bullet list — all removed.
+ * Contact — calm final section.
+ *
+ * - Single QA-framed intro line (no verbose bullet list, no terminal prefix)
+ * - Three social buttons: Email, GitHub, LinkedIn (Facebook dropped —
+ *   not in brief)
+ * - Phone + location as a small quiet 1-line row beneath the buttons
+ *   (per brief §16)
  */
 export function ContactSection({ identity }: ContactSectionProps) {
   const links = socialLinks(identity);
@@ -42,16 +45,15 @@ export function ContactSection({ identity }: ContactSectionProps) {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[2fr_3fr]">
         <div className="flex flex-col gap-6 reveal">
           <span className="font-mono text-xs uppercase tracking-widest text-muted">
-            <span aria-hidden="true" className="text-accent-2">$</span>{' '}
-            contact --new
+            Contact
           </span>
           <h2 className="heading-display text-4xl sm:text-5xl">
             Let&apos;s build something
           </h2>
           <p className="max-w-md text-base leading-relaxed text-fg-2 text-pretty sm:text-lg">
-            Have a product, an engineering problem, or an interesting
-            opportunity? Send a note — I read everything and reply
-            within a day or two.
+            Have a QA challenge, an automation gap, or a release-readiness
+            question? Send a note — I read everything and reply within a
+            day or two.
           </p>
 
           {links.length > 0 ? (
@@ -73,6 +75,25 @@ export function ContactSection({ identity }: ContactSectionProps) {
                 </a>
               ))}
             </div>
+          ) : null}
+
+          {(identity.contactPhone || identity.contactLocation) ? (
+            <p className="mt-1 font-mono text-xs uppercase tracking-widest text-muted">
+              {identity.contactLocation ? (
+                <span>{identity.contactLocation}</span>
+              ) : null}
+              {identity.contactPhone && identity.contactLocation ? (
+                <span aria-hidden="true"> · </span>
+              ) : null}
+              {identity.contactPhone ? (
+                <a
+                  href={`tel:${identity.contactPhone.replace(/\s+/g, '')}`}
+                  className="transition-colors hover:text-fg"
+                >
+                  {identity.contactPhone}
+                </a>
+              ) : null}
+            </p>
           ) : null}
         </div>
 

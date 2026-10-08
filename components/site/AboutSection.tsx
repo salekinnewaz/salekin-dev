@@ -1,27 +1,54 @@
-import type { SiteIdentity, SiteStats } from '@/lib/queries/site';
-import type { EducationItem } from '@/lib/queries/education';
+import type { SiteIdentity } from '@/lib/queries/site';
 
 type AboutSectionProps = {
   identity: SiteIdentity;
-  stats: SiteStats;
-  education: EducationItem[];
 };
 
+const INDUSTRIES = [
+  'Logistics',
+  'Oil & Gas',
+  'IoT',
+  'E-commerce',
+  'Rideshare',
+] as const;
+
+const FACTS = [
+  {
+    label: '4+ concurrent international projects',
+    detail:
+      'QA lead across logistics, oil & gas, IoT, e-commerce and rideshare.',
+  },
+  {
+    label: 'Up to 60% reduction in regression cycles',
+    detail: 'Playwright automation and CI/CD integration.',
+  },
+  {
+    label: '3 production releases · Norway client',
+    detail: 'UAT coordination, client sign-off, release readiness.',
+  },
+  {
+    label: 'International exposure',
+    detail: 'Norway · Canada · USA',
+  },
+  {
+    label: 'Mentored junior QA engineers',
+    detail: 'Code reviews, test architecture guidance, Playwright training.',
+  },
+] as const;
+
 /**
- * About — bio, a one-line fact summary, and a single education entry.
+ * About — per brief §4, §6, §12.
  *
- * The previous iteration had a three-stat counter row and a `$ whoami
- * --short` terminal heading. Both are gone. The counters are folded
- * into a quiet fact line at the end of the bio so the values still
- * read but the section no longer competes with the project cards for
- * visual weight.
+ *  - 2 short paragraphs (split from `aboutBio` on `\n\n`)
+ *  - 1 quiet industries tag row
+ *  - 5 condensed fact lines from the verified achievements
+ *  - No stat counter row (the 4/24/5 "sites shipped" framing doesn't
+ *    fit a QA story)
+ *  - No education line here — that has its own section now
  */
-export function AboutSection({ identity, stats, education }: AboutSectionProps) {
+export function AboutSection({ identity }: AboutSectionProps) {
   const bio = identity.aboutBio;
-  // Surface only the highest-ranked education entry (BSc). The DB
-  // also holds HSC and SSC but those don't belong on a professional
-  // portfolio.
-  const primary = education[0] ?? null;
+  const paragraphs = bio ? bio.split(/\n\n+/).map((p) => p.trim()).filter(Boolean) : [];
 
   return (
     <section
@@ -40,43 +67,60 @@ export function AboutSection({ identity, stats, education }: AboutSectionProps) 
         </div>
 
         <div className="flex flex-col gap-8">
-          {bio ? (
-            <p
-              className="text-base leading-relaxed text-fg-2 sm:text-lg text-pretty reveal"
+          {paragraphs.length > 0 ? (
+            <div
+              className="flex flex-col gap-5 reveal"
               data-testid="about-bio"
             >
-              {bio}
-            </p>
+              {paragraphs.map((p, i) => (
+                <p
+                  key={i}
+                  className="text-base leading-relaxed text-fg-2 sm:text-lg text-pretty"
+                >
+                  {p}
+                </p>
+              ))}
+            </div>
           ) : (
             <p className="text-sm text-muted">No bio available.</p>
           )}
 
-          <div className="flex flex-col gap-3 border-t border-border pt-6 reveal">
+          <div className="flex flex-col gap-3 reveal">
             <p className="font-mono text-xs uppercase tracking-widest text-muted">
-              <span aria-hidden="true" className="text-accent-2">$</span>{' '}
-              stat --summary
+              Industries
             </p>
-            <p className="text-sm text-fg-2 text-pretty sm:text-base">
-              <span className="text-fg">{stats.yearsCoding}+</span> years
-              coding ·{' '}
-              <span className="text-fg">{stats.sitesShipped}</span> sites
-              shipped ·{' '}
-              <span className="text-fg">{stats.rolesHeld}</span> roles held.
-            </p>
+            <ul className="flex flex-wrap gap-1.5" role="list">
+              {INDUSTRIES.map((i) => (
+                <li key={i} role="listitem">
+                  <span className="tag">{i}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {primary ? (
-            <div className="flex flex-col gap-1 border-t border-border pt-6 reveal">
-              <p className="font-mono text-xs uppercase tracking-widest text-muted">
-                Education
-              </p>
-              <p className="text-sm text-fg-2 text-pretty sm:text-base">
-                <span className="text-fg">{primary.degree}</span> ·{' '}
-                {primary.institution} · {primary.startYear}–
-                {primary.endYear}
-              </p>
-            </div>
-          ) : null}
+          <div className="flex flex-col gap-3 border-t border-border pt-6 reveal">
+            <p className="font-mono text-xs uppercase tracking-widest text-muted">
+              Highlights
+            </p>
+            <ul className="flex flex-col gap-2.5" role="list">
+              {FACTS.map((f) => (
+                <li
+                  key={f.label}
+                  className="flex gap-2.5 text-sm leading-relaxed text-fg-2 sm:text-base"
+                  role="listitem"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-accent"
+                  />
+                  <span>
+                    <span className="text-fg">{f.label}</span>
+                    <span className="text-muted"> — {f.detail}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

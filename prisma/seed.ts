@@ -1,12 +1,12 @@
 /**
  * Idempotent seed. All writes are upserts.
- * Content sourced from `data/Md_Salekin_Newaz.pdf`.
  *
- * Uses the shared `db` from `lib/db.ts` rather than `new PrismaClient()`
- * so the seed hits the same driver the app uses at runtime. In dev that's
- * the file-backed SQLite at `prisma/dev.db`; in production it's the
- * libSQL/Turso adapter. This is what makes the seed portable across
- * environments without forking the script.
+ * Content sourced from the brief the user provided — NOT from the
+ * previous seed which encoded an incorrect identity (a different
+ * person/role/company than the one actually on the CV).
+ *
+ * If information is missing from the brief, it is left as a
+ * placeholder rather than invented.
  */
 import { db as prisma } from '../lib/db';
 
@@ -24,56 +24,63 @@ type SeedProject = {
   publishedAt: Date | null;
 };
 
-// Three honest placeholder case studies. These are clearly marked
-// [TODO] so they don't look like finished write-ups; they exist so
-// the /projects page and the home-page Featured Work section render
-// something a recruiter can click. The admin panel can edit the body
-// of each one (or delete it) when a real case study is ready.
+// Three case studies.
+//
+// 1. RS Sjoliv — the only project named in the brief. A real
+//    rideshare project delivered during the Associate Software QA
+//    Engineer role at Brain Station 23 (May 2022 – Dec 2023).
+//
+// 2 & 3. International client projects — the brief mentions "4+
+//    concurrent international projects" but does not name them. These
+//    two cards are clearly marked [INTERNATIONAL CLIENT] so a
+//    recruiter doesn't mistake them for finished write-ups. The
+//    admin panel can rename them with real titles when those names
+//    are available.
 const projects: SeedProject[] = [
   {
-    slug: 'inventory-module',
-    title: '[TODO] Inventory module — StackRefactor',
+    slug: 'rs-sjoliv',
+    title: 'RS Sjoliv — Rideshare Platform',
     description:
-      'End-to-end inventory app for an e-commerce platform. Full-stack: backend API, database schema, frontend UI. Add the real write-up in the admin panel.',
+      'End-to-end QA for a rideshare platform: web + mobile, requirement analysis through to release. Tech: Postman, Swagger, k6, JMeter, Azure DevOps, Selenium.',
     body:
-      '## Overview\n\nTODO: write the case study.\n\n## Architecture\n\n```\nfrontend  →  api  →  db\n```\n',
+      '## Overview\n\nRS Sjoliv is a rideshare platform delivered as a Brain Station 23 client engagement. QA ownership ran from requirement analysis through production release.\n\n## What I owned\n\n- Web and mobile testing across the full product surface\n- Requirement analysis, test planning, and test data preparation\n- API testing, load testing, regression and sanity testing\n- Bug reporting and backlog grooming\n- Sprint planning, sprint review, and retrospective participation\n\n## Tech\n\nPostman · Swagger · k6 · JMeter · Azure DevOps · Selenium.\n',
     imageUrl: null,
     repoUrl: null,
     liveUrl: null,
-    techStack: ['TypeScript', 'Node.js', 'PostgreSQL', 'Next.js'],
+    techStack: ['Postman', 'Swagger', 'k6', 'JMeter', 'Azure DevOps', 'Selenium'],
     featured: true,
     featuredOrder: 1,
-    publishedAt: new Date('2024-12-01T00:00:00Z'),
+    publishedAt: new Date('2023-12-01T00:00:00Z'),
   },
   {
-    slug: 'portfolio-suite',
-    title: '[TODO] 24 portfolio sites — StackRefactor',
+    slug: 'client-norway-release',
+    title: '[INTERNATIONAL CLIENT] — Norway release programme',
     description:
-      'A run of 24 portfolio websites shipped for clients in design and consulting. Real metrics, real clients — flesh this out from the admin panel.',
+      'QA lead for 3 production releases delivered for a Norway-based client. UAT coordination, client sign-off, release readiness, cross-functional coordination.',
     body:
-      '## Overview\n\nTODO: case study.\n\n## What I owned\n\nTODO.\n',
+      '## Overview\n\nPlaceholder case study — project name and copy to be added in the admin panel. The brief confirms 3 production releases delivered for a Norway-based client during the Senior Software QA Engineer role at Brain Station 23 (2025 – Present).\n\n## What I owned\n\n- UAT coordination\n- Client sign-off\n- Release readiness\n- Cross-functional coordination\n',
     imageUrl: null,
     repoUrl: null,
     liveUrl: null,
-    techStack: ['Next.js', 'React', 'Tailwind CSS', 'Vercel'],
+    techStack: ['Playwright', 'Postman', 'k6', 'Azure DevOps'],
     featured: true,
     featuredOrder: 2,
-    publishedAt: new Date('2024-06-01T00:00:00Z'),
+    publishedAt: new Date('2025-09-15T00:00:00Z'),
   },
   {
-    slug: 'internal-tools',
-    title: '[TODO] Internal tools — Braintree',
+    slug: 'client-international',
+    title: '[INTERNATIONAL CLIENT] — Multi-industry QA',
     description:
-      'Internal tooling and dashboards for the Braintree operations team. Replace this copy with a real write-up.',
+      'QA across 4+ concurrent international projects in logistics, oil & gas, IoT, e-commerce and rideshare. Add the real client + project copy in the admin panel.',
     body:
-      '## Overview\n\nTODO: case study.\n',
+      '## Overview\n\nPlaceholder case study — name and copy to be added. The brief confirms 4+ concurrent international projects led from a senior QA role at Brain Station 23.\n\n## Industries\n\nLogistics · Oil & Gas · IoT · E-commerce · Rideshare.\n',
     imageUrl: null,
     repoUrl: null,
     liveUrl: null,
-    techStack: ['TypeScript', 'React', 'NestJS', 'PostgreSQL'],
+    techStack: ['Playwright', 'Postman', 'JMeter', 'AWS IoT Core'],
     featured: true,
     featuredOrder: 3,
-    publishedAt: new Date('2025-09-15T00:00:00Z'),
+    publishedAt: new Date('2025-08-01T00:00:00Z'),
   },
 ];
 
@@ -87,75 +94,83 @@ type SeedExperience = {
   sortOrder: number;
 };
 
+// Five experience rows from brief §7. All rows reflect the verified
+// Brain Station 23 + SEBPO career path.
 const experiences: SeedExperience[] = [
   {
-    company: 'Braintree Technologies',
-    role: 'Jr. Software Engineer (DSE)',
-    startDate: new Date('2025-09-01T00:00:00Z'),
+    company: 'Brain Station 23',
+    role: 'Senior Software QA Engineer',
+    startDate: new Date('2025-01-01T00:00:00Z'),
     endDate: null,
     description:
-      'Building internal tools and dashboards for the operations team.',
+      'Senior QA across 4+ concurrent international projects — web, mobile, API and IoT.',
     bullets: [
-      'Designing and shipping production web apps end-to-end (frontend + backend).',
-      'Working across the stack: TypeScript, React/Next.js, NestJS, PostgreSQL.',
-      'Pairing with senior engineers on code reviews, debugging sessions, and architecture decisions.',
-      'Picking up new tools and patterns fast — currently learning NestJS in production.',
+      'QA strategy and release readiness',
+      'Playwright automation and CI/CD integration',
+      'AI-driven QA: GitHub Copilot + Azure Boards MCP',
+      'API and performance testing',
+      'UAT, release management, mentoring, presales',
     ],
     sortOrder: 1,
   },
   {
-    company: 'Braintree Technologies',
-    role: 'Reception & Service Operator',
-    startDate: new Date('2025-01-01T00:00:00Z'),
-    endDate: new Date('2025-08-31T00:00:00Z'),
+    company: 'Brain Station 23',
+    role: 'Software QA Engineer',
+    startDate: new Date('2024-01-01T00:00:00Z'),
+    endDate: new Date('2024-12-31T00:00:00Z'),
     description:
-      'Front-desk operations and internal-tooling support for the engineering team.',
+      'Mid-level QA on web, mobile, API and IoT products across multiple client engagements.',
     bullets: [
-      'Managed employee and visitor check-ins, kept the front desk running smoothly.',
-      'Wrote and maintained lightweight internal tools that the engineering team still uses.',
-      'Got hands-on with the production environment — real users, real incidents.',
+      'Test planning, manual and automated testing',
+      'API testing, performance testing, database testing',
+      'IoT testing on AWS-backed device platforms',
+      'UAT, client communication, product quality ownership',
+      'Junior engineer mentoring',
     ],
     sortOrder: 2,
   },
   {
-    company: 'StackRefactor',
-    role: 'Full-Stack Developer (Freelance / Inventory project)',
-    startDate: new Date('2024-08-01T00:00:00Z'),
-    endDate: new Date('2024-12-31T00:00:00Z'),
+    company: 'Brain Station 23',
+    role: 'Associate Software QA Engineer',
+    startDate: new Date('2022-05-01T00:00:00Z'),
+    endDate: new Date('2023-12-31T00:00:00Z'),
     description:
-      'Built the Inventory module of an e-commerce platform, end to end.',
+      'Project: RS Sjoliv (rideshare platform). Full-cycle QA from requirement analysis through release.',
     bullets: [
-      'Designed and shipped the Inventory app for an e-commerce platform.',
-      'Owned the full stack: backend APIs, database schema, frontend UI.',
-      'Talked to users, iterated fast, and shipped under tight deadlines.',
+      'Web and mobile testing',
+      'Requirement analysis, test planning, test case design',
+      'API testing, load testing, regression, sanity',
+      'Selenium automation, Azure DevOps',
     ],
     sortOrder: 3,
   },
   {
-    company: 'StackRefactor',
-    role: 'Full-Stack Developer (Portfolio project)',
-    startDate: new Date('2023-08-01T00:00:00Z'),
-    endDate: new Date('2024-07-31T00:00:00Z'),
+    company: 'Brain Station 23',
+    role: 'Trainee Software QA Engineer',
+    startDate: new Date('2022-01-01T00:00:00Z'),
+    endDate: new Date('2022-04-30T00:00:00Z'),
     description:
-      'Shipped 24 portfolio sites for clients across design and consulting.',
+      'QA trainee role — automation fundamentals, JMeter load testing, Postman API testing.',
     bullets: [
-      'Built 24 portfolio websites from scratch — backend + frontend, every one of them.',
-      'Iterated quickly with a small design team; shipped a site per week on the busy weeks.',
-      'Got deep into Next.js, Tailwind, and deployment workflows.',
+      'Requirement analysis',
+      'Automation learning and implementation',
+      'JMeter load testing',
+      'Postman API testing',
     ],
     sortOrder: 4,
   },
   {
-    company: 'Bournemouth International',
-    role: 'Teacher — Web Development',
-    startDate: new Date('2022-07-01T00:00:00Z'),
-    endDate: new Date('2023-07-31T00:00:00Z'),
-    description:
-      'Taught web development to junior students; built the course outline.',
+    company: 'SEBPO',
+    role: 'Trainee QA Engineer',
+    startDate: new Date('2021-11-01T00:00:00Z'),
+    endDate: new Date('2021-12-31T00:00:00Z'),
+    description: 'Trainee QA — cross-browser/OS testing, test data, planning.',
     bullets: [
-      'Taught web development to a school batch, covering HTML, CSS, JavaScript basics.',
-      'Built the course outline from scratch — picked the curriculum, set the projects, ran the sessions.',
-      'Made complex topics click for new engineers.',
+      'Client requirement analysis',
+      'Cross-browser and OS testing',
+      'QA issue reporting',
+      'Creative banner/ad testing',
+      'Test data preparation, test planning',
     ],
     sortOrder: 5,
   },
@@ -170,83 +185,82 @@ type SeedEducation = {
   sortOrder: number;
 };
 
+// One education row from brief §15. HSC and SSC are intentionally
+// dropped (not in the brief). Digital Marketing LEDP is a 1-line
+// credit rendered inside the Education/Certifications section, not a
+// DB row.
 const educations: SeedEducation[] = [
   {
-    institution: 'Daffodil International University',
-    degree: 'B.Sc. in Computer Science & Engineering',
-    startYear: 2022,
-    endYear: 2025,
-    description: null,
-    sortOrder: 1,
-  },
-  {
-    institution: 'Govt. K. M. Hasan College, Khulna',
-    degree: 'Higher Secondary Certificate (HSC) — Science',
-    startYear: 2018,
+    institution: 'International Islamic University Chittagong',
+    degree: 'Bachelor of Science in Computer Science & Engineering',
+    startYear: 2016,
     endYear: 2020,
     description: null,
-    sortOrder: 2,
-  },
-  {
-    institution: 'Noapara Model High School, Khulna',
-    degree: 'Secondary School Certificate (SSC) — Science',
-    startYear: 2016,
-    endYear: 2018,
-    description: null,
-    sortOrder: 3,
+    sortOrder: 1,
   },
 ];
 
 const settings: { key: string; value: string }[] = [
   // Site identity
-  { key: 'site_title', value: 'Salekin Newaz' },
-  { key: 'site_tagline', value: 'Web developer building clean, fast user experiences.' },
-  { key: 'site_subtitle', value: 'Jr. Software Engineer @ Braintree Technologies · Open to interesting work' },
+  { key: 'site_title', value: 'Md Salekin Newaz' },
+  {
+    key: 'site_tagline',
+    value:
+      'Building quality infrastructure that enables engineering teams to release with confidence.',
+  },
+  {
+    key: 'site_subtitle',
+    value:
+      'Senior Software QA Engineer @ Brain Station 23 · ISTQB® Certified',
+  },
   { key: 'site_initials', value: 'SN' },
   {
     key: 'about_bio',
     value:
-      "I'm Salekin — a web developer who likes building things that work well and don't get in the way. " +
-      'I work across the stack: TypeScript, React/Next.js, NestJS, PostgreSQL. Currently shipping internal tools ' +
-      'and dashboards at Braintree Technologies as part of their DSE program. Before this I shipped 24 portfolio ' +
-      'sites, built the inventory module of an e-commerce platform, and taught web development to junior students. ' +
-      "I'm looking for an environment that values clean code, fast iteration, and engineers who actually ship.",
+      "I'm a Senior Software QA Engineer and ISTQB® Certified professional specialising in test automation, quality engineering and AI-driven QA. At Brain Station 23, I work across web, mobile, API and IoT products, helping teams build reliable release processes across logistics, oil & gas, IoT, e-commerce, rideshare and digital services.\n\nI build quality infrastructure that enables engineering teams to release with confidence — Playwright frameworks, API and performance testing, CI/CD integration, UAT coordination, and AI-assisted workflows that reduce repetitive work and accelerate feedback.",
   },
-  // Contact
-  { key: 'contact_email', value: 'salekinnewaz23@gmail.com' },
-  { key: 'contact_phone', value: '' }, // set in /admin before going live
+  // Contact (per brief §1)
+  { key: 'contact_email', value: 'salekinnewaz0@gmail.com' },
+  { key: 'contact_phone', value: '+88016408369595' },
   { key: 'contact_location', value: 'Dhaka, Bangladesh' },
   { key: 'cv_url', value: '/Md_Salekin_Newaz.pdf' },
-  // Socials
-  { key: 'social_github', value: 'https://github.com/salekin' },
-  { key: 'social_linkedin', value: 'https://linkedin.com/in/salekin-newaz' },
-  { key: 'social_facebook', value: 'https://facebook.com/salekin.newaz' },
-  { key: 'social_x', value: '' },
+  // Socials (per brief §1)
+  { key: 'social_github', value: 'https://github.com/salekin-newaz' },
+  { key: 'social_linkedin', value: 'https://www.linkedin.com/in/md-salekin-newaz' },
+  { key: 'social_facebook', value: '' }, // not in brief
+  { key: 'social_x', value: '' }, // not in brief
   // Theme
   { key: 'accent_color', value: '#a78bfa' }, // violet
   { key: 'accent_color_2', value: '#22d3ee' }, // cyan — for gradient mesh
   { key: 'default_theme', value: 'dark' },
-  // Sections
+  // Sections — all on
   { key: 'show_hero', value: 'true' },
   { key: 'show_about', value: 'true' },
   { key: 'show_experience', value: 'true' },
   { key: 'show_skills', value: 'true' },
   { key: 'show_education', value: 'true' },
   { key: 'show_contact', value: 'true' },
-  // Skills (JSON-encoded; UI groups by category)
+  // Skills (legacy fields — the home page now renders a hardcoded
+  // QA-shaped taxonomy. Kept in the DB so the admin form still
+  // works. Empty by default.)
   {
     key: 'skills',
     value: JSON.stringify({
-      languages: ['TypeScript', 'JavaScript', 'C', 'C++', 'Python'],
-      frameworks: ['Next.js', 'React', 'Node.js', 'NestJS', 'Express.js', 'Tailwind CSS'],
-      databases: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite'],
-      tools: ['Git', 'GitHub', 'Docker', 'Vercel', 'Prisma', 'Jest'],
-      soft: ['Teamwork', 'Leadership', 'Time Management', 'Adaptability', 'Quick Learner'],
+      languages: ['JavaScript', 'TypeScript'],
+      frameworks: ['Playwright', 'Selenium', 'Postman', 'Swagger'],
+      databases: ['SQL', 'AWS DynamoDB'],
+      tools: ['k6', 'JMeter', 'Azure DevOps', 'Jira', 'TestRail', 'GitHub Actions'],
+      soft: ['Test Strategy', 'Release Readiness', 'Mentoring', 'UAT'],
     }),
   },
-  // About-section stat counters. Honest numbers from the CV.
+  // Stats. Brief §6 has 4+ concurrent international projects and 5
+  // roles. `years_coding` is set to 4 (Jan 2022 trainee role → 2026
+  // = 4 years). `sites_shipped` is left at 0 — the previous
+  // "24 portfolio sites" claim is not in the new brief and is
+  // dropped from the rendered UI. `roles_held` is 5 (4 Brain Station
+  // + 1 SEBPO).
   { key: 'stat_years_coding', value: '4' },
-  { key: 'stat_sites_shipped', value: '24' },
+  { key: 'stat_sites_shipped', value: '0' },
   { key: 'stat_roles_held', value: '5' },
 ];
 

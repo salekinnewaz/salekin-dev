@@ -5,32 +5,32 @@ type Card = {
 };
 
 /**
- * "How I Build" — exactly three cards. Replaces the previous
- * ApproachSection (6 cards) and DifferentiationSection (4 cards) so
- * the page has one engineering-principles block instead of two.
+ * "How I Build" — exactly three cards. Per brief §11:
+ *   - STRATEGY  (risk-based test planning, requirement analysis, release readiness)
+ *   - AUTOMATION (scalable Playwright frameworks, API testing, CI/CD)
+ *   - QUALITY  (performance, reliability, UAT, continuous improvement)
  *
- * Cards are calm and minimal — no glow, no hover gradient, no
- * terminal prefix on the heading. Just an index, a title, a
- * sentence. Recruiter reads in 3 s.
+ * Calm, no glow, no hover gradient, no terminal prefix on the heading.
+ * Recruiter reads in 3 s.
  */
 const CARDS: Card[] = [
   {
     index: '01',
-    title: 'Build',
+    title: 'Strategy',
     blurb:
-      'Simple architecture, strong types at the boundary, and small composable pieces. I optimise for the next reader, not the next deploy.',
+      'Risk-based test planning, requirement analysis and release readiness — every decision grounded in what actually risks the user.',
   },
   {
     index: '02',
-    title: 'Quality',
+    title: 'Automation',
     blurb:
-      'Tests, accessibility, and performance are part of "done" — not a follow-up ticket. CI runs on every push.',
+      'Scalable Playwright frameworks, API and contract testing, CI/CD integration — automation that pays back over months, not weeks.',
   },
   {
     index: '03',
-    title: 'Ship',
+    title: 'Quality',
     blurb:
-      'Atomic commits, preview deploys, no skipped hooks. I ship in small, reversible slices and watch what real users do.',
+      'Performance, reliability, UAT and continuous quality improvement — observability and feedback loops, not just pass/fail.',
   },
 ];
 
@@ -39,7 +39,7 @@ export function HowIBuild() {
     <section className="section-anchor relative py-20 sm:py-28">
       <div className="mb-12 flex flex-col gap-3 reveal">
         <span className="font-mono text-xs uppercase tracking-widest text-muted">
-          Principles
+          Approach
         </span>
         <h2 className="heading-display text-4xl sm:text-5xl">How I Build</h2>
       </div>

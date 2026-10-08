@@ -7,28 +7,38 @@ type HeroProps = {
 };
 
 /**
- * First fold.
+ * Hero — first fold, calm and editorial.
  *
- * Calmer than the previous iteration — fewer competing elements,
- * less terminal copy, and large typography that breathes.
- *
- *   - Eyebrow status row
- *   - Large static-gradient display heading
- *   - 1-line role strap
- *   - Single tagline
- *   - 2 CTAs (View Work, Download Resume)
- *   - "Currently building at …" status line below the CTAs
- *   - HeroStage on the right: avatar + small terminal
+ *   - Eyebrow status (ISTQB® Certified)
+ *   - Big static-gradient H1 (full name)
+ *   - 1-line role strap (Senior Software QA Engineer · Playwright ·
+ *     AI-Driven QA)
+ *   - Tagline (the brief §3 positioning line)
+ *   - 2 CTAs (View My Work, Download Resume)
+ *   - Stack chips: 5 short items from brief §2
+ *   - "● Senior Software QA Engineer @ Brain Station 23" status line
+ *   - HeroStage on the right (initials avatar + small terminal)
  *
  * Terminal styling is contained to a single `$` glyph on the eyebrow
- * — not spread across every line.
+ * and one muted status line.
  */
 export function Hero({ identity }: HeroProps) {
-  const title = identity.siteTitle || 'Salekin Newaz';
+  const title = identity.siteTitle || 'Md Salekin Newaz';
   const tagline =
     identity.siteTagline ||
-    'Building reliable digital products with modern web technologies.';
+    'Building quality infrastructure that enables engineering teams to release with confidence.';
   const initials = identity.siteInitials || 'SN';
+
+  // 5 stack chips from brief §2. These are the only technologies we
+  // surface on the home page above the fold — the full QA stack is
+  // in the Core Expertise section further down.
+  const stack = [
+    'Playwright',
+    'JavaScript',
+    'API Testing',
+    'CI/CD',
+    'AI',
+  ] as const;
 
   return (
     <section
@@ -40,7 +50,7 @@ export function Hero({ identity }: HeroProps) {
         <div className="flex flex-col gap-8">
           <span className="eyebrow">
             <span aria-hidden="true" className="font-mono opacity-80">$</span>
-            open to opportunities
+            ISTQB® Certified · open to interesting work
           </span>
 
           <h1
@@ -49,16 +59,18 @@ export function Hero({ identity }: HeroProps) {
           >
             <span className="block">{title.split(' ')[0]}</span>
             {title.split(' ').slice(1).length > 0 ? (
-              <span className="block">{title.split(' ').slice(1).join(' ')}</span>
+              <span className="block">
+                {title.split(' ').slice(1).join(' ')}
+              </span>
             ) : null}
           </h1>
 
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-sm uppercase tracking-widest text-fg-2 sm:text-base">
-            <span className="text-accent">Software Engineer</span>
+            <span className="text-accent">Senior Software QA Engineer</span>
             <span aria-hidden="true" className="text-muted">·</span>
-            <span>Full-Stack</span>
+            <span>Playwright</span>
             <span aria-hidden="true" className="text-muted">·</span>
-            <span>TypeScript · Next.js</span>
+            <span>AI-Driven QA</span>
           </p>
 
           <p className="max-w-2xl text-lg leading-relaxed text-fg-2 text-pretty sm:text-xl">
@@ -67,7 +79,7 @@ export function Hero({ identity }: HeroProps) {
 
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <Link href="/#work" className="btn-primary magnetic">
-              view work
+              view my work
               <span aria-hidden="true">↓</span>
             </Link>
             <a href="/cv-download" className="btn-outline magnetic">
@@ -76,14 +88,28 @@ export function Hero({ identity }: HeroProps) {
             </a>
           </div>
 
+          <ul
+            aria-label="Focus areas"
+            className="mt-2 flex flex-wrap items-center gap-2"
+          >
+            <li className="font-mono text-xs uppercase tracking-widest text-muted">
+              focus ·
+            </li>
+            {stack.map((s) => (
+              <li key={s}>
+                <span className="tag">{s}</span>
+              </li>
+            ))}
+          </ul>
+
           <p className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted">
             <span className="relative inline-flex h-1.5 w-1.5" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
             </span>
             <span>
-              <span className="text-fg-2">Currently building at</span>{' '}
-              Braintree Technologies
+              <span className="text-fg-2">Senior Software QA Engineer @</span>{' '}
+              Brain Station 23
             </span>
           </p>
         </div>

@@ -5,7 +5,7 @@ import { getSiteSettings } from '@/lib/queries/site';
 // Also exposed via /og in next.config? Easier: use the default route.
 // We export two — Next picks the file-based URL (/opengraph-image).
 
-export const alt = 'Salekin Newaz · web developer';
+export const alt = 'Md Salekin Newaz — Senior Software QA Engineer';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const runtime = 'nodejs';
@@ -34,11 +34,13 @@ function mixRgb(
 
 export default async function Image() {
   const site = await getSiteSettings();
-  const title = site.identity.siteTitle || 'Salekin Newaz';
+  const title = site.identity.siteTitle || 'Md Salekin Newaz';
   const tagline =
-    site.identity.siteTagline || 'Web developer building clean, fast user experiences.';
+    site.identity.siteTagline ||
+    'Building quality infrastructure that enables engineering teams to release with confidence.';
   const subtitle =
-    site.identity.siteSubtitle || 'Jr. Software Engineer @ Braintree Technologies';
+    site.identity.siteSubtitle ||
+    'Senior Software QA Engineer @ Brain Station 23 · ISTQB® Certified';
   const initials = (site.identity.siteInitials || 'SN').slice(0, 2).toUpperCase();
 
   const accent = hexToRgb(site.theme.accentColor) ?? { r: 167, g: 139, b: 250 };

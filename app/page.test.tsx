@@ -35,8 +35,9 @@ const allSections = {
 };
 
 const identityBase = {
-  siteTitle: 'Salekin Newaz',
-  siteTagline: 'Web developer.',
+  siteTitle: 'Md Salekin Newaz',
+  siteTagline:
+    'Building quality infrastructure that enables engineering teams to release with confidence.',
   siteSubtitle: '',
   siteInitials: 'SN',
   aboutBio: '',
@@ -103,11 +104,12 @@ describe('HomePage', () => {
     await renderHomePage(ui);
     // Heading might split into 2 spans (first name + last name)
     expect(
-      screen.getByRole('heading', { level: 1, name: /Salekin Newaz/i }),
+      screen.getByRole('heading', { level: 1, name: /Md Salekin Newaz/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Web developer/i)).toBeInTheDocument();
-    // New role strap element
-    expect(screen.getByText(/Software Engineer/i)).toBeInTheDocument();
+    expect(screen.getByText(/quality infrastructure/i)).toBeInTheDocument();
+    // New role strap element (also surfaces in the Current Role section,
+    // so use getAllByText).
+    expect(screen.getAllByText(/Senior Software QA Engineer/i).length).toBeGreaterThan(0);
   });
 
   it('renders all major sections when enabled', async () => {
@@ -131,12 +133,30 @@ describe('HomePage', () => {
         publishedAt: new Date('2026-01-01T00:00:00Z'),
       },
     ]);
+    // Provide a current experience so the Current Role section renders
+    // its heading (it returns null when there's no endDate === null row).
+    vi.mocked(listExperiencesOrdered).mockResolvedValue([
+      {
+        id: 'e1',
+        company: 'Brain Station 23',
+        role: 'Senior Software QA Engineer',
+        startDate: new Date('2025-01-01T00:00:00Z'),
+        endDate: null,
+        description: 'Lead QA.',
+        bullets: [],
+        sortOrder: 1,
+      },
+    ]);
     const ui = await HomePage();
     await renderHomePage(ui);
     // Section headings (h2) — plain editorial labels, no terminal
-    // prefixes. The seven on-page sections are: Featured Work,
-    // Experience, How I Build, Core Stack, About, Contact. Plus the
-    // h1 in the Hero.
+    // prefixes. The on-page sections (per brief §24): Current Role,
+    // Featured Work, Experience, How I Build, Core Expertise,
+    // AI-Driven QA, About, Education & Certifications, Contact. Plus
+    // the h1 in the Hero.
+    expect(
+      screen.getByRole('heading', { level: 2, name: /what i.?m doing now/i }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: /featured work/i }),
     ).toBeInTheDocument();
@@ -147,10 +167,16 @@ describe('HomePage', () => {
       screen.getByRole('heading', { level: 2, name: /how i build/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /core stack/i }),
+      screen.getByRole('heading', { level: 2, name: /core expertise/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: /ai.?driven qa/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: /a bit about me/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: /education .{0,3} certifications/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: /let.?s build something/i }),
@@ -188,34 +214,35 @@ describe('HomePage', () => {
     vi.mocked(listExperiencesOrdered).mockResolvedValue([
       {
         id: 'e1',
-        company: 'Braintree',
-        role: 'Jr. Engineer',
-        startDate: new Date('2025-09-01T00:00:00Z'),
+        company: 'Brain Station 23',
+        role: 'Senior Software QA Engineer',
+        startDate: new Date('2025-01-01T00:00:00Z'),
         endDate: null,
-        description: 'Building tools.',
-        bullets: ['Shipped A', 'Shipped B'],
+        description: 'Lead QA across products.',
+        bullets: ['Built Playwright framework', 'Set up CI/CD', 'Mentored juniors'],
         sortOrder: 1,
       },
       {
         id: 'e2',
-        company: 'StackRefactor',
-        role: 'Full-Stack',
-        startDate: new Date('2024-08-01T00:00:00Z'),
-        endDate: new Date('2024-12-31T00:00:00Z'),
-        description: 'Built inventory.',
+        company: 'SEBPO',
+        role: 'Trainee QA Engineer',
+        startDate: new Date('2021-11-01T00:00:00Z'),
+        endDate: new Date('2021-12-31T00:00:00Z'),
+        description: 'Foundation training.',
         bullets: [],
         sortOrder: 2,
       },
     ]);
     const ui = await HomePage();
     await renderHomePage(ui);
-    // "Full-Stack Developer (Freelance / Inventory project)" contains
-    // "Full-Stack", and the hero role strap also contains it. Use
-    // a substring matcher so the assertion is robust to either
-    // appearance.
-    expect(screen.getAllByText(/Full-Stack/i).length).toBeGreaterThan(0);
-    expect(screen.getByText('Shipped A')).toBeInTheDocument();
-    expect(screen.getByText('Built inventory.')).toBeInTheDocument();
+    // Company + role + bullets all render in the timeline. The current
+    // role row also gets surfaced in the dedicated Current Role section
+    // above the timeline, so substring matchers stay robust to either
+    // placement.
+    expect(screen.getAllByText(/Brain Station 23/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Senior Software QA Engineer/i).length).toBeGreaterThan(0);
+    expect(screen.getByText('Built Playwright framework')).toBeInTheDocument();
+    expect(screen.getByText('Foundation training.')).toBeInTheDocument();
   });
 
   it('renders the education list with one row per entry', async () => {
@@ -229,21 +256,21 @@ describe('HomePage', () => {
     vi.mocked(listEducationOrdered).mockResolvedValue([
       {
         id: 'ed1',
-        institution: 'DIU',
-        degree: 'BSc',
-        startYear: 2022,
-        endYear: 2025,
+        institution: 'International Islamic University Chittagong',
+        degree: 'BSc in Computer Science & Engineering',
+        startYear: 2016,
+        endYear: 2020,
         description: null,
         sortOrder: 1,
       },
     ]);
     const ui = await HomePage();
     await renderHomePage(ui);
-    // BSc/DIU should appear at least once on the page. After the
-    // refinement, the education row is a quiet line inside the
-    // About section, not a dedicated card — substring matchers keep
-    // the test robust to either placement.
+    // BSc / institution should appear at least once on the page. The
+    // education row now lives in its own Education & Certifications
+    // section (per brief §24), not inside About. Substring matchers
+    // keep the test robust to either placement.
     expect(screen.getAllByText(/B\.?Sc/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/DIU/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/IIUC|Chittagong/i).length).toBeGreaterThan(0);
   });
 });

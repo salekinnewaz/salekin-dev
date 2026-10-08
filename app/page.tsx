@@ -4,18 +4,21 @@ import { getSiteSettings } from '@/lib/queries/site';
 import { listExperiencesOrdered } from '@/lib/queries/experiences';
 import { listEducationOrdered } from '@/lib/queries/education';
 import { Hero } from '@/components/site/Hero';
+import { CurrentRole } from '@/components/site/CurrentRole';
 import { FeaturedProjects } from '@/components/site/FeaturedProjects';
 import { ExperienceTimeline } from '@/components/site/ExperienceTimeline';
 import { HowIBuild } from '@/components/site/HowIBuild';
 import { CoreStack } from '@/components/site/CoreStack';
+import { AiDrivenQa } from '@/components/site/AiDrivenQa';
 import { AboutSection } from '@/components/site/AboutSection';
+import { EducationCerts } from '@/components/site/EducationCerts';
 import { ContactSection } from '@/components/site/ContactSection';
 import { env } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: 'Home',
   description:
-    'Software engineer building reliable digital products with TypeScript, React, and Next.js. See my work, experience, stack, and how to get in touch.',
+    'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
 };
 
 export default async function HomePage() {
@@ -25,7 +28,7 @@ export default async function HomePage() {
     listEducationOrdered(),
   ]);
 
-  const { identity, sections, stats } = site;
+  const { identity, sections } = site;
   const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
 
   // WebSite + Person JSON-LD for SEO. All values come from real
@@ -41,13 +44,12 @@ export default async function HomePage() {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: identity.siteTitle,
-    jobTitle: 'Software Engineer',
+    jobTitle: 'Senior Software QA Engineer',
     url: siteUrl,
     email: identity.contactEmail ?? undefined,
     sameAs: [
       identity.socialGithub,
       identity.socialLinkedin,
-      identity.socialFacebook,
       identity.socialX,
     ].filter((x): x is string => Boolean(x)),
   };
@@ -55,6 +57,10 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       {sections.showHero ? <Hero identity={identity} /> : null}
+
+      {sections.showExperience ? (
+        <CurrentRole experiences={experiences} />
+      ) : null}
 
       <Suspense fallback={null}>
         <FeaturedProjects limit={3} />
@@ -88,13 +94,11 @@ export default async function HomePage() {
         <CoreStack />
       </section>
 
-      {sections.showAbout ? (
-        <AboutSection
-          identity={identity}
-          stats={stats}
-          education={education}
-        />
-      ) : null}
+      <AiDrivenQa />
+
+      {sections.showAbout ? <AboutSection identity={identity} /> : null}
+
+      {sections.showAbout ? <EducationCerts education={education} /> : null}
 
       {sections.showContact ? <ContactSection identity={identity} /> : null}
 

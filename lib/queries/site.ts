@@ -90,9 +90,11 @@ export type SiteSettings = {
 };
 
 const DEFAULTS = {
-  site_title: 'Salekin Newaz',
-  site_tagline: 'Web developer.',
-  site_subtitle: '',
+  site_title: 'Md Salekin Newaz',
+  site_tagline:
+    'Building quality infrastructure that enables engineering teams to release with confidence.',
+  site_subtitle:
+    'Senior Software QA Engineer @ Brain Station 23 · ISTQB® Certified',
   site_initials: 'SN',
   about_bio: '',
   contact_email: '',
