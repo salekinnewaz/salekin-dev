@@ -265,6 +265,12 @@ const settings: { key: string; value: string }[] = [
 ];
 
 async function seedProjects() {
+  // Wipe stale rows first so the seed reflects ONLY the verified brief
+  // content. A previous version of the site used a different identity
+  // (different person/role/company); those rows must not linger.
+  await prisma.project.deleteMany({
+    where: { slug: { notIn: projects.map((p) => p.slug) } },
+  });
   for (const p of projects) {
     await prisma.project.upsert({
       where: { slug: p.slug },
@@ -298,6 +304,18 @@ async function seedProjects() {
 }
 
 async function seedExperiences() {
+  // Wipe rows that aren't part of the verified career path so the
+  // timeline doesn't show the previous identity's stale roles.
+  const keep = experiences.map(
+    (e) => `${e.company}::${e.role}`,
+  );
+  const all = await prisma.experience.findMany({ select: { id: true, company: true, role: true } });
+  const stale = all
+    .filter((r) => !keep.includes(`${r.company}::${r.role}`))
+    .map((r) => r.id);
+  if (stale.length > 0) {
+    await prisma.experience.deleteMany({ where: { id: { in: stale } } });
+  }
   for (const e of experiences) {
     const existing = await prisma.experience.findFirst({
       where: { company: e.company, role: e.role },
@@ -320,6 +338,18 @@ async function seedExperiences() {
 }
 
 async function seedEducation() {
+  // Drop HSC / SSC / any other rows that aren't part of the verified
+  // brief. We keep only the BSc (IIUC) row.
+  const keep = educations.map(
+    (ed) => `${ed.institution}::${ed.degree}`,
+  );
+  const all = await prisma.education.findMany({ select: { id: true, institution: true, degree: true } });
+  const stale = all
+    .filter((r) => !keep.includes(`${r.institution}::${r.degree}`))
+    .map((r) => r.id);
+  if (stale.length > 0) {
+    await prisma.education.deleteMany({ where: { id: { in: stale } } });
+  }
   for (const ed of educations) {
     const existing = await prisma.education.findFirst({
       where: { institution: ed.institution, degree: ed.degree },
