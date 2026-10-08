@@ -2,6 +2,18 @@ import type { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
 import { listPublishedProjects } from '@/lib/queries/projects';
 
+// Sitemap policy notes:
+//
+//   - /about and /contact are intentionally OMITTED. They server-redirect
+//     to /#about and /#contact respectively (see app/about/page.tsx and
+//     app/contact/page.tsx). Listing the redirect sources here would waste
+//     crawl budget and trigger soft-404 noise. The hash anchors ARE
+//     listed below so the sections themselves are surfaced.
+//
+//   - /admin/* is omitted because robots.txt disallows it (see
+//     app/robots.ts). The same rule applies for any future auth-gated
+//     route.
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = env.SITE_URL ?? 'http://localhost:3000';
   const now = new Date();

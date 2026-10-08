@@ -35,11 +35,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  async redirects() {
-    return [
-      { source: '/og', destination: '/opengraph-image', permanent: true },
-    ];
-  },
+  // No URL redirects — `app/opengraph-image.tsx` is the single source
+  // of truth and is referenced directly from `metadata.openGraph.images`
+  // and `metadata.twitter.images` in `app/layout.tsx`.
   async headers() {
     return [
       {

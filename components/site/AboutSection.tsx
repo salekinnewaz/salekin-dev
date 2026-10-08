@@ -48,7 +48,14 @@ const FACTS = [
  */
 export function AboutSection({ identity }: AboutSectionProps) {
   const bio = identity.aboutBio;
-  const paragraphs = bio ? bio.split(/\n\n+/).map((p) => p.trim()).filter(Boolean) : [];
+  // SEO: lead with a "Hi, I'm <full name>." sentence so the about
+  // section has the name in visible on-page text (search engines
+  // weight body text heavily for name queries).
+  const greeting = `Hi, I’m ${identity.siteTitle}.`;
+  const bioParagraphs = bio
+    ? bio.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)
+    : [];
+  const paragraphs = [greeting, ...bioParagraphs];
 
   return (
     <section

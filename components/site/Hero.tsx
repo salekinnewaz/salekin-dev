@@ -78,7 +78,12 @@ export function Hero({ identity }: HeroProps) {
           </p>
 
           <p className="max-w-2xl text-lg leading-relaxed text-fg-2 text-pretty sm:text-xl">
-            {tagline}
+            {/* SEO: the full name appears in the tagline so the home page
+                has the name in visible on-page text (not just the H1).
+                Search engines weight body text heavily for name queries. */}
+            {tagline.includes(identity.siteTitle)
+              ? tagline
+              : `I'm ${identity.siteTitle}. ${tagline}`}
           </p>
 
           <div className="mt-2 flex flex-wrap items-center gap-3">

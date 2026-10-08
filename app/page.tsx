@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getSiteSettings } from '@/lib/queries/site';
 import { listExperiencesOrdered } from '@/lib/queries/experiences';
@@ -15,11 +14,11 @@ import { EducationCerts } from '@/components/site/EducationCerts';
 import { ContactSection } from '@/components/site/ContactSection';
 import { env } from '@/lib/env';
 
-export const metadata: Metadata = {
-  title: 'Home',
-  description:
-    'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
-};
+// SEO: the home page intentionally does NOT set its own `title` so the
+// root layout's strong default ("Md Salekin Newaz — Senior Software QA
+// Engineer") renders. Adding `title: 'Home'` here would override the
+// template to "Home · Md Salekin Newaz" — a generic string that wastes
+// the most important on-page keyword slot for the user's name query.
 
 export default async function HomePage() {
   const [site, experiences, education] = await Promise.all([
@@ -31,27 +30,29 @@ export default async function HomePage() {
   const { identity, sections } = site;
   const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
 
-  // WebSite + Person JSON-LD for SEO. All values come from real
-  // identity / settings data — no invented profiles.
+  // WebSite + WebPage JSON-LD for SEO. The Person block is emitted
+  // globally in the root layout; here we just link this page into the
+  // graph so Google sees the connection (#website → #webpage → #person).
   const websiteJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': `${siteUrl}/#website`,
     name: 'salekin.dev',
     url: siteUrl,
-    description: metadata.description,
+    description:
+      'Md Salekin Newaz — Senior Software QA Engineer. Portfolio, projects, and case studies.',
   };
-  const personJsonLd: Record<string, unknown> = {
+  const webPageJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: identity.siteTitle,
-    jobTitle: 'Senior Software QA Engineer',
+    '@type': 'WebPage',
+    '@id': `${siteUrl}/#webpage`,
     url: siteUrl,
-    email: identity.contactEmail ?? undefined,
-    sameAs: [
-      identity.socialGithub,
-      identity.socialLinkedin,
-      identity.socialX,
-    ].filter((x): x is string => Boolean(x)),
+    name: identity.siteTitle,
+    inLanguage: 'en',
+    isPartOf: { '@id': `${siteUrl}/#website` },
+    about: { '@id': `${siteUrl}/#person` },
+    description:
+      'Portfolio of Md Salekin Newaz — Senior Software QA Engineer at Brain Station 23, ISTQB® Certified, specializing in Playwright automation and AI-driven QA.',
   };
 
   return (
@@ -108,7 +109,7 @@ export default async function HomePage() {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
       />
     </div>
   );

@@ -7,6 +7,7 @@ import { RevealObserver } from '@/components/site/RevealObserver';
 import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
 import { HashScrollController } from '@/components/site/HashScrollController';
 import { getSiteSettings } from '@/lib/queries/site';
+import { listEducationOrdered } from '@/lib/queries/education';
 import { env } from '@/lib/env';
 import './globals.css';
 
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
       'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
     images: [
       {
-        url: '/og',
+        url: '/opengraph-image',
         width: 1200,
         height: 630,
         alt: 'Md Salekin Newaz — Senior Software QA Engineer',
@@ -69,7 +70,7 @@ export const metadata: Metadata = {
     title: 'Md Salekin Newaz — Senior Software QA Engineer',
     description:
       'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
-    images: ['/og'],
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
@@ -82,7 +83,10 @@ type RootLayoutProps = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const { theme, identity } = await getSiteSettings();
+  const [{ theme, identity }, education] = await Promise.all([
+    getSiteSettings(),
+    listEducationOrdered(),
+  ]);
 
   // Convert hex (#rrggbb) to "rgba(r, g, b, 0.12)" for the soft tint
   const accentRgb = hexToRgb(theme.accentColor);
@@ -152,23 +156,85 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         ? `:root{--runtime-accent:${theme.accentColor};--runtime-accent-soft:${accentSoft};}`
         : '';
 
-  // JSON-LD Person schema for SEO
+  // JSON-LD: Person schema for SEO. Uses schema.org knowledge-graph
+  // fields Google surfaces in knowledge panels: knowsAbout, worksFor,
+  // alumniOf, jobLocation, sameAs. All values come from real
+  // identity / settings / education data — no invented profiles.
   const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
-  const jsonLd: Record<string, unknown> = {
+  const sameAs = [
+    identity.socialGithub,
+    identity.socialLinkedin,
+    identity.socialFacebook,
+    identity.socialX,
+  ].filter((x): x is string => Boolean(x));
+
+  // Pick the highest-degree education row for alumniOf. BSc rows
+  // (or any row whose degree contains "B" + "Sc" or "Bachelor") are
+  // preferred; falls back to the first row if none match.
+  const bscLike = education.find((e) => /\b(b\.?sc|bachelor|bs|undergrad)/i.test(e.degree));
+  const alumniRow = bscLike ?? education[0];
+
+  const personJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Person',
+    '@id': `${siteUrl}/#person`,
     name: identity.siteTitle,
-    jobTitle: identity.siteTagline,
+    givenName: 'Md Salekin',
+    familyName: 'Newaz',
+    jobTitle: 'Senior Software QA Engineer',
+    description:
+      'ISTQB® Certified Senior Software QA Engineer at Brain Station 23, specializing in Playwright automation, AI-driven QA, and CI/CD integration.',
     email: identity.contactEmail ?? undefined,
     address: identity.contactLocation ?? undefined,
     url: siteUrl,
-    image: `${siteUrl}/og`,
-    sameAs: [
-      identity.socialGithub,
-      identity.socialLinkedin,
-      identity.socialFacebook,
-      identity.socialX,
-    ].filter((x): x is string => Boolean(x)),
+    image: `${siteUrl}/opengraph-image`,
+    sameAs,
+    worksFor: {
+      '@type': 'Organization',
+      name: 'Brain Station 23',
+    },
+    knowsAbout: [
+      'Test Automation',
+      'Playwright',
+      'AI-driven QA',
+      'Software Testing',
+      'API Testing',
+      'Performance Testing',
+      'CI/CD',
+      'ISTQB Foundation Level',
+    ],
+    ...(identity.contactLocation
+      ? {
+          jobLocation: {
+            '@type': 'Place',
+            name: identity.contactLocation,
+          },
+        }
+      : {}),
+    ...(alumniRow
+      ? {
+          alumniOf: {
+            '@type': 'EducationalOrganization',
+            name: alumniRow.institution,
+          },
+        }
+      : {}),
+  };
+
+  // WebSite JSON-LD — declared globally so every page links into the
+  // same entity id (`#website`). The per-page WebPage blocks in
+  // `app/page.tsx` and project pages set `isPartOf: { '@id': '#website' }`,
+  // so the whole site is one connected knowledge graph.
+  const websiteJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${siteUrl}/#website`,
+    name: 'salekin.dev',
+    url: siteUrl,
+    description:
+      'Md Salekin Newaz — Senior Software QA Engineer. Portfolio, projects, and case studies.',
+    inLanguage: 'en',
+    publisher: { '@id': `${siteUrl}/#person` },
   };
 
   return (
@@ -184,6 +250,17 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         />
+        {/* SEO: identity-verification links. `rel="author"` points at the
+            canonical about anchor on this site; `rel="me"` is the
+            Google-recognized signal that this site is the same person
+            as the linked external profile (used for E-E-A-T). */}
+        <link rel="author" href={`${siteUrl}/#about`} />
+        {identity.socialGithub ? (
+          <link rel="me" href={identity.socialGithub} />
+        ) : null}
+        {identity.socialLinkedin ? (
+          <link rel="me" href={identity.socialLinkedin} />
+        ) : null}
         {runtimeCss ? (
           <style dangerouslySetInnerHTML={{ __html: runtimeCss }} />
         ) : null}
@@ -248,7 +325,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         </footer>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </body>
     </html>
