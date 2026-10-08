@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { listPublishedProjects } from '@/lib/queries/projects';
+import { getSiteSettings } from '@/lib/queries/site';
 import { ProjectCard } from '@/components/site/ProjectCard';
 
 export const metadata: Metadata = {
@@ -19,7 +20,10 @@ export const metadata: Metadata = {
  * categories, just a useful "jump to" affordance.
  */
 export default async function ProjectsPage() {
-  const projects = await listPublishedProjects();
+  const [projects, site] = await Promise.all([
+    listPublishedProjects(),
+    getSiteSettings(),
+  ]);
   const count = projects.length;
 
   // Distinct tech tags, sorted by frequency then alphabetical. Used
@@ -34,6 +38,8 @@ export default async function ProjectsPage() {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, 12)
     .map(([t]) => t);
+
+  const github = site.identity.socialGithub;
 
   return (
     <div className="flex flex-col gap-12 pt-12 pb-20 sm:pt-16">
@@ -72,7 +78,7 @@ export default async function ProjectsPage() {
       ) : null}
 
       {count === 0 ? (
-        <EmptyState />
+        <EmptyState github={github} />
       ) : (
         <div
           className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 reveal-stagger"
@@ -98,17 +104,33 @@ export default async function ProjectsPage() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ github }: { github: string | null }) {
   return (
-    <div className="glass-card flex flex-col items-start gap-3 p-8">
+    <div className="glass-card flex flex-col items-start gap-4 p-8">
       <span className="font-mono text-xs uppercase tracking-widest text-muted">
         <span className="text-accent-2">$</span> ls ./projects
       </span>
       <p className="max-w-prose text-base text-fg-2 text-pretty">
-        No published projects yet. New case studies are added through
-        the admin panel — they will show up here as soon as they are
-        published.
+        No published case studies on this site yet. In the meantime,
+        the code lives on GitHub.
       </p>
+      {github ? (
+        <a
+          href={github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-outline magnetic"
+        >
+          <span aria-hidden="true" className="font-mono text-fg-2/80">$</span>
+          open github profile
+          <span aria-hidden="true">↗</span>
+        </a>
+      ) : (
+        <p className="text-sm text-muted">
+          Case studies will land here as soon as they&apos;re published
+          from the admin panel.
+        </p>
+      )}
     </div>
   );
 }

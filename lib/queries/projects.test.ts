@@ -21,9 +21,10 @@ const FIXTURE_SLUGS = [
 ];
 
 async function wipeFixtures() {
-  await getTestDb().project.deleteMany({
-    where: { slug: { in: FIXTURE_SLUGS } },
-  });
+  // Wipe ALL projects in the test DB, not just the fixture slugs.
+  // The seed file also inserts placeholder case studies (P0.1), and
+  // they would otherwise bleed into the count assertions below.
+  await getTestDb().project.deleteMany({});
 }
 
 describe('queries/projects', () => {

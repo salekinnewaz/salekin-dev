@@ -24,10 +24,58 @@ type SeedProject = {
   publishedAt: Date | null;
 };
 
-// No standalone "Projects" section in the CV — only roles. We seed an
-// archive marker so any future code that calls listPublishedProjects() still
-// returns a valid (empty) array.
-const projects: SeedProject[] = [];
+// Three honest placeholder case studies. These are clearly marked
+// [TODO] so they don't look like finished write-ups; they exist so
+// the /projects page and the home-page Featured Work section render
+// something a recruiter can click. The admin panel can edit the body
+// of each one (or delete it) when a real case study is ready.
+const projects: SeedProject[] = [
+  {
+    slug: 'inventory-module',
+    title: '[TODO] Inventory module — StackRefactor',
+    description:
+      'End-to-end inventory app for an e-commerce platform. Full-stack: backend API, database schema, frontend UI. Add the real write-up in the admin panel.',
+    body:
+      '## Overview\n\nTODO: write the case study.\n\n## Architecture\n\n```\nfrontend  →  api  →  db\n```\n',
+    imageUrl: null,
+    repoUrl: null,
+    liveUrl: null,
+    techStack: ['TypeScript', 'Node.js', 'PostgreSQL', 'Next.js'],
+    featured: true,
+    featuredOrder: 1,
+    publishedAt: new Date('2024-12-01T00:00:00Z'),
+  },
+  {
+    slug: 'portfolio-suite',
+    title: '[TODO] 24 portfolio sites — StackRefactor',
+    description:
+      'A run of 24 portfolio websites shipped for clients in design and consulting. Real metrics, real clients — flesh this out from the admin panel.',
+    body:
+      '## Overview\n\nTODO: case study.\n\n## What I owned\n\nTODO.\n',
+    imageUrl: null,
+    repoUrl: null,
+    liveUrl: null,
+    techStack: ['Next.js', 'React', 'Tailwind CSS', 'Vercel'],
+    featured: true,
+    featuredOrder: 2,
+    publishedAt: new Date('2024-06-01T00:00:00Z'),
+  },
+  {
+    slug: 'internal-tools',
+    title: '[TODO] Internal tools — Braintree',
+    description:
+      'Internal tooling and dashboards for the Braintree operations team. Replace this copy with a real write-up.',
+    body:
+      '## Overview\n\nTODO: case study.\n',
+    imageUrl: null,
+    repoUrl: null,
+    liveUrl: null,
+    techStack: ['TypeScript', 'React', 'NestJS', 'PostgreSQL'],
+    featured: true,
+    featuredOrder: 3,
+    publishedAt: new Date('2025-09-15T00:00:00Z'),
+  },
+];
 
 type SeedExperience = {
   company: string;

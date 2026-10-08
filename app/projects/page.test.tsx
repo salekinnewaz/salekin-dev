@@ -6,6 +6,40 @@ import { render, screen } from '@testing-library/react';
 vi.mock('@/lib/queries/projects', () => ({
   listPublishedProjects: vi.fn(),
 }));
+vi.mock('@/lib/queries/site', () => ({
+  getSiteSettings: vi.fn().mockResolvedValue({
+    identity: {
+      siteTitle: 'Salekin Newaz',
+      siteTagline: '',
+      siteSubtitle: '',
+      siteInitials: 'SN',
+      aboutBio: '',
+      contactEmail: null,
+      contactPhone: null,
+      contactLocation: null,
+      cvUrl: '/cv.pdf',
+      socialGithub: 'https://github.com/salekin',
+      socialLinkedin: null,
+      socialFacebook: null,
+      socialX: null,
+    },
+    sections: {
+      showHero: true,
+      showAbout: true,
+      showExperience: true,
+      showSkills: true,
+      showEducation: true,
+      showContact: true,
+    },
+    theme: {
+      accentColor: '#a78bfa',
+      accentColor2: '#22d3ee',
+      defaultTheme: 'dark' as const,
+    },
+    skills: { languages: [], frameworks: [], databases: [], tools: [], soft: [] },
+    stats: { yearsCoding: 4, sitesShipped: 24, rolesHeld: 5 },
+  }),
+}));
 
 import { listPublishedProjects } from '@/lib/queries/projects';
 import ProjectsPage from './page';
@@ -57,14 +91,18 @@ describe('ProjectsPage', () => {
     expect(badge?.textContent).toBe('02');
   });
 
-  it('renders the empty state when no projects are published', async () => {
+  it('renders the empty state with a GitHub link when no projects are published', async () => {
     vi.mocked(listPublishedProjects).mockResolvedValue([]);
     const ui = await ProjectsPage();
     render(ui);
     expect(
       screen.getByRole('heading', { level: 1, name: /ls.*projects/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/no published projects yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/no published case studies/i)).toBeInTheDocument();
+    // GitHub CTA points at the configured social URL.
+    const gh = screen.getByRole('link', { name: /open github profile/i });
+    expect(gh.getAttribute('href')).toBe('https://github.com/salekin');
+    expect(gh.getAttribute('target')).toBe('_blank');
     expect(screen.queryByTestId('projects-grid')).toBeNull();
   });
 
