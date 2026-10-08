@@ -15,11 +15,13 @@ function formatMonthYear(date: Date): string {
 type ExperienceCardProps = {
   experience: ExperienceItemType;
   isLast: boolean;
+  /** 1-based index used for the [NN] marker on the card. */
+  index: number;
 };
 
-function ExperienceCard({ experience, isLast }: ExperienceCardProps) {
+function ExperienceCard({ experience, isLast, index }: ExperienceCardProps) {
   const { company, role, startDate, endDate, description, bullets } = experience;
-  const end = endDate ? formatMonthYear(endDate) : 'Present';
+  const end = endDate ? formatMonthYear(endDate) : 'present';
   const isCurrent = endDate === null;
 
   const ref = useRef<HTMLDivElement>(null);
@@ -43,6 +45,9 @@ function ExperienceCard({ experience, isLast }: ExperienceCardProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="flex flex-col gap-1">
           <h3 className="heading-display text-xl text-fg sm:text-2xl">
+            <span className="font-mono text-sm text-accent-2">
+              [{String(index).padStart(2, '0')}]
+            </span>{' '}
             {role}
           </h3>
           <p className="font-mono text-sm text-accent-2">
@@ -63,7 +68,7 @@ function ExperienceCard({ experience, isLast }: ExperienceCardProps) {
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
               </span>
             ) : null}
-            {isCurrent ? 'Current' : 'Past'}
+            {isCurrent ? 'in progress' : 'merged'}
           </span>
           <p className="font-mono text-xs uppercase tracking-wider text-muted">
             {formatMonthYear(startDate)} — {end}
@@ -73,6 +78,7 @@ function ExperienceCard({ experience, isLast }: ExperienceCardProps) {
 
       {description ? (
         <p className="mt-3 text-sm leading-relaxed text-fg-2">
+          <span className="font-mono text-accent-2/80">{'> '}</span>
           {description}
         </p>
       ) : null}
@@ -85,9 +91,11 @@ function ExperienceCard({ experience, isLast }: ExperienceCardProps) {
               className="flex gap-2.5 text-sm leading-relaxed text-fg-2"
             >
               <span
-                className="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-accent"
+                className="mt-0.5 inline-block shrink-0 font-mono text-xs text-accent"
                 aria-hidden="true"
-              />
+              >
+                ▸
+              </span>
               <span>{b}</span>
             </li>
           ))}
@@ -104,7 +112,12 @@ type ExperienceTimelineProps = {
 export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
   if (experiences.length === 0) {
     return (
-      <p className="text-sm text-muted">No experience entries yet.</p>
+      <p className="font-mono text-sm text-muted">
+        <span className="text-accent-2">$</span> git log --oneline
+        <span className="block pl-4 opacity-70">
+          # nothing to show yet
+        </span>
+      </p>
     );
   }
 
@@ -132,6 +145,7 @@ export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
             <ExperienceCard
               experience={exp}
               isLast={i === experiences.length - 1}
+              index={i + 1}
             />
           </li>
         ))}

@@ -50,9 +50,9 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           </ul>
         ) : null}
         <div className="mt-1 flex items-center justify-between font-mono text-xs">
-          <span className="text-muted">case study</span>
+          <span className="text-muted">./README.md</span>
           <span className="text-accent opacity-0 transition-opacity group-hover:opacity-100">
-            view project →
+            cat →
           </span>
         </div>
       </div>

@@ -37,7 +37,7 @@ describe('ProjectsPage', () => {
     const ui = await ProjectsPage();
     render(ui);
     expect(
-      screen.getByRole('heading', { level: 1, name: /shipped/i }),
+      screen.getByRole('heading', { level: 1, name: /ls.*projects/i }),
     ).toBeInTheDocument();
     // Both project titles render as h3
     expect(screen.getByRole('heading', { level: 3, name: 'specsmd' })).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('ProjectsPage', () => {
     const ui = await ProjectsPage();
     render(ui);
     expect(
-      screen.getByRole('heading', { level: 1, name: /shipped/i }),
+      screen.getByRole('heading', { level: 1, name: /ls.*projects/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/no published projects yet/i)).toBeInTheDocument();
     expect(screen.queryByTestId('projects-grid')).toBeNull();
@@ -72,7 +72,7 @@ describe('ProjectsPage', () => {
     vi.mocked(listPublishedProjects).mockResolvedValue([makeProject()]);
     const ui = await ProjectsPage();
     render(ui);
-    const link = screen.getByRole('link', { name: /back home/i });
+    const link = screen.getByRole('link', { name: /cd \.\./i });
     expect(link.getAttribute('href')).toBe('/');
   });
 });

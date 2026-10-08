@@ -5,11 +5,11 @@ type SkillGridProps = {
 };
 
 const CATEGORY_META: Record<keyof SkillsByCategory, { label: string; count: string }> = {
-  languages: { label: 'Languages', count: '01' },
-  frameworks: { label: 'Frameworks', count: '02' },
-  databases: { label: 'Databases', count: '03' },
-  tools: { label: 'Tools', count: '04' },
-  soft: { label: 'Soft skills', count: '05' },
+  languages: { label: '~/langs/*', count: '01' },
+  frameworks: { label: '~/frameworks/*', count: '02' },
+  databases: { label: '~/data/*', count: '03' },
+  tools: { label: '~/bin/*', count: '04' },
+  soft: { label: '~/.config', count: '05' },
 };
 
 const CATEGORY_ORDER: (keyof SkillsByCategory)[] = [

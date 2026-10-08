@@ -247,6 +247,41 @@
     color: var(--color-muted);
     font-feature-settings: 'tnum';
   }
+
+  /* ─ Section divider: `// ── name ───────────────` ─
+     Renders a code-comment-style header with a long horizontal rule
+     trailing into the right margin. Used in place of the gradient
+     display heading on sections that want a terminal/log feel. */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .section-divider::before {
+    content: '//';
+    color: var(--color-muted);
+    opacity: 0.6;
+  }
+  .section-divider__name {
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+  .section-divider__rule {
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      var(--color-border) 0%,
+      transparent 100%
+    );
+    min-width: 1.5rem;
+  }
   /* ─ Glassy card ─ */
   .glass-card {
     background-color: var(--color-card);

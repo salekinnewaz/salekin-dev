@@ -62,7 +62,7 @@ export function NowWidget({ building, learning, reading }: Props) {
             </span>
           ) : null}
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-            {c.label}
+            <span className="text-accent-2">$</span> {c.label}
           </span>
           <p className="pr-12 text-sm leading-relaxed text-fg-2 text-pretty">
             {c.value}

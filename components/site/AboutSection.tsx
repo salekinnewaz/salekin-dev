@@ -1,6 +1,7 @@
 import type { SiteIdentity } from '@/lib/queries/site';
 import { NowWidget } from './NowWidget';
 import { CountUpStat } from './CountUpStat';
+import { SectionDivider } from './SectionDivider';
 
 type AboutSectionProps = {
   identity: SiteIdentity;
@@ -37,10 +38,11 @@ export function AboutSection({ identity }: AboutSectionProps) {
     >
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_3fr]">
         <div className="flex flex-col gap-4 reveal">
-          <span className="eyebrow">About</span>
+          <SectionDivider name="about" trailing="// stack + background" />
           <h2 className="heading-display text-4xl sm:text-5xl">
-            <span className="text-fg">A bit </span>
-            <span className="heading-gradient">about me.</span>
+            <span className="font-mono text-accent-2">$</span>{' '}
+            <span className="text-fg">whoami</span>
+            <span className="text-muted"> --short</span>
           </h2>
         </div>
 

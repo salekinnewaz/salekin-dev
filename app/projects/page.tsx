@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { listPublishedProjects } from '@/lib/queries/projects';
 import { ProjectCard } from '@/components/site/ProjectCard';
+import { SectionDivider } from '@/components/site/SectionDivider';
 
 export const metadata: Metadata = {
   title: 'Projects',
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
  *
  * Pulls published projects from the DB and renders them as a responsive
  * grid of <ProjectCard> tiles. Each card already does its own hover lift
- * + gradient cover, so the page-level chrome stays quiet: just an
- * eyebrow, a display heading, a count, and the grid.
+ * + gradient cover, so the page-level chrome stays quiet: just a
+ * divider, a display heading, a count, and the grid.
  *
  * The empty state is intentional — a fresh install (no seed projects)
  * should still feel like a real page rather than a broken route.
@@ -32,8 +33,9 @@ export default async function ProjectsPage() {
           <span className="eyebrow__index">{count.toString().padStart(2, '0')}</span>
         </div>
         <h1 className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl">
-          <span className="block">Things I&apos;ve</span>
-          <span className="block">shipped.</span>
+          <span className="block font-mono text-accent-2">$</span>{' '}
+          <span className="block">ls ./projects</span>{' '}
+          <span className="block text-muted">--published</span>
         </h1>
         <p className="max-w-2xl text-base text-fg-2 sm:text-lg text-pretty">
           A small archive of full-stack apps, internal tools, and freelance
@@ -60,7 +62,7 @@ export default async function ProjectsPage() {
         className="mt-8 flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted"
       >
         <Link href="/" className="hover:text-accent">
-          ← back home
+          <span aria-hidden="true">← </span>cd ..
         </Link>
         <span aria-hidden="true">/</span>
         <span>case studies</span>
@@ -73,7 +75,7 @@ function EmptyState() {
   return (
     <div className="glass-card flex flex-col items-start gap-3 p-8">
       <span className="font-mono text-xs uppercase tracking-widest text-muted">
-        no entries
+        <span className="text-accent-2">$</span> ls ./projects
       </span>
       <p className="max-w-prose text-base text-fg-2 text-pretty">
         No published projects yet. New case studies are added through the

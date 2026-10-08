@@ -29,7 +29,12 @@ export function Hero({ identity }: HeroProps) {
     >
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto]">
         <div className="reveal-stagger flex flex-col gap-6">
-          <span className="eyebrow">Available for new roles</span>
+          <span className="eyebrow">
+            <span aria-hidden="true" className="font-mono opacity-80">$</span>
+            status --availability
+            <span aria-hidden="true" className="font-mono text-accent-2/80">·</span>
+            open
+          </span>
 
           <h1
             className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem]"
@@ -42,22 +47,26 @@ export function Hero({ identity }: HeroProps) {
           </h1>
 
           <p className="max-w-2xl text-lg leading-relaxed text-fg-2 text-pretty sm:text-xl">
+            <span className="font-mono text-accent-2">{'> '}</span>
             {tagline}
           </p>
 
           {subtitle ? (
             <p className="max-w-2xl text-sm text-muted sm:text-base">
+              <span className="font-mono text-muted"># </span>
               {subtitle}
             </p>
           ) : null}
 
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <Link href="#contact" className="btn-primary magnetic">
-              Get in touch
+              <span aria-hidden="true" className="font-mono text-fg-2/80">$</span>
+              open ticket
               <span aria-hidden="true">→</span>
             </Link>
             <a href="/cv-download" className="btn-outline magnetic">
-              Download CV
+              <span aria-hidden="true" className="font-mono text-fg-2/80">$</span>
+              grab resume.pdf
               <svg
                 width="14"
                 height="14"

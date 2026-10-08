@@ -1,5 +1,6 @@
 import type { SiteIdentity } from '@/lib/queries/site';
 import { ContactForm } from './ContactForm';
+import { SectionDivider } from './SectionDivider';
 
 type ContactSectionProps = {
   identity: SiteIdentity;
@@ -26,21 +27,22 @@ export function ContactSection({ identity }: ContactSectionProps) {
     >
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         <div className="flex flex-col gap-6 reveal">
-          <span className="eyebrow">Get in touch</span>
+          <SectionDivider name="contact" trailing="// POST /messages" />
           <h2 className="heading-display text-4xl sm:text-5xl">
-            <span className="text-fg">Let&apos;s </span>
-            <span className="heading-gradient">build something.</span>
+            <span className="font-mono text-accent-2">$</span>{' '}
+            <span className="text-fg">curl -X POST</span>{' '}
+            <span className="heading-gradient">salekin.dev</span>
           </h2>
           <p className="max-w-md text-base leading-relaxed text-fg-2">
-            Have a project, a role, or just want to talk shop? Drop a message —
-            I read everything and reply within a day or two.
+            Have a project, a role, or just want to talk shop? Drop a message
+            below — I read everything and reply within a day or two.
           </p>
 
           <ul className="mt-2 flex flex-col gap-3">
               {identity.contactEmail ? (
                 <li className="flex items-center gap-3">
                   <span
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card font-mono text-xs text-accent"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card font-mono text-sm text-accent"
                     aria-hidden="true"
                   >
                     ✉
@@ -56,7 +58,7 @@ export function ContactSection({ identity }: ContactSectionProps) {
               {identity.contactPhone ? (
                 <li className="flex items-center gap-3">
                   <span
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card font-mono text-xs text-accent"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card font-mono text-sm text-accent"
                     aria-hidden="true"
                   >
                     ☎
@@ -69,10 +71,10 @@ export function ContactSection({ identity }: ContactSectionProps) {
               {identity.contactLocation ? (
                 <li className="flex items-center gap-3">
                   <span
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card font-mono text-xs text-accent"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card font-mono text-sm text-accent"
                     aria-hidden="true"
                   >
-                    ◎
+                    ◉
                   </span>
                   <span className="font-mono text-sm text-fg">
                     {identity.contactLocation}

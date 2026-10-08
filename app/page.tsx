@@ -8,6 +8,7 @@ import { ExperienceTimeline } from '@/components/site/ExperienceTimeline';
 import { SkillGrid } from '@/components/site/SkillGrid';
 import { EducationList } from '@/components/site/EducationList';
 import { ContactSection } from '@/components/site/ContactSection';
+import { SectionDivider } from '@/components/site/SectionDivider';
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -37,11 +38,11 @@ export default async function HomePage() {
           id="experience"
           className="section-anchor relative py-20 sm:py-28"
         >
-          <div className="flex flex-col gap-3 reveal">
-            <span className="eyebrow">Experience</span>
+          <div className="flex flex-col gap-4 reveal">
+            <SectionDivider name="experience" trailing="// git log --oneline" />
             <h2 className="heading-display text-4xl sm:text-5xl">
-              <span className="text-fg">Where I&apos;ve </span>
-              <span className="heading-gradient">been shipping.</span>
+              <span className="font-mono text-accent-2">$</span>{' '}
+              <span className="text-fg">cat ./career.log</span>
             </h2>
           </div>
           <div className="mt-10">
@@ -55,11 +56,13 @@ export default async function HomePage() {
           id="skills"
           className="section-anchor relative py-20 sm:py-28"
         >
-          <div className="flex flex-col gap-3 reveal">
-            <span className="eyebrow">Skills</span>
+          <div className="flex flex-col gap-4 reveal">
+            <SectionDivider name="stack" trailing="// tech I reach for" />
             <h2 className="heading-display text-4xl sm:text-5xl">
-              <span className="text-fg">What I </span>
-              <span className="heading-gradient">work with.</span>
+              <span className="font-mono text-accent-2">$</span>{' '}
+              <span className="text-fg">grep -rE</span>{' '}
+              <span className="heading-gradient">&quot;tech|tool|skill&quot;</span>{' '}
+              <span className="text-muted">./</span>
             </h2>
           </div>
           <div className="mt-10">
@@ -73,11 +76,12 @@ export default async function HomePage() {
           id="education"
           className="section-anchor relative py-20 sm:py-28"
         >
-          <div className="flex flex-col gap-3 reveal">
-            <span className="eyebrow">Education</span>
+          <div className="flex flex-col gap-4 reveal">
+            <SectionDivider name="education" trailing="// coursework + degree" />
             <h2 className="heading-display text-4xl sm:text-5xl">
-              <span className="text-fg">Where I </span>
-              <span className="heading-gradient">studied.</span>
+              <span className="font-mono text-accent-2">$</span>{' '}
+              <span className="text-fg">man</span>{' '}
+              <span className="heading-gradient">salekin</span>
             </h2>
           </div>
           <div className="mt-10">

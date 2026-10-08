@@ -91,19 +91,19 @@ describe('HomePage', () => {
     render(ui);
     // Section headings (h2)
     expect(
-      screen.getByRole('heading', { level: 2, name: /about me/i }),
+      screen.getByRole('heading', { level: 2, name: /whoami/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /been shipping/i }),
+      screen.getByRole('heading', { level: 2, name: /career\.log/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /work with/i }),
+      screen.getByRole('heading', { level: 2, name: /tech.*tool.*skill/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /studied/i }),
+      screen.getByRole('heading', { level: 2, name: /\bman\b.*salekin/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /build something/i }),
+      screen.getByRole('heading', { level: 2, name: /curl/i }),
     ).toBeInTheDocument();
   });
 
