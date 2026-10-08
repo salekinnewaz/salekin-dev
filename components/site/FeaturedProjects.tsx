@@ -71,12 +71,19 @@ function FeaturedCard({
   const { slug, title, description, techStack, imageUrl } = project;
   const isLg = size === 'lg';
 
+  // Pick a per-project placeholder when no real image is set. These
+  // are committed SVG previews under /public/featured/<slug>.svg so
+  // the section looks populated even before a real screenshot is
+  // uploaded. Once `imageUrl` is non-null in the DB, the real
+  // screenshot wins.
+  const placeholderSrc = `/featured/${slug}.svg`;
+
   return (
     <Link
       href={`/projects/${slug}`}
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card no-underline transition-colors hover:border-border-strong ${className}`}
     >
-      <div className="relative w-full overflow-hidden aspect-[4/3]">
+      <div className="relative w-full overflow-hidden aspect-[4/3] bg-mesh">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -87,29 +94,14 @@ function FeaturedCard({
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="h-full w-full bg-mesh" aria-hidden="true">
-            <svg
-              viewBox="0 0 320 240"
-              preserveAspectRatio="xMidYMid slice"
-              className="h-full w-full opacity-90"
-            >
-              <defs>
-                <linearGradient id={`fc-${slug}`} x1="0" y1="0" x2="1" y2="1">
-                  <stop
-                    offset="0%"
-                    stopColor="var(--color-accent)"
-                    stopOpacity="0.45"
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="var(--color-accent-2)"
-                    stopOpacity="0.45"
-                  />
-                </linearGradient>
-              </defs>
-              <rect width="320" height="240" fill={`url(#fc-${slug})`} />
-            </svg>
-          </div>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={placeholderSrc}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          />
         )}
       </div>
 
