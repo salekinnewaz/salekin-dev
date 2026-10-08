@@ -96,7 +96,7 @@ export function Hero({ identity }: HeroProps) {
           ) : null}
 
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <Link href="#contact" className="btn-primary magnetic">
+            <Link href="/#contact" className="btn-primary magnetic">
               <span aria-hidden="true" className="font-mono text-fg-2/80">$</span>
               open ticket
               <span aria-hidden="true">→</span>
@@ -120,7 +120,7 @@ export function Hero({ identity }: HeroProps) {
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
             </a>
-            <a href="#work" className="btn-outline magnetic">
+            <a href="/#work" className="btn-outline magnetic">
               <span aria-hidden="true" className="font-mono text-fg-2/80">$</span>
               view work
               <span aria-hidden="true">↓</span>

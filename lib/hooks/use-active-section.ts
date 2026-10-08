@@ -23,6 +23,23 @@ export const NAV_SECTIONS = [
 export type NavSectionId = (typeof NAV_SECTIONS)[number]['id'];
 
 /**
+ * Build the href for a section link.
+ *
+ * - On the home page the link is a bare hash so the in-page scroll-spy
+ *   picks it up without a navigation round-trip.
+ * - On any other route (e.g. /projects, /projects/[slug], /admin/...)
+ *   the link routes back to "/" with the section as a hash, so the
+ *   browser actually scrolls when the user clicks.
+ *
+ * Centralised here so every nav surface (Header, HeaderNav, SideNav,
+ * Hero CTAs) can ask for a known-correct href.
+ */
+export function sectionHref(id: NavSectionId, pathname: string | null): string {
+  const onHome = pathname === '/';
+  return onHome ? `#${id}` : `/#${id}`;
+}
+
+/**
  * One IO instance is shared across the page so we don't pay the cost
  * twice (HeaderNav + SideNav). It's owned by the first caller; subsequent
  * callers just subscribe to the published active id.

@@ -6,6 +6,7 @@ import {
   NAV_SECTIONS,
   setActiveSection,
   useActiveSection,
+  sectionHref,
   type NavSectionId,
 } from '@/lib/hooks/use-active-section';
 
@@ -86,7 +87,7 @@ export function HeaderNav({ visible }: Props) {
                 <a
                   // On non-home pages, route to home with the section
                   // hash so the in-page scroll-spy can take over there.
-                  href={onHome ? `#${s.id}` : `/#${s.id}`}
+                  href={sectionHref(s.id, pathname)}
                   className="pill-nav__link"
                   data-active={isActive || undefined}
                   aria-current={isActive ? 'location' : undefined}
@@ -165,7 +166,7 @@ export function HeaderNav({ visible }: Props) {
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
                   <a
-                    href={onHome ? `#${s.id}` : `/#${s.id}`}
+                    href={sectionHref(s.id, pathname)}
                     className="drawer__link"
                     data-active={isActive || undefined}
                     aria-current={isActive ? 'location' : undefined}
