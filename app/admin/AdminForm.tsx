@@ -45,6 +45,11 @@ type AdminFormProps = {
       tools: string[];
       soft: string[];
     };
+    stats: {
+      yearsCoding: number;
+      sitesShipped: number;
+      rolesHeld: number;
+    };
   };
 };
 
@@ -220,6 +225,44 @@ export function AdminForm({ defaults }: AdminFormProps) {
         <SkillField label="Soft skills" name="soft" defaultValue={defaults.skills.soft} />
       </Section>
 
+      {/* About-section stat counters */}
+      <Section title="About stats" eyebrow="07">
+        <p className="text-xs text-muted">
+          Three counters in the About section. The site renders the real value
+          immediately (no zero flicker) and animates the count-up on the
+          client.
+        </p>
+        <Grid>
+          <Field
+            label="Years coding (e.g. 4)"
+            name="statYearsCoding"
+            type="number"
+            min={0}
+            max={999}
+            defaultValue={String(defaults.stats.yearsCoding)}
+            required
+          />
+          <Field
+            label="Sites shipped (e.g. 24)"
+            name="statSitesShipped"
+            type="number"
+            min={0}
+            max={999}
+            defaultValue={String(defaults.stats.sitesShipped)}
+            required
+          />
+        </Grid>
+        <Field
+          label="Roles held (e.g. 5)"
+          name="statRolesHeld"
+          type="number"
+          min={0}
+          max={999}
+          defaultValue={String(defaults.stats.rolesHeld)}
+          required
+        />
+      </Section>
+
       {/* Save bar */}
       <div className="sticky bottom-4 z-30 flex flex-col gap-3 rounded-xl border border-border bg-card/90 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm">
@@ -284,6 +327,8 @@ type FieldProps = {
   textarea?: boolean;
   rows?: number;
   maxLength?: number;
+  min?: number;
+  max?: number;
 };
 
 function Field({
@@ -296,6 +341,8 @@ function Field({
   textarea,
   rows = 4,
   maxLength,
+  min,
+  max,
 }: FieldProps) {
   return (
     <label className="flex flex-col gap-1.5">
@@ -320,6 +367,8 @@ function Field({
           required={required}
           placeholder={placeholder}
           maxLength={maxLength}
+          min={min}
+          max={max}
           className="field-input"
         />
       )}

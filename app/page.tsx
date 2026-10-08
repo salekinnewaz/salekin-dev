@@ -29,7 +29,7 @@ export default async function HomePage() {
     listEducationOrdered(),
   ]);
 
-  const { identity, sections } = site;
+  const { identity, sections, stats } = site;
   const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
 
   // WebSite + Person + BreadcrumbList JSON-LD for SEO. All values come
@@ -73,7 +73,9 @@ export default async function HomePage() {
       {/* Currently Building — promoted from inside AboutSection. */}
       <CurrentlyBuildingSection experiences={experiences} />
 
-      {sections.showAbout ? <AboutSection identity={identity} /> : null}
+      {sections.showAbout ? (
+        <AboutSection identity={identity} stats={stats} />
+      ) : null}
 
       <ApproachSection />
 

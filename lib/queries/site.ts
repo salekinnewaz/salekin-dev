@@ -24,6 +24,9 @@ const SITE_SETTING_KEYS = [
   'accent_color_2',
   'default_theme',
   'skills',
+  'stat_years_coding',
+  'stat_sites_shipped',
+  'stat_roles_held',
 ] as const;
 
 export type SiteSettingKey = (typeof SITE_SETTING_KEYS)[number];
@@ -34,6 +37,17 @@ export type SkillsByCategory = {
   databases: string[];
   tools: string[];
   soft: string[];
+};
+
+/**
+ * Editable About-section stat counters. Each value is rendered with the
+ * matching label/suffix in the About section. All values are admin-editable
+ * via the site settings page; defaults are honest numbers from the CV.
+ */
+export type SiteStats = {
+  yearsCoding: number;
+  sitesShipped: number;
+  rolesHeld: number;
 };
 
 export type SiteIdentity = {
@@ -72,6 +86,7 @@ export type SiteSettings = {
   sections: SiteSections;
   theme: SiteTheme;
   skills: SkillsByCategory;
+  stats: SiteStats;
 };
 
 const DEFAULTS = {
@@ -104,6 +119,13 @@ const DEFAULTS = {
     tools: [],
     soft: [],
   }),
+  // Honest defaults from the CV / seed data. Years coding is the
+  // span from first role (2022) to now; sites shipped is the
+  // documented 24 from the StackRefactor role; roles held counts
+  // the 5 distinct positions in the experience seed.
+  stat_years_coding: '4',
+  stat_sites_shipped: '24',
+  stat_roles_held: '5',
 } as const;
 
 function str(value: string | undefined, fallback: string): string {
@@ -118,6 +140,15 @@ function asBool(value: string | undefined, fallback: boolean): boolean {
 
 function asTheme(value: string | undefined): 'light' | 'dark' {
   return value === 'light' ? 'light' : 'dark';
+}
+
+/** Parse a stat counter. Clamped to 0..999 so a typo in admin can't
+ *  produce a 7-digit number that breaks the layout. */
+function asInt(value: string | undefined, fallback: number): number {
+  if (value === undefined || value === '') return fallback;
+  const n = Number.parseInt(value, 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.min(999, n));
 }
 
 function accentIsValid(value: string | undefined): boolean {
@@ -207,5 +238,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
   const skills = parseSkills(map['skills']);
 
-  return { identity, sections, theme, skills };
+  const stats: SiteStats = {
+    yearsCoding: asInt(map['stat_years_coding'], Number(DEFAULTS.stat_years_coding)),
+    sitesShipped: asInt(map['stat_sites_shipped'], Number(DEFAULTS.stat_sites_shipped)),
+    rolesHeld: asInt(map['stat_roles_held'], Number(DEFAULTS.stat_roles_held)),
+  };
+
+  return { identity, sections, theme, skills, stats };
 }

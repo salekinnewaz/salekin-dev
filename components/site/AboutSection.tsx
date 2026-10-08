@@ -1,9 +1,10 @@
-import type { SiteIdentity } from '@/lib/queries/site';
+import type { SiteIdentity, SiteStats } from '@/lib/queries/site';
 import { CountUpStat } from './CountUpStat';
 import { SectionDivider } from './SectionDivider';
 
 type AboutSectionProps = {
   identity: SiteIdentity;
+  stats: SiteStats;
 };
 
 /**
@@ -12,8 +13,12 @@ type AboutSectionProps = {
  * The "Currently building / learning / reading" trio that used to live
  * here has been promoted to its own `CurrentlyBuildingSection` further
  * up the page, so a recruiter's eye doesn't have to jump around.
+ *
+ * Stat values come from `SiteStats` (read from the DB) and are
+ * admin-editable. We render the real value in SSR — the count-up
+ * animation is a client-side enhancement layered on top.
  */
-export function AboutSection({ identity }: AboutSectionProps) {
+export function AboutSection({ identity, stats }: AboutSectionProps) {
   const bio = identity.aboutBio;
 
   return (
@@ -45,9 +50,22 @@ export function AboutSection({ identity }: AboutSectionProps) {
           )}
 
           <div className="grid grid-cols-3 gap-6 border-t border-border pt-6 reveal-stagger">
-            <CountUpStat value={5} suffix="+" tone="accent" label="Years coding" />
-            <CountUpStat value={24} tone="accent-2" label="Sites shipped" />
-            <CountUpStat value={5} tone="accent" label="Roles held" />
+            <CountUpStat
+              value={stats.yearsCoding}
+              suffix="+"
+              tone="accent"
+              label="Years coding"
+            />
+            <CountUpStat
+              value={stats.sitesShipped}
+              tone="accent-2"
+              label="Sites shipped"
+            />
+            <CountUpStat
+              value={stats.rolesHeld}
+              tone="accent"
+              label="Roles held"
+            />
           </div>
         </div>
       </div>

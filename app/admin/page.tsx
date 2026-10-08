@@ -114,6 +114,7 @@ export default async function AdminPage() {
             defaultTheme: site.theme.defaultTheme,
           },
           skills: site.skills,
+          stats: site.stats,
         }}
       />
 

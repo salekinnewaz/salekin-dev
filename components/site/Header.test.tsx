@@ -39,6 +39,7 @@ vi.mock('@/lib/queries/site', () => ({
       defaultTheme: 'dark' as const,
     },
     skills: { languages: [], frameworks: [], databases: [], tools: [], soft: [] },
+    stats: { yearsCoding: 4, sitesShipped: 24, rolesHeld: 5 },
   }),
 }));
 
@@ -106,6 +107,7 @@ describe('Header', () => {
         defaultTheme: 'dark' as const,
       },
       skills: { languages: [], frameworks: [], databases: [], tools: [], soft: [] },
+      stats: { yearsCoding: 4, sitesShipped: 24, rolesHeld: 5 },
     });
     const ui = await Header();
     render(ui);

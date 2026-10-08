@@ -196,6 +196,10 @@ const settings: { key: string; value: string }[] = [
       soft: ['Teamwork', 'Leadership', 'Time Management', 'Adaptability', 'Quick Learner'],
     }),
   },
+  // About-section stat counters. Honest numbers from the CV.
+  { key: 'stat_years_coding', value: '4' },
+  { key: 'stat_sites_shipped', value: '24' },
+  { key: 'stat_roles_held', value: '5' },
 ];
 
 async function seedProjects() {

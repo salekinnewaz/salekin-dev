@@ -37,6 +37,9 @@ const SETTING_KEYS = [
   'accent_color_2',
   'default_theme',
   'skills',
+  'stat_years_coding',
+  'stat_sites_shipped',
+  'stat_roles_held',
 ];
 
 async function snapshot(): Promise<Record<string, string>> {
@@ -94,6 +97,9 @@ function buildValidForm(overrides: Partial<Record<string, string>> = {}): FormDa
   fd.set('databases', 'PostgreSQL');
   fd.set('tools', 'Git, Docker');
   fd.set('soft', '');
+  setIf('statYearsCoding', '3');
+  setIf('statSitesShipped', '12');
+  setIf('statRolesHeld', '4');
   return fd;
 }
 
@@ -103,6 +109,10 @@ describe('actions/settings (saveSettingsAction)', () => {
   beforeEach(async () => {
     snap = await snapshot();
     vi.mocked(revalidatePath).mockClear();
+    // Restore any spies that the previous test installed; otherwise
+    // the `db.setting.upsert` mock from "DB write throws" leaks into
+    // later tests as "upsert is not a function".
+    vi.restoreAllMocks();
   });
   afterEach(async () => {
     await restore(snap);
@@ -144,16 +154,45 @@ describe('actions/settings (saveSettingsAction)', () => {
   });
 
   it('returns a safe error message when the DB write throws', async () => {
+    // We can't use vi.spyOn(db.setting, 'upsert') here because
+    // `mockRestore` on Prisma model methods leaves them in an
+    // undefined state in this version of vitest, which would corrupt
+    // every subsequent test in the file. Instead, we replace the
+    // upsert on the production `db` (which the action actually uses
+    // and which is bound to the same test SQLite via tests/setup.ts)
+    // for the duration of the test, then put the original back.
     const { db } = await import('@/lib/db');
-    const spy = vi
-      .spyOn(db.setting, 'upsert')
-      .mockRejectedValueOnce(new Error('boom'));
+    const original = db.setting.upsert;
+    db.setting.upsert = (() =>
+      Promise.reject(new Error('boom'))) as typeof original;
     try {
       const r = await saveSettingsAction({ ok: false, error: '' }, buildValidForm());
       expect(r.ok).toBe(false);
       if (!r.ok) expect(r.error).toMatch(/database|write/i);
     } finally {
-      spy.mockRestore();
+      db.setting.upsert = original;
     }
+  });
+
+  it('persists About-section stat counters', async () => {
+    const r = await saveSettingsAction({ ok: false, error: '' }, buildValidForm());
+    expect(r).toEqual({ ok: true });
+    const stored = await getTestDb().setting.findMany({
+      where: { key: { in: ['stat_years_coding', 'stat_sites_shipped', 'stat_roles_held'] } },
+    });
+    const map = Object.fromEntries(stored.map((s) => [s.key, s.value]));
+    expect(map['stat_years_coding']).toBe('3');
+    expect(map['stat_sites_shipped']).toBe('12');
+    expect(map['stat_roles_held']).toBe('4');
+  });
+
+  it('clamps out-of-range stat counters', async () => {
+    const fd = buildValidForm({
+      statYearsCoding: '9999',
+      statSitesShipped: '-3',
+      statRolesHeld: '7',
+    });
+    const r = await saveSettingsAction({ ok: false, error: '' }, fd);
+    expect(r.ok).toBe(false); // out-of-range fails validation, doesn't crash
   });
 });

@@ -58,6 +58,12 @@ const skillsBase = {
   soft: [],
 };
 
+const statsBase = {
+  yearsCoding: 4,
+  sitesShipped: 24,
+  rolesHeld: 5,
+};
+
 const themeBase = {
   accentColor: '#a78bfa',
   accentColor2: '#22d3ee',
@@ -91,6 +97,7 @@ describe('HomePage', () => {
       sections: allSections,
       theme: themeBase,
       skills: skillsBase,
+      stats: statsBase,
     });
     const ui = await HomePage();
     await renderHomePage(ui);
@@ -109,6 +116,7 @@ describe('HomePage', () => {
       sections: allSections,
       theme: themeBase,
       skills: skillsBase,
+      stats: statsBase,
     });
     // Provide a single featured project so the FeaturedProjects section
     // renders its heading (otherwise it returns null when empty).
@@ -166,6 +174,7 @@ describe('HomePage', () => {
       },
       theme: themeBase,
       skills: skillsBase,
+      stats: statsBase,
     });
     const ui = await HomePage();
     await renderHomePage(ui);
@@ -178,6 +187,7 @@ describe('HomePage', () => {
       sections: allSections,
       theme: themeBase,
       skills: skillsBase,
+      stats: statsBase,
     });
     vi.mocked(listExperiencesOrdered).mockResolvedValue([
       {
@@ -217,6 +227,7 @@ describe('HomePage', () => {
       sections: allSections,
       theme: themeBase,
       skills: skillsBase,
+      stats: statsBase,
     });
     vi.mocked(listEducationOrdered).mockResolvedValue([
       {

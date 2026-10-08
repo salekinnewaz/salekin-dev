@@ -49,11 +49,22 @@ const skillsSchema = z.object({
   soft: skillCategorySchema,
 });
 
+// Stats are small integer counters shown in the About section. We
+// accept strings from the form (everything is a string in FormData)
+// and parse them server-side, clamping to 0..999 so a typo can't
+// break the layout.
+const statsSchema = z.object({
+  yearsCoding: z.coerce.number().int().min(0).max(999),
+  sitesShipped: z.coerce.number().int().min(0).max(999),
+  rolesHeld: z.coerce.number().int().min(0).max(999),
+});
+
 const fullSettingsSchema = z.object({
   identity: identitySchema,
   sections: sectionsSchema,
   theme: themeSchema,
   skills: skillsSchema,
+  stats: statsSchema,
 });
 
 // ---------------------------------------------------------------------------
@@ -131,11 +142,22 @@ export async function saveSettingsAction(
     return { ok: false, error: formatIssues(skills.error) };
   }
 
+  // Parse stats — small integer counters, FormData strings.
+  const stats = statsSchema.safeParse({
+    yearsCoding: formData.get('statYearsCoding') ?? '0',
+    sitesShipped: formData.get('statSitesShipped') ?? '0',
+    rolesHeld: formData.get('statRolesHeld') ?? '0',
+  });
+  if (!stats.success) {
+    return { ok: false, error: formatIssues(stats.error) };
+  }
+
   const parsed = fullSettingsSchema.safeParse({
     identity: identity.data,
     sections: sections.data,
     theme: theme.data,
     skills: skills.data,
+    stats: stats.data,
   });
   if (!parsed.success) {
     return { ok: false, error: formatIssues(parsed.error) };
@@ -167,6 +189,9 @@ export async function saveSettingsAction(
       { key: 'accent_color_2', value: parsed.data.theme.accentColor2 },
       { key: 'default_theme', value: parsed.data.theme.defaultTheme },
       { key: 'skills', value: JSON.stringify(parsed.data.skills) },
+      { key: 'stat_years_coding', value: String(parsed.data.stats.yearsCoding) },
+      { key: 'stat_sites_shipped', value: String(parsed.data.stats.sitesShipped) },
+      { key: 'stat_roles_held', value: String(parsed.data.stats.rolesHeld) },
     ];
 
     for (const w of writes) {

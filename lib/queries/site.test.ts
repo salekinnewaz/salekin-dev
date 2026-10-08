@@ -42,6 +42,9 @@ const SEED = {
     tools: ['Docker'],
     soft: [],
   }),
+  stat_years_coding: '3',
+  stat_sites_shipped: '12',
+  stat_roles_held: '4',
 };
 
 async function seed() {
@@ -91,5 +94,22 @@ describe('queries/site', () => {
     expect(settings.skills.databases).toContain('PostgreSQL');
     expect(settings.skills.tools).toContain('Docker');
     expect(Array.isArray(settings.skills.soft)).toBe(true);
+  });
+
+  it('exposes About-section stat counters as integers', async () => {
+    const settings = await getSiteSettings();
+    expect(settings.stats.yearsCoding).toBe(3);
+    expect(settings.stats.sitesShipped).toBe(12);
+    expect(settings.stats.rolesHeld).toBe(4);
+  });
+
+  it('falls back to defaults when stat settings are missing', async () => {
+    await getTestDb().setting.deleteMany({
+      where: { key: { in: ['stat_years_coding', 'stat_sites_shipped', 'stat_roles_held'] } },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.stats.yearsCoding).toBeGreaterThan(0);
+    expect(settings.stats.sitesShipped).toBeGreaterThan(0);
+    expect(settings.stats.rolesHeld).toBeGreaterThan(0);
   });
 });
