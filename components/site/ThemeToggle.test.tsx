@@ -21,15 +21,53 @@ beforeEach(() => {
     },
   });
   document.documentElement.removeAttribute('data-theme');
+  // ThemeToggle installs a MutationObserver on `documentElement` to
+  // re-sync its resolved-theme state when the attribute changes. In the
+  // browser, that callback is a microtask away from the act boundary —
+  // which then fires `setState` outside an `act(...)` and produces
+  // noisy "update not wrapped in act" warnings. Replace the observer
+  // with a no-op so tests don't trip on their own attribute writes.
+  class NoopMutationObserver {
+    observe() {}
+    disconnect() {}
+    takeRecords(): unknown[] {
+      return [];
+    }
+  }
+  // @ts-expect-error - test stub
+  globalThis.MutationObserver = NoopMutationObserver;
 });
 
 describe('ThemeToggle', () => {
+  // Each `fireEvent.click` below triggers a `setState` cascade inside the
+  // component (theme choice, resolved theme, menu open/close). Wrap the
+  // fires in `act(...)` so React's post-click flushes complete before the
+  // next assertion — otherwise we get noisy "update not wrapped in act"
+  // warnings that hide real failures.
+  function click(el: HTMLElement) {
+    act(() => {
+      fireEvent.click(el);
+    });
+  }
+  // The component reads localStorage / data-theme in a mount effect and
+  // fires three setStates from it. RTL's `render` does wrap effects in
+  // act, but in this jsdom the effect also touches `document.documentElement`
+  // which can re-enter the MutationObserver set up by the component
+  // itself. Wrap render in `act` to drain everything before assertions.
+  function renderAndFlush(ui: React.ReactElement) {
+    let result: ReturnType<typeof render> | undefined;
+    act(() => {
+      result = render(ui);
+    });
+    return result!;
+  }
+
   it('renders a main button that toggles the resolved theme', () => {
     localStorage.setItem('theme', 'dark');
     document.documentElement.setAttribute('data-theme', 'dark');
-    render(<ThemeToggle />);
+    renderAndFlush(<ThemeToggle />);
     const btn = screen.getByRole('button', { name: /theme: dark/i });
-    fireEvent.click(btn);
+    click(btn);
     expect(localStorage.getItem('theme')).toBe('light');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
@@ -37,9 +75,9 @@ describe('ThemeToggle', () => {
   it('toggles light → dark on the second click', () => {
     localStorage.setItem('theme', 'light');
     document.documentElement.setAttribute('data-theme', 'light');
-    render(<ThemeToggle />);
+    renderAndFlush(<ThemeToggle />);
     const btn = screen.getByRole('button', { name: /theme: light/i });
-    fireEvent.click(btn);
+    click(btn);
     expect(localStorage.getItem('theme')).toBe('dark');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
@@ -47,60 +85,62 @@ describe('ThemeToggle', () => {
   it('toggles from system mode to a concrete choice', () => {
     localStorage.setItem('theme', 'system');
     document.documentElement.setAttribute('data-theme', 'dark');
-    render(<ThemeToggle />);
+    renderAndFlush(<ThemeToggle />);
     const btn = screen.getByRole('button', { name: /theme:/i });
-    fireEvent.click(btn);
+    click(btn);
     // A click on the main icon should resolve to a concrete light/dark.
     expect(['light', 'dark']).toContain(localStorage.getItem('theme'));
   });
 
   it('renders a separate menu button that opens the picker', () => {
-    render(<ThemeToggle />);
+    renderAndFlush(<ThemeToggle />);
     const menuBtn = screen.getByRole('button', { name: /theme options/i });
     expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.click(menuBtn);
+    click(menuBtn);
     expect(menuBtn).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('menu', { name: /theme/i })).toBeInTheDocument();
   });
 
   it('renders three choices inside the menu when open', () => {
-    render(<ThemeToggle />);
-    fireEvent.click(screen.getByRole('button', { name: /theme options/i }));
+    renderAndFlush(<ThemeToggle />);
+    click(screen.getByRole('button', { name: /theme options/i }));
     for (const label of ['Light', 'Dark', 'System']) {
       expect(screen.getByRole('menuitemradio', { name: label })).toBeInTheDocument();
     }
   });
 
   it('picking a choice writes to localStorage and updates data-theme', () => {
-    render(<ThemeToggle />);
-    fireEvent.click(screen.getByRole('button', { name: /theme options/i }));
-    fireEvent.click(screen.getByRole('menuitemradio', { name: 'Light' }));
+    renderAndFlush(<ThemeToggle />);
+    click(screen.getByRole('button', { name: /theme options/i }));
+    click(screen.getByRole('menuitemradio', { name: 'Light' }));
     expect(localStorage.getItem('theme')).toBe('light');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
   it('marks the currently chosen option as active in the menu', () => {
     localStorage.setItem('theme', 'system');
-    render(<ThemeToggle />);
-    fireEvent.click(screen.getByRole('button', { name: /theme options/i }));
+    renderAndFlush(<ThemeToggle />);
+    click(screen.getByRole('button', { name: /theme options/i }));
     const sys = screen.getByRole('menuitemradio', { name: 'System' });
     expect(sys).toHaveAttribute('aria-checked', 'true');
   });
 
   it('closes the menu when the menu button is clicked again', () => {
-    render(<ThemeToggle />);
+    renderAndFlush(<ThemeToggle />);
     const menuBtn = screen.getByRole('button', { name: /theme options/i });
-    fireEvent.click(menuBtn);
+    click(menuBtn);
     expect(screen.getByRole('menu')).toBeInTheDocument();
-    fireEvent.click(menuBtn);
+    click(menuBtn);
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   it('closes the menu when Escape is pressed', () => {
-    render(<ThemeToggle />);
-    fireEvent.click(screen.getByRole('button', { name: /theme options/i }));
+    renderAndFlush(<ThemeToggle />);
+    click(screen.getByRole('button', { name: /theme options/i }));
     expect(screen.getByRole('menu')).toBeInTheDocument();
-    fireEvent.keyDown(window, { key: 'Escape' });
+    act(() => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
