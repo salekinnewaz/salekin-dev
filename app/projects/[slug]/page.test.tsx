@@ -67,7 +67,7 @@ describe('ProjectSlugPage', () => {
     vi.mocked(getProjectBySlug).mockResolvedValue(makeDetail());
     const ui = await ProjectSlugPage({ params: Promise.resolve({ slug: 'specsmd' }) });
     render(ui);
-    const back = screen.getByRole('link', { name: /all projects/i });
+    const back = screen.getByRole('link', { name: /ls \.\./i });
     expect(back.getAttribute('href')).toBe('/projects');
   });
 

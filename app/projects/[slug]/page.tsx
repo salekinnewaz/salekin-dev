@@ -8,6 +8,7 @@ import {
 import { ProjectCard } from '@/components/site/ProjectCard';
 import { ProjectMarkdown } from '@/components/site/ProjectMarkdown';
 import { Pill } from '@/components/site/Pill';
+import { SectionDivider } from '@/components/site/SectionDivider';
 
 type Params = { slug: string };
 
@@ -69,7 +70,7 @@ export default async function ProjectSlugPage({
       <header className="flex flex-col gap-5 reveal">
         <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted">
           <Link href="/projects" className="hover:text-accent">
-            ← all projects
+            <span aria-hidden="true">← </span>ls ..
           </Link>
           {publishedLabel ? (
             <>
@@ -80,6 +81,8 @@ export default async function ProjectSlugPage({
             </>
           ) : null}
         </div>
+
+        <SectionDivider name={project.slug} trailing="// case study" />
 
         <h1 className="heading-display heading-gradient text-4xl sm:text-5xl lg:text-6xl">
           {project.title}
