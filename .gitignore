@@ -1,0 +1,47 @@
+node_modules/
+.next/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local SQLite databases
+*.db
+*.db-journal
+prisma/migrations/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Throwaway dev-time scratch files (debug scripts, cookie jars, curl output)
+*.cookies.txt
+.cookies.*
+.forge-*.mjs
+.check-*.mjs
+.cv-*.bin
+cv-out.bin
+*.log.tmp
+
+# Coverage / cache
+coverage/
+.cache/
+.turbo/
+
+# Next.js trace output
+next.trace
+
+# Local AI tooling / planning artifacts (not part of the shipped app)
+.claude/
+.specsmd/
+memory-bank/
+
+# Source PDF for the CV (the public/ copy is what gets shipped)
+data/

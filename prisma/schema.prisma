@@ -1,0 +1,89 @@
+// Prisma schema for the Portfolio Site content layer.
+// Updated for the salekin.dev single-page portfolio.
+
+generator client {
+  provider = "prisma-client-js"
+  // driverAdapters lets us hand a non-default driver (libSQL/Turso) to
+  // PrismaClient at runtime. Without this preview flag, the `adapter`
+  // option is rejected at construction time, even when the adapter
+  // package is installed. See lib/db.ts and DEPLOY.md §2.
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  description   String
+  body          String?
+  imageUrl      String?
+  repoUrl       String?
+  liveUrl       String?
+  techStack     String // JSON-encoded string[]
+  featured      Boolean   @default(false)
+  featuredOrder Int       @default(0)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([publishedAt])
+  @@index([featured, featuredOrder, publishedAt])
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  company     String
+  role        String
+  startDate   DateTime
+  endDate     DateTime?
+  description String? // short summary line
+  bullets     String? // JSON-encoded string[] of accomplishment bullets
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([sortOrder, startDate])
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  institution String
+  degree      String // e.g., "B.Sc. in Computer Science & Engineering"
+  startYear   Int
+  endYear     Int
+  description String?
+  sortOrder   Int      @default(0)
+
+  @@index([sortOrder])
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+
+  @@index([createdAt])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model CvDownload {
+  id        String   @id @default(cuid())
+  ip        String?
+  userAgent String?
+  referer   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
