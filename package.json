@@ -14,6 +14,7 @@
     "db:studio": "prisma studio",
     "db:push:turso": "tsx scripts/db-push-turso.ts",
     "db:seed:turso": "tsx scripts/db-seed-turso.ts",
+    "deploy": "./scripts/deploy.sh",
     "test": "vitest run",
     "test:watch": "vitest"
   },
