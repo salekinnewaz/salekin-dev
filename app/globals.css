@@ -511,8 +511,9 @@
 .reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 80ms; }
 .reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 160ms; }
 .reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 240ms; }
-.reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 320ms; }
-.reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 400ms; }
+/* Cap the cascade at 4 children — the rest reveal in parallel so a
+   12-child grid doesn't take 1.2s to settle. */
+.reveal-stagger.is-visible > *:nth-child(n + 5) { transition-delay: 240ms; }
 
 /* ─ Heading clip-wipe reveal (different motion per section type so
    the eye stops ignoring them after the third one) ─ */
