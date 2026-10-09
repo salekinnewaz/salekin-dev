@@ -92,7 +92,7 @@ export function HeroTerminal() {
       className="terminal-card relative w-full max-w-md overflow-hidden p-0"
     >
       {/* Title bar */}
-      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
@@ -101,7 +101,10 @@ export function HeroTerminal() {
         <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
           ~/salekin — zsh
         </span>
-        <span className="w-10" />
+        <span className="hero-terminal__status" aria-label="Always learning">
+          <span className="hero-terminal__status-dot" aria-hidden="true" />
+          <span className="hero-terminal__status-label">Always Learning</span>
+        </span>
       </div>
 
       {/* Body */}

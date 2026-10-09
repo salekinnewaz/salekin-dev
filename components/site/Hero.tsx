@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { SiteIdentity } from '@/lib/queries/site';
 import { HeroOrbit, type OrbitCard } from './HeroOrbit';
+import { HeroTerminal } from './HeroTerminal';
 import { FocusChip } from './FocusChip';
 import type { FocusIconId } from '@/lib/icons';
 
@@ -41,10 +42,15 @@ type FocusArea = {
  *     • A live, code-driven composition rendered by `HeroOrbit`:
  *       a circular profile photo (clipped from `/images/profile.jpg`,
  *       wrapped in a purple→cyan gradient ring + soft glow halo) with
- *       the four QA capability cards floating at the four corners.
- *       The whole composition sits inside a glass shell with an
- *       animated conic-gradient backdrop and a slowly-rotating
- *       decorative ring. Honours light + dark mode + reduced motion.
+ *       the four QA capability cards floating at the four corners,
+ *       overlapping the photo's outer edge. Concentric decorative
+ *       orbit rings + a few floating orbs sit behind the photo.
+ *     • Below the photo, the real `HeroTerminal` component — a tiny
+ *       macOS-chrome terminal window (● ● ● traffic lights,
+ *       `~/salekin — zsh` title, `● Always Learning` status badge)
+ *       that types through a fixed script of whoami / focus / stack /
+ *       availability / motto with a blinking caret.
+ *     • Honours light + dark mode + reduced motion.
  *
  * The same `focusAreas` data drives the left FOCUS chip row and the
  * right orbit cards. The orbit cards carry slightly richer copy
@@ -230,47 +236,41 @@ export function Hero({ identity }: HeroProps) {
         </div>
 
         {/* ─── RIGHT column — live hero orbit composition ───
-            Landscape card with the circular profile photo centered,
-            four QA capability cards at the corners, and a background
-            "terminal stream" — CSS-animated code-like lines fading in
-            and out behind everything. See .hero-orbit* in
+            Top half: a circular profile photo (clipped from
+            /images/profile.jpg, wrapped in a purple→cyan gradient
+            ring + soft glow halo) with the four QA capability cards
+            floating at the four corners, overlapping the photo's
+            outer edge. Concentric decorative orbit rings + a few
+            floating orbs sit behind the photo.
+
+            Bottom half: the real `HeroTerminal` component — a tiny
+            macOS-chrome terminal window that types through a fixed
+            script of whoami / focus / stack / availability / motto
+            with a blinking caret. See .hero-orbit* in
             app/globals.css for the visual treatment. */}
-        <div className="hero-orbit-card">
-          <div className="hero-orbit-card__aura" aria-hidden="true">
-            <div className="hero-orbit-card__glow" />
-            <div className="hero-orbit-card__vignette" />
+        <div className="hero-orbit-wrap">
+          <div className="hero-orbit-stage">
+            <div className="hero-orbit-orbs" aria-hidden="true">
+              <span className="hero-orbit-orb hero-orbit-orb--1" />
+              <span className="hero-orbit-orb hero-orbit-orb--2" />
+              <span className="hero-orbit-orb hero-orbit-orb--3" />
+            </div>
+            <div className="hero-orbit-rings" aria-hidden="true">
+              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--1" />
+              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--2" />
+              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--3" />
+              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--4" />
+            </div>
+            <HeroOrbit
+              cards={orbitCards}
+              src="/images/profile.jpg"
+              alt="Profile photo of Salekin Newaz surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
+              photoSize={260}
+            />
           </div>
-          {/* Animated terminal stream — CSS-only code-like lines
-              behind the photo. Each line fades in, holds, fades out,
-              and translates up; each has a desynced animation-delay
-              so the stream never feels synchronized. */}
-          <div className="hero-orbit-card__terminal" aria-hidden="true">
-            <span className="hero-orbit-card__cmd">$ pnpm test:ci</span>
-            <span className="hero-orbit-card__cmd">
-              → running 1847 specs in parallel
-            </span>
-            <span className="hero-orbit-card__cmd hero-orbit-card__cmd--ok">
-              ✓ 1847 passed · 0 failed
-            </span>
-            <span className="hero-orbit-card__cmd">$ git push origin main</span>
-            <span className="hero-orbit-card__cmd">
-              → Compare via Visual Regression
-            </span>
-            <span className="hero-orbit-card__cmd hero-orbit-card__cmd--ok">
-              ✓ 23 snapshots match
-            </span>
-            <span className="hero-orbit-card__cmd">$ playwright test --ui</span>
-            <span className="hero-orbit-card__cmd">
-              → tracing · video · accessibility
-            </span>
+          <div className="hero-orbit-terminal">
+            <HeroTerminal />
           </div>
-          <div className="hero-orbit-card__ring" aria-hidden="true" />
-          <HeroOrbit
-            cards={orbitCards}
-            src="/images/profile.jpg"
-            alt="Profile photo of Salekin Newaz surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
-            photoSize={300}
-          />
         </div>
       </div>
     </section>

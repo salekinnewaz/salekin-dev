@@ -1561,35 +1561,79 @@
 }
 
 /* ─── Hero orbit (floating info cards around the profile photo) ─── */
-/*   .hero-orbit is a 3:2 landscape rectangle that holds the centred */
-/*   photo plus 4 absolutely-positioned cards anchored to its four   */
-/*   corners (1rem inset). On < 1024px the wrapper collapses to a    */
-/*   2×2 grid (photo on top, cards below). Cards bob via .float-soft */
-/*   (desynced via inline animation-delay).                          */
+/*   The right column of the hero is a stacked composition:        */
+/*                                                                     */
+/*     .hero-orbit-wrap                                                */
+/*       ├── .hero-orbit-stage                                        */
+/*       │     ├── .hero-orbit-orbs   (decorative floating orbs)      */
+/*       │     ├── .hero-orbit-rings  (4 concentric orbit rings)      */
+/*       │     └── .hero-orbit        (centered photo + 4 overlapping */
+/*       │                            corner capability cards)        */
+/*       └── .hero-orbit-terminal  (real <HeroTerminal /> below)        */
+/*                                                                     */
+/*   The .hero-orbit-stage is the positioning context for the orbit   */
+/*   rings + orbs (so they only cover the photo+cards area, not the   */
+/*   terminal below). On < 1024px the photo + cards collapse to a 2×2 */
+/*   grid (photo on top, cards below) and the orbit rings + orbs      */
+/*   hide. Cards bob via .float-soft (desynced via inline             */
+/*   animation-delay).                                                */
 
-.hero-orbit {
-  /* The orbit is a landscape rectangle (3:2, matching the v3 brief's
-     static composition reference) so the four floating capability
-     cards can anchor to its corners without escaping the shell's
-     rounded clip. The min-height keeps the photo from getting
-     squeezed below ~360px on narrow columns. The max-width keeps
-     the orbit from becoming an awkward 700px-wide band on a wide
-     hero. */
+.hero-orbit-wrap {
+  --orbit-rings-opacity: 0.55;
+  --orbit-orbs-opacity: 0.85;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+  padding-top: 0.5rem;
+}
+
+/* The .hero-orbit-stage is the positioning context for the orbit
+   rings + orbs. It's `position: relative`, full width, and hugs the
+   height of the photo+cards composition so the absolutely-positioned
+   decorative chrome covers only the photo area (not the terminal
+   below). */
+.hero-orbit-stage {
   position: relative;
   width: 100%;
-  max-width: 40rem;
-  aspect-ratio: 3 / 2;
-  min-height: 360px;
-  margin: 0 auto;
-  display: block;
-}
-.hero-orbit__photo {
-  position: absolute;
-  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Allow the rings + orbs to extend slightly outside the photo on
+     all four sides (the largest ring is 560px in diameter — centred
+     on the photo, so it bleeds ~150px past the photo's edge). The
+     stage's overflow is visible by default; the wrap provides
+     vertical padding via its gap. */
+}
+
+/* The .hero-orbit is a centered photo+cards box. The four capability
+   cards overlap the photo's outer edge (the photo is sized in JS to
+   ~260px; the cards sit *behind* the photo's z-stack in the middle
+   but their inner corners land on the photo's outer rim). The box
+   is sized by its contents (the photo + the overlapping cards' reach)
+   so the layout breathes naturally without an aspect-ratio lock. */
+.hero-orbit {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+  /* Vertical room for the four overlapping cards (they sit at
+     -2.75rem / +2.75rem from the photo's edge). The exact height is
+     fluid; we just guarantee the cards never get clipped at the top
+     or bottom of the wrapper. */
+  padding: 3.25rem 0.5rem;
+}
+.hero-orbit__photo {
+  position: relative;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
 .hero-orbit__card {
   position: absolute;
@@ -1598,13 +1642,10 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: 0.55rem;
-  /* Width scales with the orbit so two corner cards always fit:
-     - at narrow columns (≤300px each) the card shrinks to 9.5rem
-     - at the design's reference viewport the card lands ~11rem
-     - hard ceiling: 50% of the orbit minus 1.5rem gap so the TL and
-       TR cards never overlap regardless of viewport size. */
-  width: clamp(9.5rem, 42%, calc(50% - 1.5rem));
-  max-width: 12rem;
+  /* Cards overlap the photo's outer corners — they live partly on
+     the photo and partly off it. We size them with a clamp so they
+     stay legible from ~280px to ~520px orbit widths. */
+  width: clamp(9.5rem, 44%, 12rem);
   padding: 0.55rem 0.7rem 0.6rem;
   /* Hairline gradient border via layered backgrounds: the outer
      layer is the purple→cyan gradient ring, the inner layer is the
@@ -1638,16 +1679,15 @@
     0 22px 44px -18px color-mix(in oklab, var(--color-accent) 40%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
-/* Card positions — anchored to the four corners of the .hero-orbit
-   with a small positive inset (1rem) so each card hugs the rounded
-   corner of the surrounding .hero-orbit-card shell as a "corner
-   marking" instead of floating outside the wrapper. The photo sits
-   centered, and the four cards visually frame it without escaping
-   the shell's rounded clip. */
-.hero-orbit__card--tl { top: 1rem;    left: 1rem; }
-.hero-orbit__card--tr { top: 1rem;    right: 1rem; }
-.hero-orbit__card--bl { bottom: 1rem; left: 1rem; }
-.hero-orbit__card--br { bottom: 1rem; right: 1rem; }
+/* Card positions — overlap the photo's outer corners. The negative
+   insets pull each card in by ~50% of the card's width so its inner
+   edge sits over the photo's rim. The photo is z-index 2, the cards
+   z-index 3, so the cards paint above the photo's halo and read as
+   attached "markings" on the photo's outer edge. */
+.hero-orbit__card--tl { top:    1.1rem; left:   -1.6rem; }
+.hero-orbit__card--tr { top:    1.1rem; right:  -1.6rem; }
+.hero-orbit__card--bl { bottom: 1.1rem; left:   -1.6rem; }
+.hero-orbit__card--br { bottom: 1.1rem; right:  -1.6rem; }
 
 .hero-orbit__icon {
   display: inline-flex;
@@ -1720,6 +1760,182 @@
   border-radius: inherit;
 }
 
+/* ─── Hero orbit — decorative concentric rings ─────────────────── */
+/*   Four thin conic-gradient rings sit behind the photo and the
+     overlapping cards, each one slightly larger and offset. The
+     innermost is roughly the photo's diameter; each ring is just a
+     hairline stroke rendered via a mask-radial gradient so only the
+     edge shows. They're decorative only — `pointer-events: none`,
+     `aria-hidden`, and they sit at z-index 0 (behind everything). */
+
+.hero-orbit-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: var(--orbit-rings-opacity);
+}
+.hero-orbit-rings__ring {
+  position: absolute;
+  /* Centre the ring on the stage regardless of the stage's size.
+     `inset: 0; margin: auto` is the well-known trick to centre an
+     absolutely-positioned child when its size is smaller than the
+     containing block. */
+  inset: 0;
+  margin: auto;
+  border-radius: 999px;
+  /* The mask renders just a 1.5px ring on the outside of each
+     element. The `background` is a conic-gradient using the
+     theme accent tokens so the ring carries a purple→cyan
+     gradient sweep instead of being a flat single colour. */
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in oklab, var(--color-accent) 80%, transparent) 0deg,
+    color-mix(in oklab, var(--color-accent-2) 80%, transparent) 180deg,
+    color-mix(in oklab, var(--color-accent) 80%, transparent) 360deg
+  );
+  -webkit-mask:
+    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  mask:
+    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  /* Slow rotation; desynced per ring via animation-delay so the
+     gradient sweeps look layered. Disabled under reduced-motion. */
+  animation: orbit-ring-spin 60s linear infinite;
+  will-change: transform;
+}
+.hero-orbit-rings__ring--1 {
+  width: 280px;
+  height: 280px;
+  animation-delay: 0s;
+}
+.hero-orbit-rings__ring--2 {
+  width: 360px;
+  height: 360px;
+  animation-delay: -10s;
+  opacity: 0.7;
+}
+.hero-orbit-rings__ring--3 {
+  width: 460px;
+  height: 460px;
+  animation-delay: -22s;
+  opacity: 0.45;
+}
+.hero-orbit-rings__ring--4 {
+  width: 560px;
+  height: 560px;
+  animation-delay: -36s;
+  opacity: 0.25;
+}
+
+@keyframes orbit-ring-spin {
+  /* The rings are centred via `inset: 0; margin: auto`, so a plain
+     `rotate` here keeps them on-axis. */
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─── Hero orbit — floating decorative orbs ────────────────────── */
+/*   Three soft accent-tinted orbs float around the photo to give
+     the composition depth. They sit on the same plane as the rings
+     (z-index 0) and gently drift via a slow keyframe; the photo +
+     cards paint above them at z-index 2 / 3. */
+
+.hero-orbit-orbs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--orbit-orbs-opacity);
+}
+.hero-orbit-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(36px);
+  will-change: transform;
+  animation: orbit-orb-drift 16s ease-in-out infinite;
+}
+.hero-orbit-orb--1 {
+  /* Top-left, accent (purple) */
+  top: 6%;
+  left: 4%;
+  width: 70px;
+  height: 70px;
+  background: color-mix(in oklab, var(--color-accent) 60%, transparent);
+  animation-delay: 0s;
+}
+.hero-orbit-orb--2 {
+  /* Right, accent-2 (cyan) */
+  top: 38%;
+  right: 6%;
+  width: 90px;
+  height: 90px;
+  background: color-mix(in oklab, var(--color-accent-2) 50%, transparent);
+  animation-delay: -5s;
+}
+.hero-orbit-orb--3 {
+  /* Bottom-left, mixed */
+  bottom: 4%;
+  left: 18%;
+  width: 60px;
+  height: 60px;
+  background: color-mix(in oklab, var(--color-accent-2) 35%, var(--color-accent) 35%);
+  animation-delay: -9s;
+}
+@keyframes orbit-orb-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(8px, -10px); }
+}
+
+/* ─── Hero orbit — terminal slot below the photo ───────────────── */
+/*   The real <HeroTerminal /> component renders below the orbit
+     photo+cards composition. We give it a max width and center it
+     so it always reads as a "second half" of the right column. */
+
+.hero-orbit-terminal {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 28rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* ─── Hero terminal — "Always Learning" status pill ────────────── */
+/*   Sits in the right slot of the macOS title bar. Tiny rounded
+     pill with a green dot (uses accent-2 so it picks up the
+     theme's "live" colour). */
+
+.hero-terminal__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+  background: color-mix(in oklab, var(--color-card) 60%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+  white-space: nowrap;
+}
+.hero-terminal__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-accent-2);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--color-accent-2) 70%, transparent);
+  animation: caret-blink 1.4s steps(2) infinite;
+}
+.hero-terminal__status-label {
+  color: var(--color-fg-2);
+}
+
 /* Focus chip (left column, with icon). Pixel-accurate to the v3
    brief — thin border, soft inner fill, no oversized icon plate. */
 .focus-chip {
@@ -1763,6 +1979,7 @@
   .hero-orbit {
     width: 100%;
     height: auto;
+    padding: 0.75rem 0 1rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
@@ -1770,10 +1987,8 @@
       'tl   tr'
       'bl   br';
     gap: 0.6rem;
-    padding: 0;
   }
   .hero-orbit__photo {
-    position: static;
     grid-area: photo;
     justify-self: center;
     margin-bottom: 0.5rem;
@@ -1787,10 +2002,11 @@
   .hero-orbit__card--tr { grid-area: tr; }
   .hero-orbit__card--bl { grid-area: bl; }
   .hero-orbit__card--br { grid-area: br; }
-  /* Hide the terminal stream on mobile — the column is too narrow
-     for the lines to read, and the photo-on-top layout doesn't have
-     a bottom band for the stream to occupy. */
-  .hero-orbit-card__terminal { display: none; }
+  /* Hide the decorative chrome on mobile — the column is too
+     narrow for the orbit rings and orbs to read at small sizes. */
+  .hero-orbit-rings,
+  .hero-orbit-orbs { display: none; }
+  .hero-orbit-terminal { max-width: 100%; }
 }
 @media (max-width: 480px) {
   .hero-orbit { gap: 0.45rem; }
@@ -1798,345 +2014,27 @@
   .hero-orbit__detail { font-size: 0.62rem; }
 }
 
-/* ─── Hero static composition (right column) ────────────────────── */
-/*   Replaces the live orbit + terminal with the finished static   */
-/*   graphic (data/Neon QA Portfolio Hero Section.png). The image  */
-/*   has a 1.81:1 aspect ratio; we let it size to its column and  */
-/*   cap the height so it doesn't dominate the first viewport.    */
-
-.hero-static {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+/* ─── Hero orbit — light-mode tuning ──────────────────────────── */
+/*   Drop the rings + orbs opacity in light mode so they don't read
+     as neon splats on the warm off-white background, and harden the
+     pill border so the "Always Learning" badge still pops. */
+[data-theme='light'] .hero-orbit-wrap {
+  --orbit-rings-opacity: 0.4;
+  --orbit-orbs-opacity: 0.55;
 }
-.hero-static__frame {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  /* Cap the image so the hero never scrolls past one viewport on
-     standard 900px-tall screens. The 1.81:1 aspect ratio gives
-     ~520px tall at 620px wide, fitting comfortably under the
-     left column's content. */
-  max-height: 70vh;
-  aspect-ratio: 1688 / 932;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  background: #0a0e1a;
-  box-shadow:
-    0 24px 60px -24px rgba(0, 0, 0, 0.6),
-    0 0 32px -8px color-mix(in oklab, var(--color-accent) 25%, transparent);
-}
-.hero-static__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-orbit__card { animation: none !important; }
-  .hero-orbit__card:hover { transform: none; }
-}
-
-/* ─── Hero orbit — premium card shell ──────────────────────────── */
-/*   Wraps the .hero-orbit (photo + 4 corner cards) inside a glass
-     card with an animated conic-gradient backdrop, a slow rotating
-     decorative ring, and a soft outer glow. Designed to work in both
-     light and dark themes via the existing `--color-card`,
-     `--color-border`, `--color-accent`, and `--color-accent-2` tokens.
-
-     Layout notes:
-       - The shell is `position: relative` with flex centering, so the
-         .hero-orbit (a 1:1 box) is centered horizontally + vertically
-         inside the shell's padding box.
-       - The .hero-orbit fills the shell's content box and uses
-         `aspect-ratio: 1 / 1`. The four capability cards anchor to
-         the .hero-orbit's corners with a 1rem inset — they read as
-         "corner markings" on the frame, not as floating satellites
-         outside the wrapper. This keeps every element safely inside
-         the shell's rounded clip.
-       - On screens < 1024px the orbit collapses to a stacked
-         layout; the shell just hugs the content. */
-
-.hero-orbit-card {
-  /* Bumped from 1.25rem to 1.5rem: with the cards now anchored to
-     the .hero-orbit's corners (1rem inset), the shell needs an extra
-     ~0.25rem of padding so the cards' rounded corners (14px) clear
-     the shell's rounded corner clip (24px) without visual overlap. */
-  --orbit-card-pad: 1.5rem;
-  --orbit-conic-opacity: 0.45;
-  --orbit-halo-opacity: 0.7;
-  --orbit-ring-opacity: 0.55;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: var(--orbit-card-pad);
-  border-radius: 24px;
-  /* Glass surface using the existing token. A subtle inner highlight
-     (top edge) keeps the card from looking flat in dark mode and
-     from looking washed out in light mode. NOTE: deliberately no
-     `overflow: hidden` here — the floating capability cards at the
-     four corners of the .hero-orbit extend outside the photo's
-     320px square, and clipping them would chop them in half. The
-     conic glow + vignette inside the shell use their own
-     `overflow: hidden` to keep the aura contained. */
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-card) 92%, transparent) 0%,
-      color-mix(in oklab, var(--color-card) 80%, transparent) 100%
-    );
-  border: 1px solid var(--color-border);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  box-shadow:
-    0 30px 80px -30px color-mix(in oklab, #000 70%, transparent),
-    0 0 0 1px color-mix(in oklab, var(--color-fg) 4%, transparent) inset,
-    0 0 60px -16px color-mix(in oklab, var(--color-accent) 30%, transparent);
-  isolation: isolate;
-}
-
-/* The .hero-orbit is 320×320 in the desktop layout; the shell sizes
-   itself to fit. On small screens the orbit becomes a CSS grid and
-   the shell simply wraps it. */
-.hero-orbit-card > .hero-orbit { position: relative; z-index: 2; }
-
-/* The aura is an inner wrapper around the conic backdrop + vignette
-   that sits *behind* the .hero-orbit. It carries its own
-   `overflow: hidden` + `border-radius` so the blurred conic glow
-   is clipped to the shell's rounded corners without chopping the
-   four corner cards that overflow the .hero-orbit's 320px box. */
-.hero-orbit-card__aura {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* ─── Terminal stream — animated code-like lines behind the photo ─ */
-/*   CSS-only "developer console" stream: each line fades in from
-     below, holds, then fades up and out. Stacked vertically, each
-     line gets a desynced animation-delay via its own nth-child
-     rule so the stream never feels synchronized. Sits as a sibling
-     of the .hero-orbit-card__aura wrapper, ABOVE the conic glow +
-     vignette (so the lines stay readable) but BELOW the .hero-orbit
-     itself (so the photo + 4 corner cards paint over the stream). */
-
-.hero-orbit-card__terminal {
-  position: absolute;
-  inset: auto 0 8% 0;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0 1rem;
-  font-family: var(--font-mono);
-  font-size: clamp(0.62rem, 1.6vw, 0.78rem);
-  line-height: 1.35;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  color: color-mix(in oklab, var(--color-fg-2) 75%, transparent);
-  pointer-events: none;
-  overflow: hidden;
-  /* Soft top/bottom fade so lines don't pop in/out abruptly. */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 18%,
-    #000 82%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 18%,
-    #000 82%,
-    transparent 100%
-  );
-}
-.hero-orbit-card__cmd {
-  display: block;
-  /* Fade in from below, hold, fade up and out. 9s per line, desynced
-     via per-nth-child animation-delay — the stream feels ambient
-     rather than busy. */
-  animation: orbit-cmd-stream 9s ease-in-out infinite both;
-  opacity: 0;
-  will-change: transform, opacity;
-}
-.hero-orbit-card__cmd:nth-child(1) { animation-delay: 0s; }
-.hero-orbit-card__cmd:nth-child(2) { animation-delay: 1.2s; }
-.hero-orbit-card__cmd:nth-child(3) { animation-delay: 2.4s; }
-.hero-orbit-card__cmd:nth-child(4) { animation-delay: 3.6s; }
-.hero-orbit-card__cmd:nth-child(5) { animation-delay: 4.8s; }
-.hero-orbit-card__cmd:nth-child(6) { animation-delay: 6.0s; }
-.hero-orbit-card__cmd:nth-child(7) { animation-delay: 7.2s; }
-.hero-orbit-card__cmd:nth-child(8) { animation-delay: 8.4s; }
-.hero-orbit-card__cmd--ok {
-  /* Success lines (✓ ...) take the cyan accent-2 — keeps the theme
-     consistent without breaking out a third colour. */
-  color: color-mix(in oklab, var(--color-accent-2) 80%, var(--color-fg-2) 20%);
-}
-@keyframes orbit-cmd-stream {
-  0%   { opacity: 0; transform: translateY(10px); }
-  18%  { opacity: 0.85; transform: translateY(0); }
-  62%  { opacity: 0.85; transform: translateY(0); }
-  82%  { opacity: 0; transform: translateY(-8px); }
-  100% { opacity: 0; transform: translateY(-14px); }
-}
-
-/* Animated conic-gradient backdrop. Pinned to the aura's coordinate
-   space, masked with a heavy blur + a radial vignette so only the
-   soft glow leaks out around the photo and the corners — never a
-   hard neon disc. Honours the theme via the accent tokens. */
-.hero-orbit-card__glow {
-  position: absolute;
-  inset: -20%;
-  background:
-    conic-gradient(
-      from 0deg at 50% 50%,
-      color-mix(in oklab, var(--color-accent) 70%, transparent) 0deg,
-      color-mix(in oklab, var(--color-accent-2) 60%, transparent) 120deg,
-      color-mix(in oklab, var(--color-accent) 55%, transparent) 240deg,
-      color-mix(in oklab, var(--color-accent-2) 60%, transparent) 360deg
-    );
-  filter: blur(48px) saturate(120%);
-  opacity: var(--orbit-conic-opacity);
-  animation: orbit-conic-spin 24s linear infinite;
-  will-change: transform;
-}
-/* Inner radial vignette so the conic gradient doesn't peek through
-   the centre of the card — the photo reads as the focal point. */
-.hero-orbit-card__vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    60% 60% at 50% 50%,
-    color-mix(in oklab, var(--color-bg) 30%, transparent) 0%,
-    color-mix(in oklab, var(--color-bg) 80%, transparent) 70%,
-    color-mix(in oklab, var(--color-bg) 95%, transparent) 100%
-  );
-}
-
-@keyframes orbit-conic-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-/* Decorative orbit ring. A thin conic-stroke ring with two
-   accent-coloured dots that orbit slowly. Pure CSS — no SVG, no JS —
-   so it stays crisp at any size and respects reduced-motion. */
-.hero-orbit-card__ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 230px;
-  height: 230px;
-  z-index: 1;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  opacity: var(--orbit-ring-opacity);
-  animation: orbit-ring-spin 28s linear infinite;
-  will-change: transform;
-}
-.hero-orbit-card__ring::before,
-.hero-orbit-card__ring::after {
-  content: '';
-  position: absolute;
-  border-radius: 999px;
-  box-shadow: 0 0 12px currentColor;
-}
-.hero-orbit-card__ring::before {
-  /* Top of the ring */
-  top: -3px;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  margin-left: -4px;
-  background: var(--color-accent);
-  color: var(--color-accent);
-}
-.hero-orbit-card__ring::after {
-  /* Bottom-right of the ring */
-  bottom: 14%;
-  right: 12%;
-  width: 6px;
-  height: 6px;
-  background: var(--color-accent-2);
-  color: var(--color-accent-2);
-}
-/* The ring itself: a conic-gradient with the middle 70% transparent
-   so only a thin arc renders. */
-.hero-orbit-card__ring {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    color-mix(in oklab, var(--color-accent) 80%, transparent) 20deg,
-    color-mix(in oklab, var(--color-accent-2) 80%, transparent) 140deg,
-    transparent 200deg,
-    transparent 360deg
-  );
-  -webkit-mask:
-    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
-  mask:
-    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
-  border-radius: 999px;
-}
-
-@keyframes orbit-ring-spin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* ─── Hero orbit shell — light-mode tuning ─────────────────────── */
-/*   Drop the conic/halo/ring opacities in light mode so the card
-     doesn't read as a neon disc, and lift the shadow tone so the
-     glass surface still floats above the warm off-white background. */
-[data-theme='light'] .hero-orbit-card {
-  --orbit-conic-opacity: 0.28;
-  --orbit-halo-opacity: 0.5;
-  --orbit-ring-opacity: 0.4;
+[data-theme='light'] .hero-terminal__status {
   border-color: var(--color-border-strong);
-  box-shadow:
-    0 24px 60px -28px color-mix(in oklab, #000 50%, transparent),
-    0 0 0 1px color-mix(in oklab, #000 4%, transparent) inset,
-    0 0 50px -18px color-mix(in oklab, var(--color-accent) 22%, transparent);
-}
-[data-theme='light'] .hero-orbit-card__vignette {
-  background: radial-gradient(
-    65% 65% at 50% 50%,
-    color-mix(in oklab, var(--color-bg) 0%, transparent) 0%,
-    color-mix(in oklab, var(--color-bg) 55%, transparent) 65%,
-    color-mix(in oklab, var(--color-bg) 88%, transparent) 100%
-  );
+  background: color-mix(in oklab, var(--color-card) 85%, transparent);
 }
 
-/* Reduce the shell's chrome on small screens — the card already
-   collapses to a stacked layout, no need for the rotating ring. */
-@media (max-width: 1023px) {
-  .hero-orbit-card {
-    --orbit-card-pad: 0.85rem;
-  }
-  .hero-orbit-card__ring { display: none; }
-}
-
-@media (max-width: 480px) {
-  .hero-orbit-card { border-radius: 18px; }
-}
-
-/* Reduced motion: freeze the conic and ring animations, but keep
-   the visual (just no rotation). Cards still bob via .float-soft,
-   but the global reduced-motion block already neutralises that. */
+/* Reduced motion: freeze the rings + orbs so they sit still, and
+   neutralise the cards' bob (the global block already handles
+   .float-soft). */
 @media (prefers-reduced-motion: reduce) {
-  .hero-orbit-card__glow,
-  .hero-orbit-card__ring {
+  .hero-orbit-rings__ring,
+  .hero-orbit-orb,
+  .hero-terminal__status-dot {
     animation: none !important;
   }
+  .hero-orbit__card:hover { transform: none; }
 }
