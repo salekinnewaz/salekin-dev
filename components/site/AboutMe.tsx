@@ -95,8 +95,8 @@ function WorkspaceIllustration() {
       </defs>
 
       {/* Stand */}
-      <rect x="170" y="240" width="60" height="6" rx="3" fill="#2A2454" />
-      <rect x="155" y="246" width="90" height="6" rx="3" fill="#2A2454" />
+      <rect x="170" y="240" width="60" height="6" rx="3" fill="#263244" />
+      <rect x="155" y="246" width="90" height="6" rx="3" fill="#263244" />
 
       {/* Monitor body */}
       <rect
@@ -105,8 +105,8 @@ function WorkspaceIllustration() {
         width="280"
         height="180"
         rx="12"
-        fill="#161133"
-        stroke="#2A2454"
+        fill="#111827"
+        stroke="#263244"
         strokeWidth="2"
       />
       {/* Screen */}
@@ -120,10 +120,10 @@ function WorkspaceIllustration() {
       />
 
       {/* Top bar (window chrome) */}
-      <rect x="72" y="72" width="256" height="14" rx="6" fill="#0F0B2A" />
+      <rect x="72" y="72" width="256" height="14" rx="6" fill="#0D1220" />
       <circle cx="82" cy="79" r="2" fill="#8B5CF6" />
       <circle cx="90" cy="79" r="2" fill="#22D3EE" />
-      <circle cx="98" cy="79" r="2" fill="#2A2454" />
+      <circle cx="98" cy="79" r="2" fill="#263244" />
 
       {/* Chart bars */}
       <g>
@@ -152,14 +152,14 @@ function WorkspaceIllustration() {
         width="92"
         height="58"
         rx="8"
-        fill="#0F0B2A"
-        stroke="#2A2454"
+        fill="#0D1220"
+        stroke="#263244"
         strokeWidth="1.5"
       />
       <rect x="288" y="128" width="32" height="6" rx="2" fill="#8B5CF6" opacity="0.7" />
-      <rect x="288" y="142" width="48" height="4" rx="2" fill="#2A2454" />
-      <rect x="288" y="152" width="36" height="4" rx="2" fill="#2A2454" />
-      <rect x="288" y="162" width="44" height="4" rx="2" fill="#2A2454" />
+      <rect x="288" y="142" width="48" height="4" rx="2" fill="#263244" />
+      <rect x="288" y="152" width="36" height="4" rx="2" fill="#263244" />
+      <rect x="288" y="162" width="44" height="4" rx="2" fill="#263244" />
 
       {/* Floating card 2 (checkmark) */}
       <rect
@@ -168,7 +168,7 @@ function WorkspaceIllustration() {
         width="56"
         height="56"
         rx="28"
-        fill="#0F0B2A"
+        fill="#0D1220"
         stroke="#8B5CF6"
         strokeWidth="1.5"
       />
@@ -188,13 +188,13 @@ function WorkspaceIllustration() {
         width="64"
         height="32"
         rx="6"
-        fill="#0F0B2A"
-        stroke="#2A2454"
+        fill="#0D1220"
+        stroke="#263244"
         strokeWidth="1.5"
       />
       <circle cx="306" cy="62" r="4" fill="#22D3EE" />
-      <rect x="316" y="58" width="36" height="3" rx="1.5" fill="#2A2454" />
-      <rect x="316" y="64" width="28" height="3" rx="1.5" fill="#2A2454" />
+      <rect x="316" y="58" width="36" height="3" rx="1.5" fill="#263244" />
+      <rect x="316" y="64" width="28" height="3" rx="1.5" fill="#263244" />
     </svg>
   );
 }

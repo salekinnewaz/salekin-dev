@@ -171,23 +171,23 @@ function RobotIllustration() {
       <ellipse cx="180" cy="160" rx="160" ry="100" fill="url(#ai-glow)" />
 
       {/* Desk */}
-      <rect x="40" y="220" width="280" height="8" rx="3" fill="#2A2454" />
+      <rect x="40" y="220" width="280" height="8" rx="3" fill="#263244" />
 
       {/* Laptop base */}
-      <rect x="80" y="218" width="160" height="6" rx="2" fill="#0F0B2A" stroke="#2A2454" />
-      <rect x="100" y="158" width="120" height="62" rx="4" fill="#161133" stroke="#2A2454" />
-      <rect x="106" y="164" width="108" height="50" rx="2" fill="#0F0B2A" />
+      <rect x="80" y="218" width="160" height="6" rx="2" fill="#0D1220" stroke="#263244" />
+      <rect x="100" y="158" width="120" height="62" rx="4" fill="#111827" stroke="#263244" />
+      <rect x="106" y="164" width="108" height="50" rx="2" fill="#0D1220" />
       {/* Code lines on laptop */}
       <rect x="112" y="172" width="40" height="3" rx="1" fill="#8B5CF6" />
       <rect x="112" y="180" width="60" height="3" rx="1" fill="#22D3EE" opacity="0.7" />
       <rect x="120" y="188" width="46" height="3" rx="1" fill="#22D3EE" opacity="0.5" />
       <rect x="120" y="196" width="56" height="3" rx="1" fill="#8B5CF6" opacity="0.7" />
-      <rect x="112" y="204" width="32" height="3" rx="1" fill="#2A2454" />
+      <rect x="112" y="204" width="32" height="3" rx="1" fill="#263244" />
 
       {/* Robot body */}
-      <rect x="240" y="120" width="80" height="100" rx="14" fill="#161133" stroke="#2A2454" strokeWidth="1.5" />
+      <rect x="240" y="120" width="80" height="100" rx="14" fill="#111827" stroke="#263244" strokeWidth="1.5" />
       {/* Head */}
-      <rect x="252" y="92" width="56" height="48" rx="10" fill="#0F0B2A" stroke="#2A2454" strokeWidth="1.5" />
+      <rect x="252" y="92" width="56" height="48" rx="10" fill="#0D1220" stroke="#263244" strokeWidth="1.5" />
       {/* Eyes */}
       <circle cx="270" cy="116" r="4" fill="#22D3EE" />
       <circle cx="290" cy="116" r="4" fill="#8B5CF6" />
@@ -195,7 +195,7 @@ function RobotIllustration() {
       <line x1="280" y1="92" x2="280" y2="80" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="280" cy="78" r="2.5" fill="#8B5CF6" />
       {/* Mouth */}
-      <rect x="268" y="128" width="24" height="3" rx="1.5" fill="#2A2454" />
+      <rect x="268" y="128" width="24" height="3" rx="1.5" fill="#263244" />
       {/* Body accent */}
       <rect x="252" y="148" width="56" height="3" rx="1.5" fill="#8B5CF6" opacity="0.5" />
       <rect x="252" y="158" width="40" height="3" rx="1.5" fill="#22D3EE" opacity="0.5" />
@@ -203,7 +203,7 @@ function RobotIllustration() {
       <rect x="252" y="178" width="32" height="3" rx="1.5" fill="#22D3EE" opacity="0.5" />
 
       {/* Floating AI badge */}
-      <rect x="248" y="56" width="40" height="22" rx="6" fill="#0F0B2A" stroke="#8B5CF6" strokeWidth="1.5" />
+      <rect x="248" y="56" width="40" height="22" rx="6" fill="#0D1220" stroke="#8B5CF6" strokeWidth="1.5" />
       <text
         x="268"
         y="71"

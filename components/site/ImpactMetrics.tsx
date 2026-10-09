@@ -10,7 +10,7 @@ type Metric = {
 };
 
 /**
- * ImpactMetrics — 4-card strip on the new #161133 surface.
+ * ImpactMetrics — 4-card strip on the new #111827 surface.
  *
  * Per the v3 brief, this section is a unified metrics strip directly
  * below the hero. Big purple icon + huge number + short label. No

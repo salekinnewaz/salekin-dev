@@ -8,20 +8,6 @@ type Props = {
 };
 
 /**
- * Per the v3 brief the project card shows a "domain" row separate from
- * the tool/tech pills. We hard-code the domain labels by project slug —
- * the brief is opinionated about this and we don't have a domain field
- * on the project model yet (a follow-up PR can lift it into Prisma).
- */
-const PROJECT_DOMAINS: Record<string, string[]> = {
-  'rs-sjoliv': ['Web', 'Mobile', 'API', 'IoT'],
-  'client-norway-release': ['Web', 'API', 'Performance'],
-  'client-international': ['Web', 'IoT', 'Cloud'],
-};
-
-const DEFAULT_DOMAINS = ['Web', 'API'];
-
-/**
  * SelectedProjects — renamed from FeaturedProjects for the v3 brief.
  *
  *  - Eyebrow: "Featured Work"
@@ -30,7 +16,7 @@ const DEFAULT_DOMAINS = ['Web', 'API'];
  *  - Each card: 16:9 cover, project type row ("Web · Mobile · API ·
  *    IoT" — derived from the project's techStack), blurb, tech tags,
  *    "View Project →" outline button
- *  - Sits on the v3 #0F0B2A section strip (applied via parent class)
+ *  - Sits on the v3 #0D1220 section strip (applied via parent class)
  *
  * The 3 cards are equal-width on desktop (no more "primary + 2
  * secondary" emphasis). All three get the same hover lift.
@@ -80,7 +66,6 @@ function ProjectCard({
 }) {
   const { slug, title, description, techStack, imageUrl } = project;
   const placeholderSrc = `/featured/${slug}.svg`;
-  const domains = PROJECT_DOMAINS[slug] ?? DEFAULT_DOMAINS;
 
   return (
     <Link
@@ -98,12 +83,14 @@ function ProjectCard({
         />
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <h3 className="heading-display text-xl text-fg transition-colors group-hover:text-accent">
+        <h3 className="font-mono text-base font-semibold text-fg transition-colors group-hover:text-accent">
           {title}
         </h3>
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">
-          {domains.join(' · ')}
-        </p>
+        {techStack.length > 0 ? (
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">
+            {techStack.slice(0, 4).join(' · ')}
+          </p>
+        ) : null}
         {description ? (
           <p className="text-sm leading-relaxed text-fg-2 text-pretty">
             {description}

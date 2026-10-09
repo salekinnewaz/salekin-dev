@@ -12,7 +12,7 @@ type Props = {
 /**
  * CertificationsAndEducation — replaces EducationCerts.
  *
- * Per the v3 brief, two side-by-side cards on the #0F0B2A strip:
+ * Per the v3 brief, two side-by-side cards on the #0D1220 strip:
  *  - Certifications: ISTQB® Certified Tester as the headline card,
  *    then 4 secondary trainings as a clean bullet list
  *  - Education: B.Sc. in CSE from IIUC (2016–2020) + Digital
@@ -34,7 +34,7 @@ export function CertificationsAndEducation({ education }: Props) {
     <section
       id="certifications"
       tabIndex={-1}
-      className="section-anchor relative"
+      className="section-anchor relative bg-bg-2 py-20 sm:py-28"
     >
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Certifications card */}
