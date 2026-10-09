@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ProfilePhoto } from './ProfilePhoto';
+import { HeroOrbit, type OrbitCard } from './HeroOrbit';
 import { HeroTerminal } from './HeroTerminal';
 
 type Props = {
   src: string;
   alt: string;
+  cards: OrbitCard[];
 };
 
 const PARALLAX_RANGE_PX = 600;
@@ -15,16 +16,17 @@ const PARALLAX_AVATAR_PX = 60;
 
 /**
  * Right column of the Hero. Three jobs:
- *   1. Scroll-driven parallax on the headline and the avatar (h1 lifts
- *      up by 40px as the user scrolls 0–600px, avatar drifts down by
- *      60px in the same window — depth without being heavy).
- *   2. 3D tilt on the avatar (rotateX/Y based on cursor position,
+ *   1. Scroll-driven parallax on the headline and the orbit (h1 lifts
+ *      up by 40px as the user scrolls 0–600px, the whole orbit drifts
+ *      down by 60px in the same window — depth without being heavy).
+ *   2. 3D tilt on the orbit (rotateX/Y based on cursor position,
  *      max 8°). Disabled on touch + reduced motion.
- *   3. Composes the avatar + animated terminal: desktop shows them
- *      side-by-side (avatar top-right, terminal below); tablet just
- *      shows the terminal; phone just shows the avatar.
+ *   3. Composes the orbit (photo + 4 floating info cards) + animated
+ *      terminal: desktop shows the orbit above the terminal; on
+ *      smaller screens the orbit's 2×2 grid stacks above the
+ *      terminal and the phone branch shows a smaller photo.
  */
-export function HeroStage({ src, alt }: Props) {
+export function HeroStage({ src, alt, cards }: Props) {
   const avatarRef = useRef<HTMLDivElement | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -90,13 +92,13 @@ export function HeroStage({ src, alt }: Props) {
             transformStyle: 'preserve-3d',
           }}
         >
-          <ProfilePhoto src={src} alt={alt} size={180} />
+          <HeroOrbit src={src} alt={alt} cards={cards} photoSize={260} />
         </div>
       </div>
-      {/* On phones, the avatar column is hidden (sm:hidden). Render a
-          smaller avatar above the terminal for narrow viewports. */}
+      {/* On phones, the orbit column is hidden (sm:hidden). Render a
+          smaller standalone photo for narrow viewports. */}
       <div className="block sm:hidden">
-        <ProfilePhoto src={src} alt={alt} size={120} />
+        <HeroOrbit src={src} alt={alt} cards={cards} photoSize={160} />
       </div>
       <div className="hidden w-full max-w-md sm:block">
         <HeroTerminal />

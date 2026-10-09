@@ -7,6 +7,12 @@ type Line = { kind: 'cmd' | 'out'; text: string; tone?: 'muted' | 'accent' | 'ac
 const SCRIPT: Line[] = [
   { kind: 'cmd', text: '$ whoami' },
   { kind: 'out', text: 'salekin', tone: 'accent' },
+  { kind: 'cmd', text: '$ focus' },
+  {
+    kind: 'out',
+    text: 'Quality Engineering | Playwright | AI',
+    tone: 'accent-2',
+  },
   { kind: 'cmd', text: '$ stack --top' },
   {
     kind: 'out',

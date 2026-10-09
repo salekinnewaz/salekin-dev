@@ -1,9 +1,22 @@
 import Link from 'next/link';
 import type { SiteIdentity } from '@/lib/queries/site';
 import { HeroStage } from './HeroStage';
+import { FocusChip } from './FocusChip';
+import type { OrbitCard } from './HeroOrbit';
+import type { FocusIconId } from '@/lib/icons';
 
 type HeroProps = {
   identity: SiteIdentity;
+};
+
+type FocusArea = {
+  id: string;
+  icon: FocusIconId;
+  label: string;
+  detail: string;
+  position: OrbitCard['position'];
+  progress?: number;
+  bobDelay: number;
 };
 
 /**
@@ -15,12 +28,14 @@ type HeroProps = {
  *     AI-Driven QA)
  *   - Tagline (the brief §3 positioning line)
  *   - 2 CTAs (View My Work, Download Resume)
- *   - Stack chips: 5 short items from brief §2
+ *   - Focus row: 4 icon-prefixed chips on the left, matching the 4
+ *     floating info cards around the profile photo on the right
  *   - "● Senior Software QA Engineer @ Brain Station 23" status line
- *   - HeroStage on the right (initials avatar + small terminal)
+ *   - HeroStage on the right (large photo + 4 orbit cards + terminal)
  *
- * Terminal styling is contained to a single `$` glyph on the eyebrow
- * and one muted status line.
+ * The same 4 focus areas appear in both places — the left chip row
+ * gives a quick at-a-glance scan, the right orbit gives the rich
+ * detail. The `focusAreas` array is the single source of truth.
  */
 export function Hero({ identity }: HeroProps) {
   const title = identity.siteTitle || 'Md Salekin Newaz';
@@ -33,16 +48,61 @@ export function Hero({ identity }: HeroProps) {
   const photoSrc = '/images/profile.jpg';
   const photoAlt = `${title} — Senior Software QA Engineer`;
 
-  // 5 stack chips from brief §2. These are the only technologies we
-  // surface on the home page above the fold — the full QA stack is
-  // in the Core Expertise section further down.
-  const stack = [
-    'Playwright',
-    'JavaScript',
-    'API Testing',
-    'CI/CD',
-    'AI',
+  // The 4 focus areas. Single source of truth — drives both the left
+  // icon chip row and the right orbit cards. `position` and `bobDelay`
+  // only matter for the orbit; the chip row ignores them.
+  const focusAreas: readonly FocusArea[] = [
+    {
+      id: 'playwright',
+      icon: 'playwright',
+      label: 'Playwright',
+      detail: 'E2E Automation',
+      position: 'tl',
+      progress: 0.92,
+      bobDelay: 0,
+    },
+    {
+      id: 'api',
+      icon: 'api',
+      label: 'API Testing',
+      detail: 'REST · Swagger',
+      position: 'bl',
+      progress: 0.78,
+      bobDelay: 600,
+    },
+    {
+      id: 'ai',
+      icon: 'ai',
+      label: 'AI-Driven QA',
+      detail: 'Smarter Testing',
+      position: 'tr',
+      bobDelay: 1200,
+    },
+    {
+      id: 'cicd',
+      icon: 'cicd',
+      label: 'CI/CD',
+      detail: 'Faster Releases',
+      position: 'br',
+      progress: 0.85,
+      bobDelay: 1800,
+    },
   ] as const;
+
+  // Strip the orbit-only fields before passing to the chip row.
+  const chipAreas = focusAreas.map(({ icon, label }) => ({ icon, label }));
+  // The orbit consumes the full shape (position, progress, bobDelay).
+  const orbitCards: OrbitCard[] = focusAreas.map(
+    ({ id, icon, label, detail, position, progress, bobDelay }) => ({
+      id,
+      icon,
+      title: label,
+      detail,
+      position,
+      progress,
+      bobDelay,
+    }),
+  );
 
   return (
     <section
@@ -118,9 +178,9 @@ export function Hero({ identity }: HeroProps) {
             <li className="font-mono text-xs uppercase tracking-widest text-muted">
               focus ·
             </li>
-            {stack.map((s) => (
-              <li key={s}>
-                <span className="tag">{s}</span>
+            {chipAreas.map((c) => (
+              <li key={c.label}>
+                <FocusChip icon={c.icon} label={c.label} />
               </li>
             ))}
           </ul>
@@ -140,7 +200,7 @@ export function Hero({ identity }: HeroProps) {
           </p>
         </div>
 
-        <HeroStage src={photoSrc} alt={photoAlt} />
+        <HeroStage src={photoSrc} alt={photoAlt} cards={orbitCards} />
       </div>
     </section>
   );
