@@ -1561,24 +1561,24 @@
 }
 
 /* ─── Hero orbit (floating info cards around the profile photo) ─── */
-/*   .hero-orbit is a square wrapper that holds the centered photo    */
-/*   plus 4 absolutely-positioned cards (tl/tr/bl/br). On < 1024px    */
-/*   the wrapper collapses to a 2×2 grid (photo on top, cards below). */
-/*   Cards bob via .float-soft (desynced via inline animation-delay). */
+/*   .hero-orbit is a 3:2 landscape rectangle that holds the centred */
+/*   photo plus 4 absolutely-positioned cards anchored to its four   */
+/*   corners (1rem inset). On < 1024px the wrapper collapses to a    */
+/*   2×2 grid (photo on top, cards below). Cards bob via .float-soft */
+/*   (desynced via inline animation-delay).                          */
 
 .hero-orbit {
-  /* The orbit is a square that fills the .hero-orbit-card shell so
-     the four floating capability cards can anchor to its corners
-     without escaping the shell's rounded clip. The min-height keeps
-     the photo from getting squeezed below ~360px on narrow columns
-     (the photo is 260px tall + cards need ~1rem clearance top/bottom).
-     The max-width keeps the orbit from becoming an awkward 500px tall
-     column on a wide hero — at the design's reference viewport the
-     orbit lands ~480px square, which is the sweet spot. */
+  /* The orbit is a landscape rectangle (3:2, matching the v3 brief's
+     static composition reference) so the four floating capability
+     cards can anchor to its corners without escaping the shell's
+     rounded clip. The min-height keeps the photo from getting
+     squeezed below ~360px on narrow columns. The max-width keeps
+     the orbit from becoming an awkward 700px-wide band on a wide
+     hero. */
   position: relative;
   width: 100%;
-  max-width: 30rem;
-  aspect-ratio: 1 / 1;
+  max-width: 40rem;
+  aspect-ratio: 3 / 2;
   min-height: 360px;
   margin: 0 auto;
   display: block;
@@ -1787,6 +1787,10 @@
   .hero-orbit__card--tr { grid-area: tr; }
   .hero-orbit__card--bl { grid-area: bl; }
   .hero-orbit__card--br { grid-area: br; }
+  /* Hide the terminal stream on mobile — the column is too narrow
+     for the lines to read, and the photo-on-top layout doesn't have
+     a bottom band for the stream to occupy. */
+  .hero-orbit-card__terminal { display: none; }
 }
 @media (max-width: 480px) {
   .hero-orbit { gap: 0.45rem; }
@@ -1914,6 +1918,78 @@
   border-radius: inherit;
   overflow: hidden;
   pointer-events: none;
+}
+
+/* ─── Terminal stream — animated code-like lines behind the photo ─ */
+/*   CSS-only "developer console" stream: each line fades in from
+     below, holds, then fades up and out. Stacked vertically, each
+     line gets a desynced animation-delay via its own nth-child
+     rule so the stream never feels synchronized. Sits as a sibling
+     of the .hero-orbit-card__aura wrapper, ABOVE the conic glow +
+     vignette (so the lines stay readable) but BELOW the .hero-orbit
+     itself (so the photo + 4 corner cards paint over the stream). */
+
+.hero-orbit-card__terminal {
+  position: absolute;
+  inset: auto 0 8% 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 1.6vw, 0.78rem);
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: color-mix(in oklab, var(--color-fg-2) 75%, transparent);
+  pointer-events: none;
+  overflow: hidden;
+  /* Soft top/bottom fade so lines don't pop in/out abruptly. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 18%,
+    #000 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 18%,
+    #000 82%,
+    transparent 100%
+  );
+}
+.hero-orbit-card__cmd {
+  display: block;
+  /* Fade in from below, hold, fade up and out. 9s per line, desynced
+     via per-nth-child animation-delay — the stream feels ambient
+     rather than busy. */
+  animation: orbit-cmd-stream 9s ease-in-out infinite both;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.hero-orbit-card__cmd:nth-child(1) { animation-delay: 0s; }
+.hero-orbit-card__cmd:nth-child(2) { animation-delay: 1.2s; }
+.hero-orbit-card__cmd:nth-child(3) { animation-delay: 2.4s; }
+.hero-orbit-card__cmd:nth-child(4) { animation-delay: 3.6s; }
+.hero-orbit-card__cmd:nth-child(5) { animation-delay: 4.8s; }
+.hero-orbit-card__cmd:nth-child(6) { animation-delay: 6.0s; }
+.hero-orbit-card__cmd:nth-child(7) { animation-delay: 7.2s; }
+.hero-orbit-card__cmd:nth-child(8) { animation-delay: 8.4s; }
+.hero-orbit-card__cmd--ok {
+  /* Success lines (✓ ...) take the cyan accent-2 — keeps the theme
+     consistent without breaking out a third colour. */
+  color: color-mix(in oklab, var(--color-accent-2) 80%, var(--color-fg-2) 20%);
+}
+@keyframes orbit-cmd-stream {
+  0%   { opacity: 0; transform: translateY(10px); }
+  18%  { opacity: 0.85; transform: translateY(0); }
+  62%  { opacity: 0.85; transform: translateY(0); }
+  82%  { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 0; transform: translateY(-14px); }
 }
 
 /* Animated conic-gradient backdrop. Pinned to the aura's coordinate

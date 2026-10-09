@@ -230,21 +230,46 @@ export function Hero({ identity }: HeroProps) {
         </div>
 
         {/* ─── RIGHT column — live hero orbit composition ───
-            Circular profile photo (clipped from /images/profile.jpg)
-            with the four QA capability cards floating at the corners.
-            See components/site/HeroOrbit.tsx + .hero-orbit* styles in
+            Landscape card with the circular profile photo centered,
+            four QA capability cards at the corners, and a background
+            "terminal stream" — CSS-animated code-like lines fading in
+            and out behind everything. See .hero-orbit* in
             app/globals.css for the visual treatment. */}
         <div className="hero-orbit-card">
           <div className="hero-orbit-card__aura" aria-hidden="true">
             <div className="hero-orbit-card__glow" />
             <div className="hero-orbit-card__vignette" />
           </div>
+          {/* Animated terminal stream — CSS-only code-like lines
+              behind the photo. Each line fades in, holds, fades out,
+              and translates up; each has a desynced animation-delay
+              so the stream never feels synchronized. */}
+          <div className="hero-orbit-card__terminal" aria-hidden="true">
+            <span className="hero-orbit-card__cmd">$ pnpm test:ci</span>
+            <span className="hero-orbit-card__cmd">
+              → running 1847 specs in parallel
+            </span>
+            <span className="hero-orbit-card__cmd hero-orbit-card__cmd--ok">
+              ✓ 1847 passed · 0 failed
+            </span>
+            <span className="hero-orbit-card__cmd">$ git push origin main</span>
+            <span className="hero-orbit-card__cmd">
+              → Compare via Visual Regression
+            </span>
+            <span className="hero-orbit-card__cmd hero-orbit-card__cmd--ok">
+              ✓ 23 snapshots match
+            </span>
+            <span className="hero-orbit-card__cmd">$ playwright test --ui</span>
+            <span className="hero-orbit-card__cmd">
+              → tracing · video · accessibility
+            </span>
+          </div>
           <div className="hero-orbit-card__ring" aria-hidden="true" />
           <HeroOrbit
             cards={orbitCards}
             src="/images/profile.jpg"
             alt="Profile photo of Salekin Newaz surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
-            photoSize={260}
+            photoSize={300}
           />
         </div>
       </div>

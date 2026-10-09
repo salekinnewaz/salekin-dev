@@ -32,15 +32,18 @@ type HeroOrbitProps = {
  * HeroOrbit — the right column of the hero.
  *
  * Composes:
- *   - A large circular `ProfilePhoto` centered in a square wrapper.
+ *   - A large circular `ProfilePhoto` centered in a 3:2 landscape
+ *     wrapper (the .hero-orbit element, declared in app/globals.css).
  *   - 4 floating info cards (Playwright, API Testing, AI-Driven QA,
- *     CI/CD) absolutely positioned at the four corners of the photo.
+ *     CI/CD) absolutely positioned at the four corners of the orbit
+ *     (1rem inset), reading as "corner markings" on the frame.
  *   - Each card bobs gently via `float-soft` with a desynced
  *     `animation-delay` (driven by the per-card `bobDelay`).
  *
- * The 4 cards are `z-index: 1` so they sit above the photo's gradient
+ * The 4 cards are `z-index: 3` so they sit above the photo's gradient
  * halo (which is rendered behind the photo by `ProfilePhoto` itself).
- * The surrounding card shell + animated backdrop lives in the parent
+ * The surrounding card shell + animated backdrop (conic aurora,
+ * terminal stream, decorative ring) lives in the parent
  * (`.hero-orbit-card`, declared in `app/globals.css`).
  *
  * On screens < 1024px the orbit collapses: photo on top, 2×2 card grid
