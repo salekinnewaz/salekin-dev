@@ -51,3 +51,6 @@ data/
 .vercel
 .env*
 .scratch/
+
+# Throwaway visual-comparison screenshots (Playwright captures, not assets)
+scripts/.shots/
