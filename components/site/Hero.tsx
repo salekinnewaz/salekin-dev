@@ -20,18 +20,26 @@ type FocusArea = {
 };
 
 /**
- * Hero — first fold, calm and editorial.
+ * Hero — first fold, calm and editorial. Matches the v3 design brief:
  *
- *   - Eyebrow status (ISTQB® Certified)
- *   - Big static-gradient H1 (full name)
- *   - 1-line role strap (Senior Software QA Engineer · Playwright ·
- *     AI-Driven QA)
- *   - Tagline (the brief §3 positioning line)
- *   - 2 CTAs (View My Work, Download Resume)
- *   - Focus row: 4 icon-prefixed chips on the left, matching the 4
- *     floating info cards around the profile photo on the right
- *   - "● Senior Software QA Engineer @ Brain Station 23" status line
- *   - HeroStage on the right (large photo + 4 orbit cards + terminal)
+ *   - Eyebrow: `— ISTQB® CERTIFIED · OPEN TO INTERESTING WORK`
+ *     (uppercase mono with a leading purple dash, no `$` prefix)
+ *   - H1: `Salekin` (white) + `Newaz` (purple→cyan gradient), rendered
+ *     inline on a single line. The data is `Md Salekin Newaz`; the
+ *     `Md` prefix is intentionally omitted from the hero H1 because
+ *     the brief renders the person-facing name only.
+ *   - Role strap: `SENIOR SOFTWARE QA ENGINEER` (large uppercase
+ *     mono, accent-colored).
+ *   - Secondary strap: `PLAYWRIGHT · AI-DRIVEN QA · QUALITY
+ *     ENGINEERING` (uppercase mono, muted).
+ *   - Tagline (the brief §3 positioning line).
+ *   - 2 CTAs: `View My Work` (gradient fill) + `Download Resume`
+ *     (outline).
+ *   - FOCUS row: 4 icon-prefixed chips on the left, matching the 4
+ *     floating info cards around the profile photo on the right.
+ *   - Status line: `● Senior Software QA Engineer @ Brain Station 23 ·
+ *     Dhaka, Bangladesh`.
+ *   - HeroStage on the right (large photo + 4 orbit cards + terminal).
  *
  * The same 4 focus areas appear in both places — the left chip row
  * gives a quick at-a-glance scan, the right orbit gives the rich
@@ -47,6 +55,15 @@ export function Hero({ identity }: HeroProps) {
   // initials avatar only if the asset is missing.
   const photoSrc = '/images/profile.jpg';
   const photoAlt = `${title} — Senior Software QA Engineer`;
+  const location = identity.contactLocation?.trim();
+
+  // The H1 in the hero intentionally shows the person-facing name
+  // (e.g. "Salekin Newaz") without the honorific "Md" prefix that
+  // the site metadata uses. Split into first / last so the gradient
+  // can be applied to the last name only.
+  const nameParts = title.replace(/^Md\.?\s+/i, '').trim().split(/\s+/);
+  const firstName = nameParts[0] ?? title;
+  const lastName = nameParts.slice(1).join(' ') || nameParts[0] || '';
 
   // The 4 focus areas. Single source of truth — drives both the left
   // icon chip row and the right orbit cards. `position` and `bobDelay`
@@ -113,35 +130,37 @@ export function Hero({ identity }: HeroProps) {
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-8">
           <span
-            className="eyebrow hero-stagger"
+            className="eyebrow flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-fg-2 hero-stagger"
             style={{ animationDelay: '0ms' }}
           >
-            <span aria-hidden="true" className="font-mono opacity-80">$</span>
+            <span aria-hidden="true" className="text-accent">—</span>
             ISTQB® Certified · open to interesting work
           </span>
 
           <h1
-            className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
+            className="heading-display flex flex-wrap items-baseline gap-x-6 text-5xl leading-[1.05] sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
             data-hero-headline
             style={{ animationDelay: '80ms' }}
           >
-            <span className="block">{title.split(' ')[0]}</span>
-            {title.split(' ').slice(1).length > 0 ? (
-              <span className="block">
-                {title.split(' ').slice(1).join(' ')}
-              </span>
-            ) : null}
+            <span className="text-fg">{firstName}</span>
+            <span className="name-gradient">{lastName}</span>
           </h1>
 
           <p
-            className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-sm uppercase tracking-widest text-fg-2 sm:text-base hero-stagger"
+            className="font-mono text-sm uppercase tracking-widest text-accent sm:text-base hero-stagger"
             style={{ animationDelay: '160ms' }}
           >
-            <span className="float-soft text-accent">Senior Software QA Engineer</span>
-            <span aria-hidden="true" className="text-muted">·</span>
-            <span>Playwright</span>
-            <span aria-hidden="true" className="text-muted">·</span>
-            <span>AI-Driven QA</span>
+            Senior Software QA Engineer
+          </p>
+
+          <p
+            className="font-mono text-xs uppercase tracking-widest text-muted sm:text-sm hero-stagger"
+            style={{ animationDelay: '200ms' }}
+          >
+            Playwright <span aria-hidden="true" className="text-fg-2/50">·</span>{' '}
+            AI-Driven QA{' '}
+            <span aria-hidden="true" className="text-fg-2/50">·</span>{' '}
+            Quality Engineering
           </p>
 
           <p
@@ -160,13 +179,19 @@ export function Hero({ identity }: HeroProps) {
             className="mt-2 flex flex-wrap items-center gap-3 hero-stagger"
             style={{ animationDelay: '320ms' }}
           >
-            <Link href="/#work" className="btn-primary magnetic">
-              view my work
-              <span aria-hidden="true">↓</span>
+            <Link
+              href="/#work"
+              className="btn-primary magnetic inline-flex items-center gap-2 px-6 py-3 text-sm sm:text-base"
+            >
+              View My Work
+              <span aria-hidden="true">→</span>
             </Link>
-            <a href="/cv-download" className="btn-outline magnetic">
-              download resume
-              <span aria-hidden="true">↗</span>
+            <a
+              href="/cv-download"
+              className="btn-outline magnetic inline-flex items-center gap-2 px-6 py-3 text-sm sm:text-base"
+            >
+              <span aria-hidden="true">↓</span>
+              Download Resume
             </a>
           </div>
 
@@ -176,7 +201,7 @@ export function Hero({ identity }: HeroProps) {
             style={{ animationDelay: '400ms' }}
           >
             <li className="font-mono text-xs uppercase tracking-widest text-muted">
-              focus ·
+              FOCUS
             </li>
             {chipAreas.map((c) => (
               <li key={c.label}>
@@ -186,17 +211,27 @@ export function Hero({ identity }: HeroProps) {
           </ul>
 
           <p
-            className="float-soft inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted"
+            className="float-soft inline-flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs uppercase tracking-widest text-muted"
             style={{ animationDelay: '1.5s' }}
           >
-            <span className="relative inline-flex h-1.5 w-1.5" aria-hidden="true">
+            <span
+              className="relative inline-flex h-1.5 w-1.5"
+              aria-hidden="true"
+            >
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
             </span>
-            <span>
-              <span className="text-fg-2">Senior Software QA Engineer @</span>{' '}
-              Brain Station 23
+            <span className="text-fg-2">
+              Senior Software QA Engineer @ Brain Station 23
             </span>
+            {location ? (
+              <>
+                <span aria-hidden="true" className="text-fg-2/50">|</span>
+                <span className="normal-case tracking-normal">
+                  {location}
+                </span>
+              </>
+            ) : null}
           </p>
         </div>
 

@@ -102,9 +102,13 @@ describe('HomePage', () => {
     });
     const ui = await HomePage();
     await renderHomePage(ui);
-    // Heading might split into 2 spans (first name + last name)
+    // Heading renders the person-facing first + last name. The
+    // honourific "Md" prefix from the data is intentionally stripped
+    // here so the gradient sits on the last name only (matches the
+    // design brief). Use a tolerant match so it works whether the
+    // text is rendered as one string or split across spans.
     expect(
-      screen.getByRole('heading', { level: 1, name: /Md Salekin Newaz/i }),
+      screen.getByRole('heading', { level: 1, name: /salekin.{0,3}newaz/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/quality infrastructure/i)).toBeInTheDocument();
     // New role strap element (also surfaces in the Current Role section,

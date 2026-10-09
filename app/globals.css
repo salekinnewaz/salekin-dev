@@ -214,6 +214,21 @@
     /* Static gradient — calmer. (Was: `animation: gradient-pan 8s
        ease-in-out infinite;` removed in the UI refinement pass.) */
   }
+  /* Hero H1 last-name gradient — a tight 2-stop purple→cyan ramp
+     with no white terminator. Matches the brief's "Newaz" treatment
+     (single colour-pair transition across the letterform). */
+  .name-gradient {
+    background: linear-gradient(
+      90deg,
+      var(--color-accent) 0%,
+      var(--color-accent-2) 100%
+    );
+    background-size: 100% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
 
   /* ─ Section eyebrow ─ */
   .eyebrow {
