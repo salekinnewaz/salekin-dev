@@ -6,6 +6,7 @@ import { SideNav } from '@/components/site/SideNav';
 import { RevealObserver } from '@/components/site/RevealObserver';
 import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
 import { HashScrollController } from '@/components/site/HashScrollController';
+import { MotionDebug } from '@/components/site/MotionDebug';
 import { getSiteSettings } from '@/lib/queries/site';
 import { listEducationOrdered } from '@/lib/queries/education';
 import { env } from '@/lib/env';
@@ -287,6 +288,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <RevealObserver />
         <HashScrollController />
         <TerminalEasterEgg />
+        <MotionDebug />
         <main
           id="main"
           className="relative mx-auto w-full max-w-6xl flex-1 px-5 pb-20 sm:px-8 lg:px-16"

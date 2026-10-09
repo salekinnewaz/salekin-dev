@@ -1377,3 +1377,160 @@
     /* Still let the mask fade the edges; just stop scrolling. */
   }
 }
+
+/* ─── Motion debug chip (dev only) ─────────────────────────────── */
+/*   Visible only when the URL contains ?debug=motion. Floats in the  */
+/*   bottom-left and lets the user see whether motion is actually     */
+/*   running, override the OS preference, and count active animations.*/
+
+.motion-debug {
+  position: fixed;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  user-select: none;
+}
+.motion-debug__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-bg-2) 92%, transparent);
+  color: var(--color-fg);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 8px 24px -10px color-mix(in oklab, #000 50%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 4%, transparent);
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+.motion-debug__chip:hover { transform: translateY(-1px); }
+.motion-debug__chip:active { transform: translateY(0); }
+.motion-debug__dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-muted);
+  box-shadow: 0 0 0 0 currentColor;
+}
+.motion-debug__dot.is-on {
+  background: var(--color-accent);
+  animation: motion-debug-pulse 2.4s ease-in-out infinite;
+}
+.motion-debug__dot.is-off { background: color-mix(in oklab, var(--color-fg) 35%, var(--color-bg-2)); }
+@keyframes motion-debug-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent); }
+  50%      { box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-accent) 0%, transparent); }
+}
+.motion-debug__label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.motion-debug__sub {
+  color: var(--color-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.motion-debug__panel {
+  width: 18rem;
+  padding: 0.85rem 0.95rem 0.95rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.85rem;
+  background: color-mix(in oklab, var(--color-bg-2) 95%, transparent);
+  color: var(--color-fg);
+  box-shadow:
+    0 18px 50px -20px color-mix(in oklab, #000 60%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 5%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: motion-debug-panel-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes motion-debug-panel-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.motion-debug__title {
+  margin: 0 0 0.55rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+}
+.motion-debug__rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
+  margin: 0 0 0.7rem;
+  padding: 0;
+}
+.motion-debug__rows > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: 0.7rem;
+}
+.motion-debug__rows dt {
+  color: var(--color-muted);
+}
+.motion-debug__rows dd {
+  margin: 0;
+  color: var(--color-fg);
+  font-variant-numeric: tabular-nums;
+}
+.motion-debug__rows code {
+  font-size: 0.68rem;
+  color: var(--color-accent);
+}
+.motion-debug__actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+.motion-debug__btn {
+  flex: 1;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--color-fg-2);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.motion-debug__btn:hover {
+  color: var(--color-fg);
+  border-color: var(--color-border-strong);
+}
+.motion-debug__btn.is-active {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 10%, transparent);
+}
+.motion-debug__hint {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.motion-debug__hint code {
+  color: var(--color-fg-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-debug__dot.is-on { animation: none; }
+  .motion-debug__panel { animation: none; }
+}
