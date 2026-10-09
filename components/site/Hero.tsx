@@ -52,14 +52,18 @@ export function Hero({ identity }: HeroProps) {
     >
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-8">
-          <span className="eyebrow">
+          <span
+            className="eyebrow hero-stagger"
+            style={{ animationDelay: '0ms' }}
+          >
             <span aria-hidden="true" className="font-mono opacity-80">$</span>
             ISTQB® Certified · open to interesting work
           </span>
 
           <h1
-            className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-[6rem]"
+            className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
             data-hero-headline
+            style={{ animationDelay: '80ms' }}
           >
             <span className="block">{title.split(' ')[0]}</span>
             {title.split(' ').slice(1).length > 0 ? (
@@ -69,7 +73,10 @@ export function Hero({ identity }: HeroProps) {
             ) : null}
           </h1>
 
-          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-sm uppercase tracking-widest text-fg-2 sm:text-base">
+          <p
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-sm uppercase tracking-widest text-fg-2 sm:text-base hero-stagger"
+            style={{ animationDelay: '160ms' }}
+          >
             <span className="float-soft text-accent">Senior Software QA Engineer</span>
             <span aria-hidden="true" className="text-muted">·</span>
             <span>Playwright</span>
@@ -77,7 +84,10 @@ export function Hero({ identity }: HeroProps) {
             <span>AI-Driven QA</span>
           </p>
 
-          <p className="max-w-2xl text-lg leading-relaxed text-fg-2 text-pretty sm:text-xl">
+          <p
+            className="max-w-2xl text-lg leading-relaxed text-fg-2 text-pretty sm:text-xl hero-stagger"
+            style={{ animationDelay: '240ms' }}
+          >
             {/* SEO: the full name appears in the tagline so the home page
                 has the name in visible on-page text (not just the H1).
                 Search engines weight body text heavily for name queries. */}
@@ -86,7 +96,10 @@ export function Hero({ identity }: HeroProps) {
               : `I'm ${identity.siteTitle}. ${tagline}`}
           </p>
 
-          <div className="mt-2 flex flex-wrap items-center gap-3">
+          <div
+            className="mt-2 flex flex-wrap items-center gap-3 hero-stagger"
+            style={{ animationDelay: '320ms' }}
+          >
             <Link href="/#work" className="btn-primary magnetic">
               view my work
               <span aria-hidden="true">↓</span>
@@ -99,7 +112,8 @@ export function Hero({ identity }: HeroProps) {
 
           <ul
             aria-label="Focus areas"
-            className="mt-2 flex flex-wrap items-center gap-2"
+            className="mt-2 flex flex-wrap items-center gap-2 hero-stagger"
+            style={{ animationDelay: '400ms' }}
           >
             <li className="font-mono text-xs uppercase tracking-widest text-muted">
               focus ·

@@ -465,6 +465,77 @@
   }
 }
 
+/* ─── Hero staggered entrance (one-shot on first paint) ───────── */
+/* Subtle 8px-up + fade-in for hero children. Runs once on first
+   paint via the inline `animation-delay` on each child. No JS
+   required. Total cascade ends at 480ms; the hero is interactive
+   throughout (transitions are opacity + transform only).
+   prefers-reduced-motion: snaps to visible. */
+.hero-stagger {
+  animation: hero-stagger-in 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  /* Per-child delay set via inline `style={{ animationDelay: '...ms' }}`
+     on the element in Hero.tsx. Default 0ms is a no-op. */
+  animation-delay: 0ms;
+}
+@keyframes hero-stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Reduced motion: snap to visible. The global reduced-motion block
+   already zeros out all animation-duration / delay, so the keyframe
+   effectively becomes instant. This is just a defensive no-op. */
+
+/* ─── Brand mark gentle bob (continuous, after hero reveal) ────── */
+/* Subtle ±2px vertical drift on the logo. 6s, slower than the
+   hero float-soft (4.5s) so they never sync. Hover-state transform
+   takes precedence on :hover — the bob resumes when the cursor
+   leaves. Reduced-motion: static. */
+.brand__mark {
+  animation: brand-bob 6s ease-in-out 1.2s infinite;
+  transform-origin: center;
+}
+@keyframes brand-bob {
+  0%, 100% { transform: translateY(-1px); }
+  50%      { transform: translateY(1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand__mark {
+    animation: none;
+  }
+}
+
+/* ─── Mobile perf: disable expensive background animations ────── */
+/* On phones, the .bg-mesh 30s drift + .bg-grid mask + .bg-noise
+   overlay cost continuous paint cycles. Keep the visual layers
+   (so the design doesn't change) but stop the animation. */
+@media (max-width: 640px) {
+  .bg-mesh {
+    animation: none !important;
+  }
+  .bg-grid {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .bg-noise {
+    opacity: 0.02;
+  }
+}
+
+/* ─── Motion easings (the standard 3 used across the site) ────── */
+/*   ease-out-soft:  cubic-bezier(0.2, 0.8, 0.2, 1)  — entrances,
+   reveal-on-scroll, hero-stagger, fact-row.                       */
+/*   ease-in-out:    cubic-bezier(0.65, 0, 0.35, 1)  — section
+   headings (clip-wipe + underline), timeline-line, tag hover.     */
+/*   ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1) — fact-dot
+   pop-in.                                                          */
+
+
 /* ─── Float-soft (gentle vertical bob, looping) ───────────────── */
 /* Used on the hero designation + company status line to give them a
    slow "floating" feel. Bob is ±3px over 4.5s, ease-in-out infinite.
