@@ -1567,9 +1567,20 @@
 /*   Cards bob via .float-soft (desynced via inline animation-delay). */
 
 .hero-orbit {
+  /* The orbit is a square that fills the .hero-orbit-card shell so
+     the four floating capability cards can anchor to its corners
+     without escaping the shell's rounded clip. The min-height keeps
+     the photo from getting squeezed below ~360px on narrow columns
+     (the photo is 260px tall + cards need ~1rem clearance top/bottom).
+     The max-width keeps the orbit from becoming an awkward 500px tall
+     column on a wide hero — at the design's reference viewport the
+     orbit lands ~480px square, which is the sweet spot. */
   position: relative;
-  width: 320px;
-  height: 320px;
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 1 / 1;
+  min-height: 360px;
+  margin: 0 auto;
   display: block;
 }
 .hero-orbit__photo {
@@ -1587,8 +1598,14 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: 0.55rem;
-  width: 12rem;              /* 192px */
-  padding: 0.6rem 0.75rem 0.7rem;
+  /* Width scales with the orbit so two corner cards always fit:
+     - at narrow columns (≤300px each) the card shrinks to 9.5rem
+     - at the design's reference viewport the card lands ~11rem
+     - hard ceiling: 50% of the orbit minus 1.5rem gap so the TL and
+       TR cards never overlap regardless of viewport size. */
+  width: clamp(9.5rem, 42%, calc(50% - 1.5rem));
+  max-width: 12rem;
+  padding: 0.55rem 0.7rem 0.6rem;
   /* Hairline gradient border via layered backgrounds: the outer
      layer is the purple→cyan gradient ring, the inner layer is the
      actual card surface that sits on top of it. Keeps the
@@ -1621,13 +1638,16 @@
     0 22px 44px -18px color-mix(in oklab, var(--color-accent) 40%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
-/* Card positions — anchored at the four corners of the photo
-   with a small inset so each card sits visually adjacent to the
-   circle without escaping the orbit wrapper. */
-.hero-orbit__card--tl { top: -0.5rem;    left: -3rem; }
-.hero-orbit__card--tr { top: -0.5rem;    right: -3rem; }
-.hero-orbit__card--bl { bottom: 1.4rem;  left: -3rem; }
-.hero-orbit__card--br { bottom: 1.4rem;  right: -3rem; }
+/* Card positions — anchored to the four corners of the .hero-orbit
+   with a small positive inset (1rem) so each card hugs the rounded
+   corner of the surrounding .hero-orbit-card shell as a "corner
+   marking" instead of floating outside the wrapper. The photo sits
+   centered, and the four cards visually frame it without escaping
+   the shell's rounded clip. */
+.hero-orbit__card--tl { top: 1rem;    left: 1rem; }
+.hero-orbit__card--tr { top: 1rem;    right: 1rem; }
+.hero-orbit__card--bl { bottom: 1rem; left: 1rem; }
+.hero-orbit__card--br { bottom: 1rem; right: 1rem; }
 
 .hero-orbit__icon {
   display: inline-flex;
@@ -1818,23 +1838,31 @@
 }
 
 /* ─── Hero orbit — premium card shell ──────────────────────────── */
-/*   Wraps the .hero-orbit (photo + 4 floating cards) inside a
-     glass card with an animated conic-gradient backdrop, a slow
-     rotating decorative ring, and a soft outer glow. Designed
-     to work in both light and dark themes via the existing
-     `--color-card`, `--color-border`, `--color-accent`, and
-     `--color-accent-2` tokens.
+/*   Wraps the .hero-orbit (photo + 4 corner cards) inside a glass
+     card with an animated conic-gradient backdrop, a slow rotating
+     decorative ring, and a soft outer glow. Designed to work in both
+     light and dark themes via the existing `--color-card`,
+     `--color-border`, `--color-accent`, and `--color-accent-2` tokens.
 
      Layout notes:
-       - The shell is `position: relative` so the absolutely-
-         positioned orbit cards inside .hero-orbit still anchor
-         to the same coordinate space (the .hero-orbit square is
-         the positioning context; the shell only adds chrome).
+       - The shell is `position: relative` with flex centering, so the
+         .hero-orbit (a 1:1 box) is centered horizontally + vertically
+         inside the shell's padding box.
+       - The .hero-orbit fills the shell's content box and uses
+         `aspect-ratio: 1 / 1`. The four capability cards anchor to
+         the .hero-orbit's corners with a 1rem inset — they read as
+         "corner markings" on the frame, not as floating satellites
+         outside the wrapper. This keeps every element safely inside
+         the shell's rounded clip.
        - On screens < 1024px the orbit collapses to a stacked
          layout; the shell just hugs the content. */
 
 .hero-orbit-card {
-  --orbit-card-pad: 1.25rem;
+  /* Bumped from 1.25rem to 1.5rem: with the cards now anchored to
+     the .hero-orbit's corners (1rem inset), the shell needs an extra
+     ~0.25rem of padding so the cards' rounded corners (14px) clear
+     the shell's rounded corner clip (24px) without visual overlap. */
+  --orbit-card-pad: 1.5rem;
   --orbit-conic-opacity: 0.45;
   --orbit-halo-opacity: 0.7;
   --orbit-ring-opacity: 0.55;
