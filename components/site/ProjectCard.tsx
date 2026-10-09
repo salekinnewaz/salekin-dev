@@ -25,7 +25,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
   return (
     <Link
       href={`/projects/${slug}`}
-      className="terminal-card group block overflow-hidden p-0 no-underline"
+      className="terminal-card group block overflow-hidden p-0 no-underline transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-[0_18px_40px_-18px_color-mix(in_oklab,var(--color-accent)_55%,transparent)]"
     >
       <ProjectCover project={project} imageUrl={imageUrl} index={index} />
       <div className="flex flex-col gap-3 p-5">

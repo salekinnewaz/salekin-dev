@@ -75,7 +75,7 @@ export function CurrentRole({ experiences }: Props) {
         <span className="font-mono text-xs uppercase tracking-widest text-muted">
           Current role
         </span>
-        <h2 className="heading-display text-4xl sm:text-5xl">
+        <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
           What I&apos;m doing now
         </h2>
       </div>

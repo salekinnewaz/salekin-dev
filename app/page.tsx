@@ -77,7 +77,7 @@ export default async function HomePage() {
             <span className="font-mono text-xs uppercase tracking-widest text-muted">
               Experience
             </span>
-            <h2 className="heading-display text-4xl sm:text-5xl">
+            <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
               Where I&apos;ve worked
             </h2>
           </div>

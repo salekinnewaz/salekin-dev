@@ -43,7 +43,7 @@ export async function FeaturedProjects({ limit = 3 }: Props) {
         <span className="font-mono text-xs uppercase tracking-widest text-muted">
           Selected work
         </span>
-        <h2 className="heading-display text-4xl sm:text-5xl">Featured Work</h2>
+        <h2 className="heading-display heading-underline text-4xl sm:text-5xl">Featured Work</h2>
       </div>
 
       <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 reveal-stagger">
@@ -81,7 +81,7 @@ function FeaturedCard({
   return (
     <Link
       href={`/projects/${slug}`}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card no-underline transition-colors hover:border-border-strong ${className}`}
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card no-underline transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-[0_18px_40px_-18px_color-mix(in_oklab,var(--color-accent)_55%,transparent)] ${className}`}
     >
       <div className="relative w-full overflow-hidden aspect-[4/3] bg-mesh">
         {imageUrl ? (

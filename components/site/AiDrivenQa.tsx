@@ -38,7 +38,7 @@ export function AiDrivenQa() {
         <span className="font-mono text-xs uppercase tracking-widest text-muted">
           AI · QA
         </span>
-        <h2 className="heading-display text-4xl sm:text-5xl">
+        <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
           AI-Driven QA
         </h2>
         <p className="mt-2 max-w-2xl text-base leading-relaxed text-fg-2 text-pretty sm:text-lg">

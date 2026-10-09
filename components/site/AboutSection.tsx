@@ -68,7 +68,7 @@ export function AboutSection({ identity }: AboutSectionProps) {
           <span className="font-mono text-xs uppercase tracking-widest text-muted">
             About
           </span>
-          <h2 className="heading-display text-4xl sm:text-5xl">
+          <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
             A bit about me
           </h2>
         </div>
@@ -110,15 +110,16 @@ export function AboutSection({ identity }: AboutSectionProps) {
               Highlights
             </p>
             <ul className="flex flex-col gap-2.5" role="list">
-              {FACTS.map((f) => (
+              {FACTS.map((f, i) => (
                 <li
                   key={f.label}
-                  className="flex gap-2.5 text-sm leading-relaxed text-fg-2 sm:text-base"
+                  className="fact-row flex gap-2.5 text-sm leading-relaxed text-fg-2 sm:text-base"
+                  style={{ animationDelay: `${i * 60}ms` }}
                   role="listitem"
                 >
                   <span
                     aria-hidden="true"
-                    className="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-accent"
+                    className="fact-dot mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-accent"
                   />
                   <span>
                     <span className="text-fg">{f.label}</span>

@@ -47,7 +47,7 @@ export function ContactSection({ identity }: ContactSectionProps) {
           <span className="font-mono text-xs uppercase tracking-widest text-muted">
             Contact
           </span>
-          <h2 className="heading-display text-4xl sm:text-5xl">
+          <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
             Let&apos;s build something
           </h2>
           <p className="max-w-md text-base leading-relaxed text-fg-2 text-pretty sm:text-lg">
@@ -68,10 +68,15 @@ export function ContactSection({ identity }: ContactSectionProps) {
                       ? undefined
                       : 'noopener noreferrer'
                   }
-                  className="btn-outline"
+                  className="btn-outline group/contact"
                 >
                   {l.label}
-                  <span aria-hidden="true">↗</span>
+                  <span
+                    aria-hidden="true"
+                    className="inline-block transition-transform duration-200 ease-out group-hover/contact:translate-x-0.5 group-hover/contact:-translate-y-0.5"
+                  >
+                    ↗
+                  </span>
                 </a>
               ))}
             </div>

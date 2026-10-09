@@ -129,11 +129,12 @@ export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
   }
 
   return (
-    <div className="relative">
-      {/* Vertical timeline line — calm, low-contrast. */}
+    <div className="relative reveal">
+      {/* Vertical timeline line — calm, low-contrast. Draws top→bottom
+         on reveal (handled by `.reveal` on this wrapper). */}
       <div
         aria-hidden="true"
-        className="absolute left-[5px] top-3 bottom-3 w-px sm:left-[7px]"
+        className="timeline-line absolute left-[5px] top-3 bottom-3 w-px sm:left-[7px]"
         style={{ backgroundColor: 'var(--color-border)' }}
       />
 

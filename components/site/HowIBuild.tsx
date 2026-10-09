@@ -41,7 +41,7 @@ export function HowIBuild() {
         <span className="font-mono text-xs uppercase tracking-widest text-muted">
           Approach
         </span>
-        <h2 className="heading-display text-4xl sm:text-5xl">How I Build</h2>
+        <h2 className="heading-display heading-underline text-4xl sm:text-5xl">How I Build</h2>
       </div>
 
       <ol

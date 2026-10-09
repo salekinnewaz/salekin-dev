@@ -480,6 +480,152 @@
   50%      { transform: translateY(3px); }
 }
 
+/* ─── Heading underline reveal (motion plan #1) ─────────────────── */
+/* A short accent underline that grows left→right under any
+   `.heading-underline` element as its containing `.reveal` block
+   becomes visible. Calm, editorial — sits under the text, not on
+   top. Inherits visibility from the nearest ancestor's reveal
+   pipeline (no JS hooks required). */
+.heading-underline {
+  position: relative;
+  display: inline-block;
+}
+.heading-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.18em;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    var(--color-accent-2) 100%
+  );
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 900ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+/* When the closest .reveal ancestor (or any [data-reveal-shown]
+   ancestor) becomes visible, the underline grows in. */
+.reveal.is-visible .heading-underline::after,
+[data-reveal-shown] .heading-underline::after {
+  transform: scaleX(1);
+}
+/* Reduced motion: skip the grow; just show the line. */
+@media (prefers-reduced-motion: reduce) {
+  .heading-underline::after {
+    transform: scaleX(1);
+    transition: none;
+  }
+}
+
+/* ─── Experience timeline line draw (motion plan #3) ──────────── */
+/* The vertical line in ExperienceTimeline. Sits inside a `.reveal`
+   wrapper; the line scales from 0 height to 1 as the section reveals.
+   transform-origin: top so it draws top→bottom. */
+.timeline-line {
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 900ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+.reveal.is-visible .timeline-line,
+[data-reveal-shown] .timeline-line {
+  transform: scaleY(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .timeline-line {
+    transform: scaleY(1);
+    transition: none;
+  }
+}
+/* .section-divider::before is a 24px dash. On .is-visible it grows
+   to 40px. CSS-only; the existing rules already do this on hover for
+   `.eyebrow`; this extends the same idea to the actual reveal moment. */
+.section-divider.is-visible::before,
+.section-divider[data-reveal-shown]::before {
+  width: 40px;
+  transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ─── About facts dot pop-in (motion plan #6) ──────────────────── */
+/* The accent dot before each "Highlights" fact. Pops in (scale 0→1)
+   when the parent .reveal block becomes visible, with a per-row
+   stagger set via inline `style={{ animationDelay: ... }}` on each
+   `<li>`. The row itself also fades + slides in slightly. */
+.fact-dot {
+  transform: scale(0);
+  transform-origin: center;
+  transition: transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fact-row {
+  opacity: 0.4;
+  transform: translateX(-4px);
+  transition:
+    opacity 400ms ease,
+    transform 400ms ease;
+}
+.reveal.is-visible .fact-dot,
+[data-reveal-shown] .fact-dot {
+  transform: scale(1);
+}
+.reveal.is-visible .fact-row,
+[data-reveal-shown] .fact-row {
+  opacity: 1;
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fact-dot {
+    transform: scale(1);
+    transition: none;
+  }
+  .fact-row {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─── Tag hover micro-interaction (motion plan #4) ──────────────── */
+/* Existing .tag has a color/border/bg hover (200ms). Add a tiny
+   scale + tap-down so chips feel tactile. The transition is short
+   enough that it doesn't compete with the text-reading rhythm. */
+.tag {
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.tag:hover {
+  transform: scale(1.02);
+}
+.tag:active {
+  transform: scale(0.95);
+}
+
+/* ─── Side-nav active dot ripple (motion plan #8) ──────────────── */
+/* The active section dot already has a glow + scale. Add a soft
+   outward ripple using ::after that pulses once per cycle, so the
+   eye feels the section "landing" rather than just being marked. */
+.side-nav__link[data-active] .side-nav__dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 1px solid var(--color-accent);
+  animation: sidenav-ripple 2.4s ease-out infinite;
+  pointer-events: none;
+}
+.side-nav__dot {
+  position: relative;
+}
+@keyframes sidenav-ripple {
+  0%   { transform: scale(0.6); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
 /* ─── Marquee (CSS-only, pauses on hover) ──────────────────────── */
 
 .marquee {
