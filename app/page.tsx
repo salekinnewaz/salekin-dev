@@ -6,6 +6,7 @@ import { Hero } from '@/components/site/Hero';
 import { CurrentRole } from '@/components/site/CurrentRole';
 import { FeaturedProjects } from '@/components/site/FeaturedProjects';
 import { ExperienceTimeline } from '@/components/site/ExperienceTimeline';
+import { Recommendations } from '@/components/site/Recommendations';
 import { HowIBuild } from '@/components/site/HowIBuild';
 import { CoreStack } from '@/components/site/CoreStack';
 import { AiDrivenQa } from '@/components/site/AiDrivenQa';
@@ -84,6 +85,8 @@ export default async function HomePage() {
           <ExperienceTimeline experiences={experiences} />
         </section>
       ) : null}
+
+      <Recommendations limit={3} />
 
       <HowIBuild />
 

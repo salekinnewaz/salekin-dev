@@ -22,6 +22,8 @@ export async function Header() {
   // Hide links for sections turned off in admin settings.
   // `education` is intentionally not surfaced in the top nav — it's a
   // small footer-style row, not a primary destination.
+  // `recommendations` is always surfaced (the section is its own
+  // primary destination and there's no admin toggle for it yet).
   const visibleSections = {
     hero: sections.showHero,
     work: true, // Featured Work is its own section, always visible
@@ -29,6 +31,7 @@ export async function Header() {
     experience: sections.showExperience,
     skills: sections.showSkills,
     contact: sections.showContact,
+    recommendations: true,
   };
 
   return (

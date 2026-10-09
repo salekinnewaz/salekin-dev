@@ -140,7 +140,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       // useState initializer sees the correct value when hydration runs.
       try {
         var hash = window.location.hash.replace(/^#/, '');
-        var known = ['hero', 'work', 'about', 'experience', 'skills', 'contact'];
+        var known = ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations'];
         if (known.indexOf(hash) >= 0) {
           window.__specmdActive = hash;
           window.dispatchEvent(new CustomEvent('specmd:active-section', { detail: hash }));
