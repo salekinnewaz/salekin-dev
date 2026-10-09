@@ -38,10 +38,10 @@ type HeroOrbitProps = {
  *   - Each card bobs gently via `float-soft` with a desynced
  *     `animation-delay` (driven by the per-card `bobDelay`).
  *
- * The whole composition inherits the parallax + 3D tilt behaviour from
- * the wrapping `HeroStage`. The 4 cards are `z-index: 1` so they sit
- * above the photo's gradient halo (which is rendered behind the photo
- * by `ProfilePhoto` itself).
+ * The 4 cards are `z-index: 1` so they sit above the photo's gradient
+ * halo (which is rendered behind the photo by `ProfilePhoto` itself).
+ * The surrounding card shell + animated backdrop lives in the parent
+ * (`.hero-orbit-card`, declared in `app/globals.css`).
  *
  * On screens < 1024px the orbit collapses: photo on top, 2×2 card grid
  * below — the absolute positioning is reset to `position: static` and

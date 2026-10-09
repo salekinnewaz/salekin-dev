@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { SiteIdentity } from '@/lib/queries/site';
-import { HeroStage } from './HeroStage';
+import { HeroOrbit, type OrbitCard } from './HeroOrbit';
 import { FocusChip } from './FocusChip';
 import type { FocusIconId } from '@/lib/icons';
 
@@ -12,6 +12,14 @@ type FocusArea = {
   id: string;
   icon: FocusIconId;
   label: string;
+  /** Title shown on the floating orbit card. */
+  title: string;
+  /** One-line sub-label under the title. */
+  detail: string;
+  /** Corner of the orbit the card anchors to. */
+  position: 'tl' | 'tr' | 'bl' | 'br';
+  /** Desync delay (ms) for the bob animation. */
+  bobDelay: number;
 };
 
 /**
@@ -30,15 +38,17 @@ type FocusArea = {
  *       STATION 23 | Dhaka, Bangladesh`.
  *
  *   RIGHT (~50%):
- *     • The static `data/Neon QA Portfolio Hero Section.png`
- *       graphic — the finished composition containing the
- *       portrait, gradient ring, and four capability cards. It
- *       is served from `/images/hero-composition.png`. A subtle
- *       scroll parallax (≤ 32px over 600px) is preserved.
+ *     • A live, code-driven composition rendered by `HeroOrbit`:
+ *       a circular profile photo (clipped from `/images/profile.jpg`,
+ *       wrapped in a purple→cyan gradient ring + soft glow halo) with
+ *       the four QA capability cards floating at the four corners.
+ *       The whole composition sits inside a glass shell with an
+ *       animated conic-gradient backdrop and a slowly-rotating
+ *       decorative ring. Honours light + dark mode + reduced motion.
  *
- * The 4 focus areas in `focusAreas` drive only the left FOCUS
- * chip row. The right column's cards are baked into the static
- * image and no longer rendered at runtime.
+ * The same `focusAreas` data drives the left FOCUS chip row and the
+ * right orbit cards. The orbit cards carry slightly richer copy
+ * (title + sub-label) which is why the data shape is unified here.
  */
 export function Hero({ identity }: HeroProps) {
   const title = identity.siteTitle || 'Md Salekin Newaz';
@@ -54,18 +64,58 @@ export function Hero({ identity }: HeroProps) {
   const firstName = nameParts[0] ?? title;
   const lastName = nameParts.slice(1).join(' ') || nameParts[0] || '';
 
-  // The 4 focus areas. Single source of truth for the FOCUS chip
-  // row on the left. The right column's cards are baked into the
-  // static image (data/Neon QA Portfolio Hero Section.png) so this
-  // list no longer needs detail/position/progress/bobDelay fields.
+  // Single source of truth for both the left FOCUS chip row and the
+  // right floating orbit cards. The four capability areas match the
+  // brief's reference image (Playwright, API Testing, AI-Driven QA,
+  // CI/CD) and the positions are the four corners of the photo.
   const focusAreas: readonly FocusArea[] = [
-    { id: 'playwright', icon: 'playwright', label: 'Playwright' },
-    { id: 'api', icon: 'api', label: 'API Testing' },
-    { id: 'ai', icon: 'ai', label: 'AI-Driven QA' },
-    { id: 'cicd', icon: 'cicd', label: 'CI/CD' },
+    {
+      id: 'playwright',
+      icon: 'playwright',
+      label: 'Playwright',
+      title: 'Playwright',
+      detail: 'E2E Automation',
+      position: 'tl',
+      bobDelay: 0,
+    },
+    {
+      id: 'ai',
+      icon: 'ai',
+      label: 'AI-Driven QA',
+      title: 'AI-Driven QA',
+      detail: 'Smarter Testing',
+      position: 'tr',
+      bobDelay: 600,
+    },
+    {
+      id: 'api',
+      icon: 'api',
+      label: 'API Testing',
+      title: 'API Testing',
+      detail: 'REST · Swagger',
+      position: 'bl',
+      bobDelay: 300,
+    },
+    {
+      id: 'cicd',
+      icon: 'cicd',
+      label: 'CI/CD',
+      title: 'CI/CD',
+      detail: 'Faster Releases',
+      position: 'br',
+      bobDelay: 900,
+    },
   ] as const;
 
   const chipAreas = focusAreas.map(({ icon, label }) => ({ icon, label }));
+  const orbitCards: readonly OrbitCard[] = focusAreas.map((f) => ({
+    id: f.id,
+    icon: f.icon,
+    title: f.title,
+    detail: f.detail,
+    position: f.position,
+    bobDelay: f.bobDelay,
+  }));
 
   return (
     <section
@@ -179,15 +229,24 @@ export function Hero({ identity }: HeroProps) {
           </p>
         </div>
 
-        {/* ─── RIGHT column — static hero composition ───
-            The live orbit/terminal composition was replaced with the
-            finished static graphic per the latest brief. The image
-            already contains the photo + 4 capability cards in the
-            correct positions; no runtime composition is needed. */}
-        <HeroStage
-          src="/images/hero-composition.png"
-          alt="Profile photo surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
-        />
+        {/* ─── RIGHT column — live hero orbit composition ───
+            Circular profile photo (clipped from /images/profile.jpg)
+            with the four QA capability cards floating at the corners.
+            See components/site/HeroOrbit.tsx + .hero-orbit* styles in
+            app/globals.css for the visual treatment. */}
+        <div className="hero-orbit-card">
+          <div className="hero-orbit-card__aura" aria-hidden="true">
+            <div className="hero-orbit-card__glow" />
+            <div className="hero-orbit-card__vignette" />
+          </div>
+          <div className="hero-orbit-card__ring" aria-hidden="true" />
+          <HeroOrbit
+            cards={orbitCards}
+            src="/images/profile.jpg"
+            alt="Profile photo of Salekin Newaz surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
+            photoSize={260}
+          />
+        </div>
       </div>
     </section>
   );

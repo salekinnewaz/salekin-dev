@@ -16,8 +16,8 @@ type ProfilePhotoProps = {
  *     accent treatment on the photo — no inner decorative ring,
  *     no highlight overlay.
  *
- * Renders as a server component — the surrounding parallax lives
- * on the parent (`HeroStage`).
+ * Renders as a server component — any parallax is left to the
+ * surrounding composition (`HeroOrbit` is the typical parent).
  */
 export function ProfilePhoto({
   src,
@@ -64,17 +64,23 @@ export function ProfilePhoto({
           </clipPath>
         </defs>
 
-        {/* Photo, clipped to a circle. The source is 800×800 with
-            the subject's head slightly off-center; we translate by
-            (-30, -8) and scale to 215 so the head sits comfortably
-            inside the visible circle with breathing room. */}
+        {/* Photo, clipped to a circle. The source is `/images/profile.jpg`
+            (a 400×400 portrait where the face sits in the upper-centre
+            of the frame). We render it at 200×200 viewBox units — i.e.
+            at its source resolution relative to the 200×200 viewBox —
+            so the photo occupies the full disc. The translation moves
+            the image so the face is centred in the visible circle
+            (the visible area is a circle of r=93 centred at 100,100,
+            with a 3px gradient ring just outside it). The default
+            `xMidYMid` preserveAspectRatio would produce a tighter
+            1:1 crop but would lose the shirt collar and ears. */}
         <image
           href={src}
-          x="-30"
-          y="-8"
-          width="215"
-          height="215"
-          preserveAspectRatio="xMidYMid meet"
+          x="-8"
+          y="-12"
+          width="216"
+          height="216"
+          preserveAspectRatio="xMidYMid slice"
           clipPath="url(#pf-clip)"
         />
         {/* Gradient ring — the only accent treatment on the photo. */}

@@ -1589,26 +1589,36 @@
   column-gap: 0.55rem;
   width: 12rem;              /* 192px */
   padding: 0.6rem 0.75rem 0.7rem;
-  border: 1px solid var(--color-border);
+  /* Hairline gradient border via layered backgrounds: the outer
+     layer is the purple→cyan gradient ring, the inner layer is the
+     actual card surface that sits on top of it. Keeps the
+     `border-radius` consistent with the original card without
+     resorting to `border-image` (which has rough corners). */
+  border: 1px solid transparent;
   border-radius: 14px;
-  background: var(--color-card);
+  background:
+    linear-gradient(var(--color-card), var(--color-card)) padding-box,
+    linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-accent) 65%, transparent) 0%,
+      color-mix(in oklab, var(--color-accent-2) 65%, transparent) 100%
+    ) border-box;
   color: var(--color-fg);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
   box-shadow:
     0 14px 32px -20px color-mix(in oklab, #000 70%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 4%, transparent);
   transition:
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    border-color 200ms ease,
-    box-shadow 200ms ease;
+    box-shadow 200ms ease,
+    background-color 200ms ease;
   will-change: transform;
 }
 .hero-orbit__card:hover {
   transform: translateY(-2px);
-  border-color: var(--color-accent);
   box-shadow:
-    0 22px 44px -18px color-mix(in oklab, var(--color-accent) 30%, transparent),
+    0 22px 44px -18px color-mix(in oklab, var(--color-accent) 40%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
 /* Card positions — anchored at the four corners of the photo
@@ -1805,4 +1815,224 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-orbit__card { animation: none !important; }
   .hero-orbit__card:hover { transform: none; }
+}
+
+/* ─── Hero orbit — premium card shell ──────────────────────────── */
+/*   Wraps the .hero-orbit (photo + 4 floating cards) inside a
+     glass card with an animated conic-gradient backdrop, a slow
+     rotating decorative ring, and a soft outer glow. Designed
+     to work in both light and dark themes via the existing
+     `--color-card`, `--color-border`, `--color-accent`, and
+     `--color-accent-2` tokens.
+
+     Layout notes:
+       - The shell is `position: relative` so the absolutely-
+         positioned orbit cards inside .hero-orbit still anchor
+         to the same coordinate space (the .hero-orbit square is
+         the positioning context; the shell only adds chrome).
+       - On screens < 1024px the orbit collapses to a stacked
+         layout; the shell just hugs the content. */
+
+.hero-orbit-card {
+  --orbit-card-pad: 1.25rem;
+  --orbit-conic-opacity: 0.45;
+  --orbit-halo-opacity: 0.7;
+  --orbit-ring-opacity: 0.55;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--orbit-card-pad);
+  border-radius: 24px;
+  /* Glass surface using the existing token. A subtle inner highlight
+     (top edge) keeps the card from looking flat in dark mode and
+     from looking washed out in light mode. NOTE: deliberately no
+     `overflow: hidden` here — the floating capability cards at the
+     four corners of the .hero-orbit extend outside the photo's
+     320px square, and clipping them would chop them in half. The
+     conic glow + vignette inside the shell use their own
+     `overflow: hidden` to keep the aura contained. */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-card) 92%, transparent) 0%,
+      color-mix(in oklab, var(--color-card) 80%, transparent) 100%
+    );
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    0 30px 80px -30px color-mix(in oklab, #000 70%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-fg) 4%, transparent) inset,
+    0 0 60px -16px color-mix(in oklab, var(--color-accent) 30%, transparent);
+  isolation: isolate;
+}
+
+/* The .hero-orbit is 320×320 in the desktop layout; the shell sizes
+   itself to fit. On small screens the orbit becomes a CSS grid and
+   the shell simply wraps it. */
+.hero-orbit-card > .hero-orbit { position: relative; z-index: 2; }
+
+/* The aura is an inner wrapper around the conic backdrop + vignette
+   that sits *behind* the .hero-orbit. It carries its own
+   `overflow: hidden` + `border-radius` so the blurred conic glow
+   is clipped to the shell's rounded corners without chopping the
+   four corner cards that overflow the .hero-orbit's 320px box. */
+.hero-orbit-card__aura {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Animated conic-gradient backdrop. Pinned to the aura's coordinate
+   space, masked with a heavy blur + a radial vignette so only the
+   soft glow leaks out around the photo and the corners — never a
+   hard neon disc. Honours the theme via the accent tokens. */
+.hero-orbit-card__glow {
+  position: absolute;
+  inset: -20%;
+  background:
+    conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in oklab, var(--color-accent) 70%, transparent) 0deg,
+      color-mix(in oklab, var(--color-accent-2) 60%, transparent) 120deg,
+      color-mix(in oklab, var(--color-accent) 55%, transparent) 240deg,
+      color-mix(in oklab, var(--color-accent-2) 60%, transparent) 360deg
+    );
+  filter: blur(48px) saturate(120%);
+  opacity: var(--orbit-conic-opacity);
+  animation: orbit-conic-spin 24s linear infinite;
+  will-change: transform;
+}
+/* Inner radial vignette so the conic gradient doesn't peek through
+   the centre of the card — the photo reads as the focal point. */
+.hero-orbit-card__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    60% 60% at 50% 50%,
+    color-mix(in oklab, var(--color-bg) 30%, transparent) 0%,
+    color-mix(in oklab, var(--color-bg) 80%, transparent) 70%,
+    color-mix(in oklab, var(--color-bg) 95%, transparent) 100%
+  );
+}
+
+@keyframes orbit-conic-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Decorative orbit ring. A thin conic-stroke ring with two
+   accent-coloured dots that orbit slowly. Pure CSS — no SVG, no JS —
+   so it stays crisp at any size and respects reduced-motion. */
+.hero-orbit-card__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 230px;
+  height: 230px;
+  z-index: 1;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: var(--orbit-ring-opacity);
+  animation: orbit-ring-spin 28s linear infinite;
+  will-change: transform;
+}
+.hero-orbit-card__ring::before,
+.hero-orbit-card__ring::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  box-shadow: 0 0 12px currentColor;
+}
+.hero-orbit-card__ring::before {
+  /* Top of the ring */
+  top: -3px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: var(--color-accent);
+  color: var(--color-accent);
+}
+.hero-orbit-card__ring::after {
+  /* Bottom-right of the ring */
+  bottom: 14%;
+  right: 12%;
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent-2);
+  color: var(--color-accent-2);
+}
+/* The ring itself: a conic-gradient with the middle 70% transparent
+   so only a thin arc renders. */
+.hero-orbit-card__ring {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in oklab, var(--color-accent) 80%, transparent) 20deg,
+    color-mix(in oklab, var(--color-accent-2) 80%, transparent) 140deg,
+    transparent 200deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  mask:
+    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  border-radius: 999px;
+}
+
+@keyframes orbit-ring-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ─── Hero orbit shell — light-mode tuning ─────────────────────── */
+/*   Drop the conic/halo/ring opacities in light mode so the card
+     doesn't read as a neon disc, and lift the shadow tone so the
+     glass surface still floats above the warm off-white background. */
+[data-theme='light'] .hero-orbit-card {
+  --orbit-conic-opacity: 0.28;
+  --orbit-halo-opacity: 0.5;
+  --orbit-ring-opacity: 0.4;
+  border-color: var(--color-border-strong);
+  box-shadow:
+    0 24px 60px -28px color-mix(in oklab, #000 50%, transparent),
+    0 0 0 1px color-mix(in oklab, #000 4%, transparent) inset,
+    0 0 50px -18px color-mix(in oklab, var(--color-accent) 22%, transparent);
+}
+[data-theme='light'] .hero-orbit-card__vignette {
+  background: radial-gradient(
+    65% 65% at 50% 50%,
+    color-mix(in oklab, var(--color-bg) 0%, transparent) 0%,
+    color-mix(in oklab, var(--color-bg) 55%, transparent) 65%,
+    color-mix(in oklab, var(--color-bg) 88%, transparent) 100%
+  );
+}
+
+/* Reduce the shell's chrome on small screens — the card already
+   collapses to a stacked layout, no need for the rotating ring. */
+@media (max-width: 1023px) {
+  .hero-orbit-card {
+    --orbit-card-pad: 0.85rem;
+  }
+  .hero-orbit-card__ring { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hero-orbit-card { border-radius: 18px; }
+}
+
+/* Reduced motion: freeze the conic and ring animations, but keep
+   the visual (just no rotation). Cards still bob via .float-soft,
+   but the global reduced-motion block already neutralises that. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-orbit-card__glow,
+  .hero-orbit-card__ring {
+    animation: none !important;
+  }
 }
