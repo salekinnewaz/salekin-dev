@@ -89,7 +89,7 @@ export function HeroTerminal() {
       ref={wrapRef}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="terminal-card relative w-full overflow-hidden p-0"
+      className="terminal-card relative w-full max-w-md overflow-hidden p-0"
     >
       {/* Title bar */}
       <div className="flex items-center justify-between border-b border-border px-3 py-2">

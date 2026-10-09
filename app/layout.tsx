@@ -291,12 +291,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <MotionDebug />
         <main
           id="main"
-          className="relative mx-auto w-full max-w-[1460px] flex-1 px-6 pb-20 sm:px-10 lg:px-8 xl:px-6"
+          className="relative mx-auto w-full max-w-[1440px] flex-1 px-5 pb-20 sm:px-8 lg:px-16"
         >
           {children}
         </main>
         <footer className="relative border-t border-border">
-          <div className="mx-auto flex max-w-[1460px] flex-col gap-3 px-6 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-8 xl:px-6">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-16">
             <div className="flex items-center gap-2 font-mono text-xs text-muted">
               <span className="text-accent">$</span>
               <span>

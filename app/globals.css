@@ -71,8 +71,6 @@
   --color-accent-soft: rgba(139, 92, 246, 0.14);
   --grid-line: rgba(139, 92, 246, 0.05);
   --noise-opacity: 0;
-
-  --gradient-primary: linear-gradient(110deg, #8B5CF6 0%, #22D3EE 100%);
   color-scheme: dark;
 }
 
@@ -81,7 +79,6 @@
   --color-accent: var(--runtime-accent);
   --color-accent-2: var(--runtime-accent-2);
   --color-accent-soft: var(--runtime-accent-soft);
-  --gradient-primary: linear-gradient(110deg, var(--runtime-accent) 0%, var(--runtime-accent-2) 100%);
 }
 
 /* ─── Base ─────────────────────────────────────────────────────── */
@@ -231,55 +228,6 @@
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-  }
-  /* Hero H1 — per the v3 brief §5: single line at the target
-     viewport, with a responsive clamp so the name scales gracefully
-     down at smaller widths without wrapping. */
-  .hero-name {
-    font-size: clamp(3.25rem, 5.2vw, 5.5rem);
-    font-weight: 750;
-    letter-spacing: -0.045em;
-  }
-  @media (max-width: 1280px) {
-    .hero-name { font-size: clamp(2.6rem, 5.8vw, 4.5rem); }
-  }
-  @media (max-width: 768px) {
-    .hero-name { font-size: clamp(2.4rem, 9vw, 3.4rem); white-space: normal; }
-  }
-  /* Tagline sits under the name on its own line, comfortable
-     line-height, ~ 540px max width so it doesn't span the full
-     column on wider viewports. */
-  .hero-tagline {
-    max-width: 38rem;
-  }
-  /* Focus row — the four chips + the FOCUS label must fit on
-     one line at the brief's target viewport (≥ 1440px). Below
-     that we allow wrapping so the row never overflows. */
-  .hero-focus { flex-wrap: wrap; row-gap: 0.5rem; }
-  @media (min-width: 1280px) {
-    .hero-focus { flex-wrap: nowrap; }
-  }
-  /* Right column composition wrapper — holds the orbit (portrait +
-     4 capability cards) and the terminal panel below. Right-aligned
-     per the brief; vertical gap between the two pieces. */
-  .hero-visual {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2rem;
-  }
-  @media (max-width: 1023px) {
-    .hero-visual { align-items: center; }
-  }
-  /* Terminal panel below the orbit — match the orbit's outer
-     width (460px) so its left/right edges line up with the orbit
-     cards visually. */
-  .hero-terminal {
-    width: 460px;
-    max-width: 100%;
-  }
-  @media (max-width: 1023px) {
-    .hero-terminal { width: 100%; }
   }
 
   /* ─ Section eyebrow ─ */
@@ -993,18 +941,6 @@
 .action-pill--ghost {
   background-color: transparent;
 }
-.action-pill--primary {
-  color: #080B14;
-  border-color: transparent;
-  background: var(--gradient-primary, linear-gradient(110deg, #8B5CF6 0%, #22D3EE 100%));
-  font-weight: 600;
-}
-.action-pill--primary:hover {
-  color: #080B14;
-  border-color: transparent;
-  background: var(--gradient-primary, linear-gradient(110deg, #8B5CF6 0%, #22D3EE 100%));
-  filter: brightness(1.05);
-}
 .action-pill__label {
   display: none;
 }
@@ -1632,10 +1568,9 @@
 
 .hero-orbit {
   position: relative;
-  width: 460px;
-  height: 460px;
+  width: 320px;
+  height: 320px;
   display: block;
-  flex-shrink: 0;
 }
 .hero-orbit__photo {
   position: absolute;
@@ -1677,13 +1612,12 @@
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
 /* Card positions — anchored at the four corners of the photo
-   (which is 300×300 centered in the 460×460 wrapper). The offsets
-   place each card so its inner edge sits at the photo's bounding
-   rectangle, with the card extending outward into the wrapper. */
-.hero-orbit__card--tl { top: 0.25rem;    left: -1.25rem; }
-.hero-orbit__card--tr { top: 0.25rem;    right: -1.25rem; }
-.hero-orbit__card--bl { bottom: 0.25rem; left: -1.25rem; }
-.hero-orbit__card--br { bottom: 0.25rem; right: -1.25rem; }
+   with a small inset so each card sits visually adjacent to the
+   circle without escaping the orbit wrapper. */
+.hero-orbit__card--tl { top: -0.5rem;    left: -3rem; }
+.hero-orbit__card--tr { top: -0.5rem;    right: -3rem; }
+.hero-orbit__card--bl { bottom: 1.4rem;  left: -3rem; }
+.hero-orbit__card--br { bottom: 1.4rem;  right: -3rem; }
 
 .hero-orbit__icon {
   display: inline-flex;
