@@ -17,28 +17,28 @@
 
 :root,
 [data-theme='dark'] {
-  --color-bg: #080B14;
-  --color-bg-2: #0D1220;
-  --color-card: #111827;
-  --color-card-hover: #172033;
+  --color-bg: #0B0820;          /* deep indigo base — continuous w/ accent */
+  --color-bg-2: #0F0B2A;         /* slightly lifted */
+  --color-card: #161133;         /* card on top of indigo base */
+  --color-card-hover: #1D1742;
 
   --color-fg: #F8FAFC;
   --color-fg-2: #CBD5E1;
   --color-muted: #94A3B8;
 
-  --color-border: #263244;
-  --color-border-strong: #1f2a3d;
+  --color-border: #2A2454;
+  --color-border-strong: #1A1740;
 
-  --color-accent: #8B5CF6;     /* primary purple — overridable via settings */
-  --color-accent-2: #22D3EE;   /* secondary cyan  */
-  --color-accent-soft: rgba(139, 92, 246, 0.15);
+  --color-accent: #8B5CF6;       /* primary purple — overridable via settings */
+  --color-accent-2: #22D3EE;     /* secondary cyan  */
+  --color-accent-soft: rgba(139, 92, 246, 0.18);
 
   --grid-line: rgba(139, 92, 246, 0.04);
   --noise-opacity: 0.02;
 
   --gradient-primary: linear-gradient(110deg, #8B5CF6 0%, #22D3EE 100%);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.20);
-  --shadow-glow: 0 0 28px rgba(139, 92, 246, 0.16);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 36px rgba(139, 92, 246, 0.28);
   --radius-card: 16px;
   --radius-button: 10px;
 
@@ -70,18 +70,18 @@
 
 /* Default = dark when no theme attribute is set */
 :root:not([data-theme]) {
-  --color-bg: #080B14;
-  --color-bg-2: #0D1220;
-  --color-card: #111827;
-  --color-card-hover: #172033;
+  --color-bg: #0B0820;
+  --color-bg-2: #0F0B2A;
+  --color-card: #161133;
+  --color-card-hover: #1D1742;
   --color-fg: #F8FAFC;
   --color-fg-2: #CBD5E1;
   --color-muted: #94A3B8;
-  --color-border: #263244;
-  --color-border-strong: #1f2a3d;
+  --color-border: #2A2454;
+  --color-border-strong: #1A1740;
   --color-accent: #8B5CF6;
   --color-accent-2: #22D3EE;
-  --color-accent-soft: rgba(139, 92, 246, 0.15);
+  --color-accent-soft: rgba(139, 92, 246, 0.18);
   --grid-line: rgba(139, 92, 246, 0.04);
   --noise-opacity: 0.02;
   color-scheme: dark;
@@ -160,9 +160,9 @@
 }
 
 /* ─── Background layers (fixed, behind everything) ──────────────── */
-/*   v3 brief: ONE subtle purple radial behind the hero portrait,    */
-/*   a faint grid texture in the hero, that's it. No multi-color    */
-/*   mesh, no noise, no parallax.                                    */
+/*  Per the v3 reference: a continuous deep purple atmosphere with  */
+/*  two soft purple glows (one upper-right hero glow + one lower-   */
+/*  center glow) sitting on a deep indigo base. The grid is removed.*/
 
 .bg-base {
   position: fixed;
@@ -171,9 +171,21 @@
   pointer-events: none;
   background:
     radial-gradient(
-      circle at 78% 35%,
-      color-mix(in oklab, var(--color-accent) 10%, transparent),
-      transparent 45%
+      circle at 85% 8%,
+      color-mix(in oklab, var(--color-accent) 38%, transparent) 0%,
+      color-mix(in oklab, var(--color-accent) 14%, transparent) 28%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 12% 65%,
+      color-mix(in oklab, var(--color-accent) 26%, transparent) 0%,
+      color-mix(in oklab, var(--color-accent) 8%, transparent) 25%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 50% 110%,
+      color-mix(in oklab, var(--color-accent-2) 18%, transparent) 0%,
+      transparent 60%
     ),
     var(--color-bg);
 }
@@ -1618,9 +1630,11 @@
 
 .hero-orbit {
   position: relative;
-  width: 360px;
-  height: 360px;
+  width: min(360px, 100%);
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
   display: block;
+  margin-inline: auto;
 }
 .hero-orbit__photo {
   position: absolute;
@@ -1637,7 +1651,7 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: 0.6rem;
-  width: 11.5rem;            /* ~184px */
+  width: 10rem;              /* ~160px — keeps the orbit compact */
   padding: 0.55rem 0.7rem 0.65rem;
   border: 1px solid color-mix(in oklab, var(--color-accent) 22%, var(--color-border));
   border-radius: 14px;
@@ -1661,10 +1675,10 @@
     0 22px 44px -18px color-mix(in oklab, var(--color-accent) 45%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
-.hero-orbit__card--tl { top: 0.4rem;    left: -3.5rem; }
-.hero-orbit__card--tr { top: -0.8rem;   right: -2.5rem; }
-.hero-orbit__card--bl { bottom: 1.4rem; left: -3.5rem; }
-.hero-orbit__card--br { bottom: 2.2rem; right: -2.5rem; }
+.hero-orbit__card--tl { top: 0.4rem;    left: -2.6rem; }
+.hero-orbit__card--tr { top: -0.8rem;   right: -1.8rem; }
+.hero-orbit__card--bl { bottom: 1.4rem; left: -2.6rem; }
+.hero-orbit__card--br { bottom: 2.2rem; right: -1.8rem; }
 
 .hero-orbit__icon {
   display: inline-flex;

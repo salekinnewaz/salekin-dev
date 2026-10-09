@@ -10,7 +10,7 @@ export function ContactFormSection() {
     <section
       id="contact"
       tabIndex={-1}
-      className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+      className="section-anchor relative"
     >
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.4fr]">
         <div className="flex flex-col gap-4 reveal">

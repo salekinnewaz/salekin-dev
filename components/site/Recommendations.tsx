@@ -10,7 +10,7 @@ type Recommendation = {
 };
 
 /**
- * Recommendations — 3 testimonial cards on the v3 #0D1220 strip.
+ * Recommendations — 3 testimonial cards on the v3 #0F0B2A strip.
  *
  * Per the v3 brief:
  *  - Eyebrow: "Trust & Recognition"
@@ -58,7 +58,7 @@ export function Recommendations({ linkedin }: { linkedin: string | null }) {
     <section
       id="recommendations"
       tabIndex={-1}
-      className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+      className="section-anchor relative"
     >
       <div className="mb-10 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between reveal">
         <div>

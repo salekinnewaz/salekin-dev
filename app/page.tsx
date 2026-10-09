@@ -78,7 +78,7 @@ export default async function HomePage() {
       <section
         id="work"
         tabIndex={-1}
-        className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+        className="section-anchor relative py-20 sm:py-28"
       >
         <Suspense fallback={null}>
           <SelectedProjects limit={3} />
@@ -106,7 +106,7 @@ export default async function HomePage() {
       <section
         id="recommendations"
         tabIndex={-1}
-        className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+        className="section-anchor relative py-20 sm:py-28"
       >
         <Recommendations linkedin={identity.socialLinkedin} />
       </section>
@@ -124,7 +124,7 @@ export default async function HomePage() {
       <section
         id="certifications"
         tabIndex={-1}
-        className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+        className="section-anchor relative py-20 sm:py-28"
       >
         <CertificationsAndEducation education={education} />
       </section>

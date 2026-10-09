@@ -110,7 +110,7 @@ export function Hero({ identity }: HeroProps) {
       tabIndex={-1}
       className="section-anchor relative flex min-h-[80vh] flex-col justify-center pb-16 pt-12 sm:pt-20"
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto]">
+      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-20 xl:gap-24">
         <div className="flex flex-col gap-8">
           <span
             className="eyebrow hero-stagger"
@@ -121,7 +121,7 @@ export function Hero({ identity }: HeroProps) {
           </span>
 
           <h1
-            className="heading-display text-5xl sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
+            className="heading-display text-5xl sm:text-6xl lg:text-[4.5rem] xl:text-[5.25rem] hero-stagger"
             data-hero-headline
             style={{ animationDelay: '80ms' }}
           >
