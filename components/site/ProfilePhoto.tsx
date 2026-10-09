@@ -6,17 +6,23 @@ type ProfilePhotoProps = {
 };
 
 /**
- * Real-photo circular avatar. Same visual language as InitialsAvatar
- * (soft glow halo, gradient ring, decorative inner ring) so the hero
- * still reads as one composition, just with the actual face.
+ * Real-photo circular avatar. Pixel-accurate to the v3 brief:
  *
- * Renders as a server component — the surrounding tilt/parallax lives
- * on the parent.
+ *   - Default size bumped to 280px so the face reads at the brief's
+ *     reference viewport.
+ *   - A soft purple/cyan glow halo behind the photo (no exaggerated
+ *     blur; brief calls for one subtle glow only).
+ *   - A thicker (3px) gradient ring (purple → cyan) is the only
+ *     accent treatment on the photo — no inner decorative ring,
+ *     no highlight overlay.
+ *
+ * Renders as a server component — the surrounding parallax lives
+ * on the parent (`HeroStage`).
  */
 export function ProfilePhoto({
   src,
   alt,
-  size = 168,
+  size = 280,
   className,
 }: ProfilePhotoProps) {
   return (
@@ -28,16 +34,16 @@ export function ProfilePhoto({
         position: 'relative',
       }}
     >
-      {/* Outer glow halo — matches InitialsAvatar */}
+      {/* Outer glow halo — one soft purple/cyan glow per brief */}
       <div
         aria-hidden="true"
         style={{
           position: 'absolute',
-          inset: -size * 0.15,
+          inset: -size * 0.18,
           borderRadius: '50%',
           background:
-            'radial-gradient(circle, color-mix(in oklab, var(--color-accent) 45%, transparent) 0%, transparent 65%)',
-          filter: 'blur(24px)',
+            'radial-gradient(circle, color-mix(in oklab, var(--color-accent) 40%, transparent) 0%, color-mix(in oklab, var(--color-accent-2) 22%, transparent) 40%, transparent 70%)',
+          filter: 'blur(28px)',
           opacity: 0.7,
         }}
       />
@@ -53,65 +59,36 @@ export function ProfilePhoto({
             <stop offset="0%" stopColor="var(--color-accent)" />
             <stop offset="100%" stopColor="var(--color-accent-2)" />
           </linearGradient>
-          <radialGradient id="pf-highlight" cx="35%" cy="30%" r="50%">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-          </radialGradient>
           <clipPath id="pf-clip">
-            <circle cx="100" cy="100" r="92" />
+            <circle cx="100" cy="100" r="93" />
           </clipPath>
         </defs>
 
-        {/* Photo, clipped to a circle.
-            The source is 800×800 with the subject's head in the
-            upper-right (portrait has empty wall space on the left).
-            To frame the head inside the circle with breathing room
-            on every breakpoint we:
-              1. scale the image to 220×220 (slightly larger than the
-                 200×200 viewBox so it always overflows),
-              2. offset it by -40, -5 to recenter the head inside the
-                 circle, and
-              3. use preserveAspectRatio="meet" so nothing is sliced
-                 off — the circle clip handles the corners. */}
+        {/* Photo, clipped to a circle. The source is 800×800 with
+            the subject's head slightly off-center; we translate by
+            (-30, -8) and scale to 215 so the head sits comfortably
+            inside the visible circle with breathing room. */}
         <image
           href={src}
-          x="-40"
-          y="-5"
-          width="220"
-          height="220"
+          x="-30"
+          y="-8"
+          width="215"
+          height="215"
           preserveAspectRatio="xMidYMid meet"
           clipPath="url(#pf-clip)"
         />
-        {/* Soft top-left highlight to match the previous glassy feel */}
+        {/* Gradient ring — the only accent treatment on the photo. */}
         <circle
           cx="100"
           cy="100"
-          r="92"
-          fill="url(#pf-highlight)"
-          clipPath="url(#pf-clip)"
-          pointerEvents="none"
-        />
-        {/* Gradient ring */}
-        <circle
-          cx="100"
-          cy="100"
-          r="91"
+          r="93"
           fill="none"
           stroke="url(#pf-stroke)"
-          strokeWidth="2"
-          opacity="0.6"
-        />
-        {/* Decorative inner ring */}
-        <circle
-          cx="100"
-          cy="100"
-          r="78"
-          fill="none"
-          stroke="rgba(255,255,255,0.18)"
-          strokeWidth="1"
+          strokeWidth="3"
+          opacity="0.85"
         />
       </svg>
-      {/* Accessible name is on the parent <h1>, the photo is decorative. */}
+      {/* Accessible name is on the parent <h1>; the photo is decorative. */}
       <span className="sr-only">{alt}</span>
     </div>
   );

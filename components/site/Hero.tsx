@@ -20,54 +20,59 @@ type FocusArea = {
 };
 
 /**
- * Hero — first fold, calm and editorial. Matches the v3 design brief:
+ * Hero — first fold. Pixel-accurate re-implementation of the v3
+ * design brief. Two-column grid inside a 1440px-wide container:
  *
- *   - Eyebrow: `— ISTQB® CERTIFIED · OPEN TO INTERESTING WORK`
- *     (uppercase mono with a leading purple dash, no `$` prefix)
- *   - H1: `Salekin` (white) + `Newaz` (purple→cyan gradient), rendered
- *     inline on a single line. The data is `Md Salekin Newaz`; the
- *     `Md` prefix is intentionally omitted from the hero H1 because
- *     the brief renders the person-facing name only.
- *   - Role strap: `SENIOR SOFTWARE QA ENGINEER` (large uppercase
- *     mono, accent-colored).
- *   - Secondary strap: `PLAYWRIGHT · AI-DRIVEN QA · QUALITY
- *     ENGINEERING` (uppercase mono, muted).
- *   - Tagline (the brief §3 positioning line).
- *   - 2 CTAs: `View My Work` (gradient fill) + `Download Resume`
- *     (outline).
- *   - FOCUS row: 4 icon-prefixed chips on the left, matching the 4
- *     floating info cards around the profile photo on the right.
- *   - Status line: `● Senior Software QA Engineer @ Brain Station 23 ·
- *     Dhaka, Bangladesh`.
- *   - HeroStage on the right (large photo + 4 orbit cards + terminal).
+ *   LEFT (~50%):
+ *     • Eyebrow: `ISTQB® CERTIFIED · OPEN TO INTERESTING WORK`
+ *       (uses the existing .eyebrow class — auto leading 40px
+ *       purple line + uppercase mono).
+ *     • H1: `Salekin` (white) + `Newaz` (purple→cyan gradient),
+ *       on ONE SINGLE LINE at desktop. `whitespace-nowrap` +
+ *       a `clamp()` font-size keep it on one line down to the
+ *       brief's reference viewport (~1440px) and gracefully
+ *       scale down. The data is `Md Salekin Newaz`; the `Md`
+ *       honorific is intentionally omitted from the hero H1.
+ *     • `SENIOR SOFTWARE QA ENGINEER` (accent, mono, uppercase).
+ *     • `PLAYWRIGHT · AI-DRIVEN QA · QUALITY ENGINEERING`
+ *       (muted, mono, uppercase).
+ *     • Tagline + 2 CTAs (`View My Work` gradient, `Download
+ *       Resume` outline — no magnetic effect so buttons stay
+ *       visually static on hover per brief).
+ *     • FOCUS row: 4 icon chips + a `FOCUS` label.
+ *     • Status line: `● SENIOR SOFTWARE QA ENGINEER @ BRAIN
+ *       STATION 23 | Dhaka, Bangladesh`.
  *
- * The same 4 focus areas appear in both places — the left chip row
- * gives a quick at-a-glance scan, the right orbit gives the rich
- * detail. The `focusAreas` array is the single source of truth.
+ *   RIGHT (~50%):
+ *     • Photo (real, from /images/profile.jpg) inside a circular
+ *       gradient ring (purple→cyan), with a soft glow halo.
+ *     • 4 capability cards (Playwright / API Testing / AI-Driven
+ *       QA / CI/CD) anchored at the four corners of the photo.
+ *     • Terminal card below the photo + orbit.
+ *
+ * The 4 focus areas are the single source of truth for both the
+ * left chips and the right orbit. `position` and `bobDelay` only
+ * matter for the orbit; the chip row ignores them.
  */
 export function Hero({ identity }: HeroProps) {
   const title = identity.siteTitle || 'Md Salekin Newaz';
   const tagline =
     identity.siteTagline ||
     'Building quality infrastructure that enables engineering teams to release with confidence.';
-  const initials = identity.siteInitials || 'SN';
   // Real profile photo (served from /public). Falls back to the SVG
   // initials avatar only if the asset is missing.
   const photoSrc = '/images/profile.jpg';
   const photoAlt = `${title} — Senior Software QA Engineer`;
   const location = identity.contactLocation?.trim();
 
-  // The H1 in the hero intentionally shows the person-facing name
-  // (e.g. "Salekin Newaz") without the honorific "Md" prefix that
-  // the site metadata uses. Split into first / last so the gradient
-  // can be applied to the last name only.
+  // Strip the honorific "Md" prefix from the data so the gradient
+  // sits cleanly on the last name only. Fallback to the full title
+  // if the data is unexpected.
   const nameParts = title.replace(/^Md\.?\s+/i, '').trim().split(/\s+/);
   const firstName = nameParts[0] ?? title;
   const lastName = nameParts.slice(1).join(' ') || nameParts[0] || '';
 
-  // The 4 focus areas. Single source of truth — drives both the left
-  // icon chip row and the right orbit cards. `position` and `bobDelay`
-  // only matter for the orbit; the chip row ignores them.
+  // The 4 focus areas. Single source of truth.
   const focusAreas: readonly FocusArea[] = [
     {
       id: 'playwright',
@@ -106,9 +111,7 @@ export function Hero({ identity }: HeroProps) {
     },
   ] as const;
 
-  // Strip the orbit-only fields before passing to the chip row.
   const chipAreas = focusAreas.map(({ icon, label }) => ({ icon, label }));
-  // The orbit consumes the full shape (position, progress, bobDelay).
   const orbitCards: OrbitCard[] = focusAreas.map(
     ({ id, icon, label, detail, position, progress, bobDelay }) => ({
       id,
@@ -125,70 +128,72 @@ export function Hero({ identity }: HeroProps) {
     <section
       id="hero"
       tabIndex={-1}
-      className="section-anchor relative flex min-h-[80vh] flex-col justify-center pb-16 pt-12 sm:pt-20"
+      className="section-anchor relative pb-20 pt-14 sm:pt-20 lg:pt-24"
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_auto]">
-        <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-x-16">
+        {/* ─── LEFT column — copy + CTAs ─── */}
+        <div className="flex max-w-[640px] flex-col gap-7 lg:max-w-none">
           <span
-            className="eyebrow flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-fg-2 hero-stagger"
+            className="eyebrow eyebrow--muted hero-stagger"
             style={{ animationDelay: '0ms' }}
           >
-            <span aria-hidden="true" className="text-accent">—</span>
-            ISTQB® Certified · open to interesting work
+            ISTQB® Certified · Open to Interesting Work
           </span>
 
           <h1
-            className="heading-display flex flex-wrap items-baseline gap-x-6 text-5xl leading-[1.05] sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
+            className="heading-display whitespace-nowrap text-[clamp(2.75rem,5.4vw,5.25rem)] leading-[1.02] tracking-tight hero-stagger"
             data-hero-headline
             style={{ animationDelay: '80ms' }}
           >
-            <span className="text-fg">{firstName}</span>
+            <span className="text-fg">{firstName}</span>{' '}
             <span className="name-gradient">{lastName}</span>
           </h1>
 
           <p
-            className="font-mono text-sm uppercase tracking-widest text-accent sm:text-base hero-stagger"
+            className="font-mono text-sm uppercase tracking-[0.18em] text-accent sm:text-[0.95rem] hero-stagger"
             style={{ animationDelay: '160ms' }}
           >
             Senior Software QA Engineer
           </p>
 
           <p
-            className="font-mono text-xs uppercase tracking-widest text-muted sm:text-sm hero-stagger"
-            style={{ animationDelay: '200ms' }}
+            className="font-mono text-xs uppercase tracking-[0.16em] text-muted sm:text-[0.78rem] hero-stagger"
+            style={{ animationDelay: '210ms' }}
           >
-            Playwright <span aria-hidden="true" className="text-fg-2/50">·</span>{' '}
+            Playwright{' '}
+            <span aria-hidden="true" className="text-fg-2/50">
+              ·
+            </span>{' '}
             AI-Driven QA{' '}
-            <span aria-hidden="true" className="text-fg-2/50">·</span>{' '}
+            <span aria-hidden="true" className="text-fg-2/50">
+              ·
+            </span>{' '}
             Quality Engineering
           </p>
 
           <p
-            className="max-w-2xl text-lg leading-relaxed text-fg-2 text-pretty sm:text-xl hero-stagger"
-            style={{ animationDelay: '240ms' }}
+            className="max-w-[540px] text-[1.05rem] leading-[1.65] text-fg-2 text-pretty sm:text-[1.18rem] hero-stagger"
+            style={{ animationDelay: '260ms' }}
           >
-            {/* SEO: the full name appears in the tagline so the home page
-                has the name in visible on-page text (not just the H1).
-                Search engines weight body text heavily for name queries. */}
             {tagline.includes(identity.siteTitle)
               ? tagline
               : `I'm ${identity.siteTitle}. ${tagline}`}
           </p>
 
           <div
-            className="mt-2 flex flex-wrap items-center gap-3 hero-stagger"
-            style={{ animationDelay: '320ms' }}
+            className="flex flex-wrap items-center gap-3 hero-stagger"
+            style={{ animationDelay: '340ms' }}
           >
             <Link
               href="/#work"
-              className="btn-primary magnetic inline-flex items-center gap-2 px-6 py-3 text-sm sm:text-base"
+              className="btn-primary inline-flex items-center gap-2 px-6 py-3.5 text-[0.95rem]"
             >
               View My Work
               <span aria-hidden="true">→</span>
             </Link>
             <a
               href="/cv-download"
-              className="btn-outline magnetic inline-flex items-center gap-2 px-6 py-3 text-sm sm:text-base"
+              className="btn-outline inline-flex items-center gap-2 px-6 py-3.5 text-[0.95rem]"
             >
               <span aria-hidden="true">↓</span>
               Download Resume
@@ -197,10 +202,10 @@ export function Hero({ identity }: HeroProps) {
 
           <ul
             aria-label="Focus areas"
-            className="mt-2 flex flex-wrap items-center gap-2 hero-stagger"
-            style={{ animationDelay: '400ms' }}
+            className="flex flex-wrap items-center gap-2 hero-stagger"
+            style={{ animationDelay: '420ms' }}
           >
-            <li className="font-mono text-xs uppercase tracking-widest text-muted">
+            <li className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
               FOCUS
             </li>
             {chipAreas.map((c) => (
@@ -211,8 +216,8 @@ export function Hero({ identity }: HeroProps) {
           </ul>
 
           <p
-            className="float-soft inline-flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs uppercase tracking-widest text-muted"
-            style={{ animationDelay: '1.5s' }}
+            className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted hero-stagger"
+            style={{ animationDelay: '600ms' }}
           >
             <span
               className="relative inline-flex h-1.5 w-1.5"
@@ -227,14 +232,13 @@ export function Hero({ identity }: HeroProps) {
             {location ? (
               <>
                 <span aria-hidden="true" className="text-fg-2/50">|</span>
-                <span className="normal-case tracking-normal">
-                  {location}
-                </span>
+                <span className="normal-case tracking-normal">{location}</span>
               </>
             ) : null}
           </p>
         </div>
 
+        {/* ─── RIGHT column — orbit + terminal ─── */}
         <HeroStage src={photoSrc} alt={photoAlt} cards={orbitCards} />
       </div>
     </section>

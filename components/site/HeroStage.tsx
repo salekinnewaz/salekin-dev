@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { HeroOrbit, type OrbitCard } from './HeroOrbit';
 import { HeroTerminal } from './HeroTerminal';
 
@@ -11,24 +11,25 @@ type Props = {
 };
 
 const PARALLAX_RANGE_PX = 600;
-const PARALLAX_HEADLINE_PX = 40;
-const PARALLAX_AVATAR_PX = 60;
+const PARALLAX_HEADLINE_PX = 24;
+const PARALLAX_AVATAR_PX = 32;
 
 /**
- * Right column of the Hero. Three jobs:
- *   1. Scroll-driven parallax on the headline and the orbit (h1 lifts
- *      up by 40px as the user scrolls 0–600px, the whole orbit drifts
- *      down by 60px in the same window — depth without being heavy).
- *   2. 3D tilt on the orbit (rotateX/Y based on cursor position,
- *      max 8°). Disabled on touch + reduced motion.
- *   3. Composes the orbit (photo + 4 floating info cards) + animated
- *      terminal: desktop shows the orbit above the terminal; on
- *      smaller screens the orbit's 2×2 grid stacks above the
- *      terminal and the phone branch shows a smaller photo.
+ * Right column of the Hero. Pixel-accurate to the v3 brief:
+ *
+ *   - Composes the orbit (photo + 4 floating info cards) above the
+ *     terminal, both right-aligned to a ~50% column.
+ *   - One subtle scroll-driven parallax on the headline and the
+ *     orbit (24px / 32px over 600px). The 3D tilt effect from the
+ *     previous build is removed — the brief calls for a static
+ *     composition.
+ *   - Photo defaults to 280px (matches the brief). Falls back to a
+ *     smaller photo on narrow viewports.
+ *   - All animations are CSS-only; the JS just reads scrollY and
+ *     writes inline `transform` values. No layout measurements.
  */
 export function HeroStage({ src, alt, cards }: Props) {
   const avatarRef = useRef<HTMLDivElement | null>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -59,46 +60,20 @@ export function HeroStage({ src, alt, cards }: Props) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  function onAvatarMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (typeof window === 'undefined') return;
-    if (window.matchMedia?.('(hover: none)').matches) return;
-    const target = e.currentTarget;
-    const r = target.getBoundingClientRect();
-    const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
-    const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-    setTilt({ x: dx * 8, y: -dy * 8 });
-  }
-  function onAvatarLeave() {
-    setTilt({ x: 0, y: 0 });
-  }
-
   return (
     <div className="flex flex-col items-center gap-8 lg:items-end">
+      {/* Desktop / tablet — full orbit with 4 anchored cards. */}
       <div
         ref={avatarRef}
-        onMouseMove={onAvatarMove}
-        onMouseLeave={onAvatarLeave}
         className="hidden will-change-transform sm:block"
-        style={{
-          transform: 'translateY(0)',
-          transition: 'transform 200ms ease-out',
-          perspective: '800px',
-        }}
+        style={{ transform: 'translateY(0)' }}
       >
-        <div
-          style={{
-            transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
-            transition: 'transform 220ms ease-out',
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          <HeroOrbit src={src} alt={alt} cards={cards} photoSize={260} />
-        </div>
+        <HeroOrbit src={src} alt={alt} cards={cards} photoSize={280} />
       </div>
-      {/* On phones, the orbit column is hidden (sm:hidden). Render a
-          smaller standalone photo for narrow viewports. */}
+      {/* On phones the orbit collapses to a stacked layout; the
+          smaller photo is rendered by HeroOrbit itself. */}
       <div className="block sm:hidden">
-        <HeroOrbit src={src} alt={alt} cards={cards} photoSize={160} />
+        <HeroOrbit src={src} alt={alt} cards={cards} photoSize={200} />
       </div>
       <div className="hidden w-full max-w-md sm:block">
         <HeroTerminal />
