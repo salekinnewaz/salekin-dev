@@ -7,7 +7,6 @@ import { RevealObserver } from '@/components/site/RevealObserver';
 import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
 import { HashScrollController } from '@/components/site/HashScrollController';
 import { MotionDebug } from '@/components/site/MotionDebug';
-import { SiteFooter } from '@/components/site/SiteFooter';
 import { getSiteSettings } from '@/lib/queries/site';
 import { listEducationOrdered } from '@/lib/queries/education';
 import { env } from '@/lib/env';
@@ -141,7 +140,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       // useState initializer sees the correct value when hydration runs.
       try {
         var hash = window.location.hash.replace(/^#/, '');
-        var known = ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations'];
+        var known = ['hero', 'work', 'about', 'experience', 'skills', 'contact'];
         if (known.indexOf(hash) >= 0) {
           window.__specmdActive = hash;
           window.dispatchEvent(new CustomEvent('specmd:active-section', { detail: hash }));
@@ -296,7 +295,47 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         >
           {children}
         </main>
-        <SiteFooter identity={identity} />
+        <footer className="relative border-t border-border">
+          <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-16">
+            <div className="flex items-center gap-2 font-mono text-xs text-muted">
+              <span className="text-accent">$</span>
+              <span>
+                © {new Date().getFullYear()} {identity.siteTitle} · built with care
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted">
+              {identity.contactEmail ? (
+                <a
+                  href={`mailto:${identity.contactEmail}`}
+                  className="hover:text-accent"
+                >
+                  {identity.contactEmail}
+                </a>
+              ) : null}
+              {identity.socialGithub ? (
+                <a
+                  href={identity.socialGithub}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent"
+                >
+                  GitHub
+                </a>
+              ) : null}
+              {identity.socialLinkedin ? (
+                <a
+                  href={identity.socialLinkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent"
+                >
+                  LinkedIn
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </footer>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

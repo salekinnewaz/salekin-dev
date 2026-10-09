@@ -15,7 +15,6 @@ export const NAV_SECTIONS = [
   { id: 'hero', label: 'Home' },
   { id: 'work', label: 'Work' },
   { id: 'experience', label: 'Experience' },
-  { id: 'recommendations', label: 'Recommendations' },
   { id: 'skills', label: 'Stack' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },

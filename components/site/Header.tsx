@@ -29,8 +29,6 @@ export async function Header() {
     experience: sections.showExperience,
     skills: sections.showSkills,
     contact: sections.showContact,
-    // Recommendations is content, not an admin toggle — always on.
-    recommendations: true,
   };
 
   return (
