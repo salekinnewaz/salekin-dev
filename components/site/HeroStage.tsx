@@ -61,21 +61,21 @@ export function HeroStage({ src, alt, cards }: Props) {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-7 lg:items-center">
+    <div className="hero-visual">
       {/* Desktop / tablet — full orbit with 4 anchored cards. */}
       <div
         ref={avatarRef}
         className="hidden will-change-transform sm:block"
         style={{ transform: 'translateY(0)' }}
       >
-        <HeroOrbit src={src} alt={alt} cards={cards} photoSize={240} />
+        <HeroOrbit src={src} alt={alt} cards={cards} photoSize={300} />
       </div>
       {/* On phones the orbit collapses to a stacked layout; the
           smaller photo is rendered by HeroOrbit itself. */}
       <div className="block sm:hidden">
         <HeroOrbit src={src} alt={alt} cards={cards} photoSize={200} />
       </div>
-      <div className="hidden w-full sm:block">
+      <div className="hero-terminal hidden w-full sm:block">
         <HeroTerminal />
       </div>
     </div>

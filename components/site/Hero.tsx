@@ -130,14 +130,12 @@ export function Hero({ identity }: HeroProps) {
       tabIndex={-1}
       className="section-anchor relative pb-20 pt-14 sm:pt-20 lg:pt-24"
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+      <div className="hero-layout grid grid-cols-1 items-center gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-12">
         {/* ─── LEFT column — copy + CTAs ───
-            Left padding (pl) accounts for the fixed SideNav rail
-            that lives at left-6 / xl:left-10. The hero text column
-            starts well clear of the rail + its active-label
-            expansion, so the WORK/EXPERIENCE/… labels never overlap
-            the eyebrow or tagline. */}
-        <div className="flex max-w-[640px] flex-col gap-7 pl-14 sm:pl-16 lg:pl-20 xl:pl-24 lg:max-w-none">
+            Per the v3 brief: aligned to the same starting x-coordinate
+            as the column edge. No left padding here — the container
+            itself provides the gutter. */}
+        <div className="hero-left flex flex-col gap-6">
           <span
             className="eyebrow eyebrow--muted hero-stagger"
             style={{ animationDelay: '0ms' }}
@@ -146,7 +144,7 @@ export function Hero({ identity }: HeroProps) {
           </span>
 
           <h1
-            className="heading-display whitespace-nowrap text-[clamp(2.75rem,6.2vw,6rem)] leading-[1.02] tracking-tight hero-stagger"
+            className="hero-name heading-display whitespace-nowrap leading-[1.02] tracking-tight hero-stagger"
             data-hero-headline
             style={{ animationDelay: '80ms' }}
           >
@@ -177,7 +175,7 @@ export function Hero({ identity }: HeroProps) {
           </p>
 
           <p
-            className="max-w-[540px] text-[1.05rem] leading-[1.65] text-fg-2 text-pretty sm:text-[1.18rem] hero-stagger"
+            className="hero-tagline text-[1.05rem] leading-[1.65] text-fg-2 text-pretty sm:text-[1.18rem] hero-stagger"
             style={{ animationDelay: '260ms' }}
           >
             {tagline}
@@ -205,14 +203,14 @@ export function Hero({ identity }: HeroProps) {
 
           <ul
             aria-label="Focus areas"
-            className="flex flex-wrap items-center gap-2 hero-stagger"
+            className="hero-focus flex flex-nowrap items-center gap-2 hero-stagger"
             style={{ animationDelay: '420ms' }}
           >
-            <li className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
+            <li className="font-mono text-xs uppercase tracking-[0.18em] text-muted shrink-0">
               FOCUS
             </li>
             {chipAreas.map((c) => (
-              <li key={c.label}>
+              <li key={c.label} className="shrink-0">
                 <FocusChip icon={c.icon} label={c.label} />
               </li>
             ))}
@@ -241,7 +239,10 @@ export function Hero({ identity }: HeroProps) {
           </p>
         </div>
 
-        {/* ─── RIGHT column — orbit + terminal ─── */}
+        {/* ─── RIGHT column — orbit + terminal ───
+            The right column hosts a single composition wrapper
+            (`.hero-visual`) that holds the orbit on top and the
+            terminal below, both right-aligned per the brief. */}
         <HeroStage src={photoSrc} alt={photoAlt} cards={orbitCards} />
       </div>
     </section>
