@@ -2,12 +2,19 @@ import {
   RECOMMENDATIONS,
   LINKEDIN_PROFILE_URL,
   initialsFor,
-  getRecommendations,
   type Recommendation,
 } from '@/lib/site/recommendations';
+import { RecommendationsViewMore } from './RecommendationsViewMore';
+
+/** Number of testimonials featured in the main grid. The rest, if
+ *  any, are revealed on demand via the `<RecommendationsViewMore>`
+ *  disclosure. The brief asks for three featured cards. */
+const FEATURED_COUNT = 3;
 
 type Props = {
-  /** Maximum cards to show. Defaults to 3. */
+  /** Maximum cards to show in the main (always-visible) grid.
+   *  Defaults to 3. Cards past this limit are still rendered —
+   *  they're just moved into the "View more" disclosure. */
   limit?: number;
 };
 
@@ -24,6 +31,10 @@ type Props = {
  *   - Prominent "Read All Recommendations on LinkedIn" CTA → the
  *     owner's LinkedIn profile, opens in a new tab with
  *     rel="noopener noreferrer"
+ *   - "View More" disclosure when more than 3 cards are configured —
+ *     the extras are mounted but hidden until the visitor expands the
+ *     list (so the page is honest about the source: all cards live
+ *     in the same data file, none are fabricated).
  *   - Honest empty state: when no real recommendations are added
  *     yet, the card grid is hidden and a clear placeholder asks the
  *     site owner to populate the data file. The LinkedIn CTA always
@@ -31,11 +42,20 @@ type Props = {
  *
  * The data lives in `lib/site/recommendations.ts` as a typed array
  * the owner can edit. The component is server-rendered (no client
- * JS) so it's SEO-friendly and accessible.
+ * JS) so it's SEO-friendly and accessible. The "View more" toggle
+ * is the one client island in this section (mounted via
+ * `<RecommendationsViewMore>`).
  */
-export function Recommendations({ limit = 3 }: Props) {
-  const items = getRecommendations(limit);
-  const hasContent = items.length > 0;
+export function Recommendations({ limit = FEATURED_COUNT }: Props) {
+  // Honour the `limit` prop so callers (e.g. tests) can pin the
+  // featured count. The disclosure is driven by *all* entries, not
+  // just the `limit`-capped list — that way the section never
+  // silently drops testimonials because a caller passed a smaller
+  // limit.
+  const all = RECOMMENDATIONS;
+  const initial = all.slice(0, limit);
+  const extra = all.slice(limit);
+  const hasContent = all.length > 0;
 
   return (
     <section
@@ -76,16 +96,21 @@ export function Recommendations({ limit = 3 }: Props) {
 
       {/* Card grid OR empty-state placeholder */}
       {hasContent ? (
-        <ul
-          role="list"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 reveal-stagger"
-        >
-          {items.map((r) => (
-            <li key={r.id} className="h-full">
-              <RecommendationCard recommendation={r} />
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul
+            role="list"
+            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 reveal-stagger"
+          >
+            {initial.map((r) => (
+              <li key={r.id} className="h-full">
+                <RecommendationCard recommendation={r} />
+              </li>
+            ))}
+          </ul>
+          {/* The disclosure is a no-op when there are no extra cards,
+              so we don't need to gate it on `extra.length` here. */}
+          <RecommendationsViewMore initial={initial} extra={extra} />
+        </>
       ) : (
         <RecommendationsEmptyState count={RECOMMENDATIONS.length} />
       )}

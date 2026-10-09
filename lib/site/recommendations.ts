@@ -62,24 +62,121 @@ export type Recommendation = {
 
 export const RECOMMENDATIONS: Recommendation[] = [
   // ──────────────────────────────────────────────────────────────────
-  // TO ADD A REAL RECOMMENDATION:
-  //
-  //   {
-  //     id: 'rahul-ahmed-2024',
-  //     quote:
-  //       'Salekin is a dedicated QA engineer with strong automation ' +
-  //       'skills and a great team player. He consistently delivers ' +
-  //       'high-quality work and takes ownership of complex testing ' +
-  //       'challenges.',
-  //     name: 'Rahul Ahmed',
-  //     role: 'Engineering Manager',
-  //     company: 'Brain Station 23',
-  //     photoUrl: null,                       // or '/recommendations/rahul.jpg'
-  //     linkedinUrl: 'https://www.linkedin.com/in/rahul-ahmed',
-  //     date: 'Mar 2024',
-  //   },
-  //
+  // 1. Herman Kulild Dragesund — QA expertise on Redningsselskapet
+  //    (Norwegian Sea Rescue Society) + subsidiaries.
   // ──────────────────────────────────────────────────────────────────
+  {
+    id: 'herman-kulild-dragesund-2025',
+    quote:
+      'I am pleased to recommend Md Salekin Newaz based on his work ' +
+      'as the dedicated Quality Assurance (QA) engineer on two projects ' +
+      'we delivered for Redningsselskapet (the Norwegian Sea Rescue ' +
+      'Society) and its subsidiary, Securmark: 1. RS Sjoliv — ' +
+      'web-based member portal. 2. Trygg Båt — mobile smart-boat app ' +
+      'that monitors temperature, humidity, water leaks, GPS with ' +
+      'geofencing, and automatic Man Over Board engine cut-off and ' +
+      'distress alert.',
+    name: 'Herman Kulild Dragesund',
+    role: 'Senior prosjektleder / Project Manager',
+    company: 'Giur',
+    photoUrl: null,
+    linkedinUrl: null,
+    date: 'August 4, 2025',
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 2. Junaid Aziz — In-depth QA understanding, team player, mentor.
+  // ──────────────────────────────────────────────────────────────────
+  {
+    id: 'junaid-aziz-2023',
+    quote:
+      'MD Salekin possesses an in-depth understanding of various ' +
+      'testing methodologies and a keen eye for detail, making him an ' +
+      'invaluable asset to our testing team. He consistently ' +
+      'demonstrated the ability to meticulously identify and report ' +
+      'bugs, helping us enhance the overall user experience of our ' +
+      'applications. He is an exceptional team player and ' +
+      'communicator. His ability to collaborate across departments ' +
+      'and convey complex technical concepts in a clear manner greatly ' +
+      "facilitated our project's ...",
+    name: 'Junaid Aziz',
+    role:
+      'Struggling With Your SQA Career? Letts Talk | Co-Founder of QA Stack | 9+yrs Diverse Exposure | SQA Mentor & Instructor || Manual & Automation || 2x ISTQB Certified || Playwright || Selenium || AI',
+    company: 'QA Stack',
+    photoUrl: null,
+    linkedinUrl: null,
+    date: 'August 29, 2023',
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 3. Shahriar Morshed — Ownership and onboarding speed on
+  //    the Sea Life preservation project.
+  // ──────────────────────────────────────────────────────────────────
+  {
+    id: 'shahriar-morshed-2023',
+    quote:
+      'I have managed Salekin Directly on a project related to Sea ' +
+      'Life preservation. Salekin onboarded very quickly and has shown ' +
+      'dedication towards understanding the projects domain and ' +
+      'business. He quickly added values in our team which we were ' +
+      'looking at that moment. I wish him all the best in his future ' +
+      'endeavors.',
+    name: 'Shahriar Morshed',
+    role:
+      'Software Engineer | Problem Solver · Over 7 years of engineering experience, solving real life problems with C#/.NET, Python/FastAPI. Now Focused on building AI enabled systems.',
+    company: 'Freelance / Contract',
+    photoUrl: null,
+    linkedinUrl: null,
+    date: 'August 22, 2023',
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 4. S.B.M Reazul Karim — Collaboration + thesis partner
+  //    (BSc-era Machine Learning / data mining).
+  // ──────────────────────────────────────────────────────────────────
+  {
+    id: 'sbm-reazul-karim-2023',
+    quote:
+      'I had the privilege of collaborating with Md Salekin Newaz as a ' +
+      'thesis partner, and I am truly impressed by his dedication and ' +
+      'expertise. Throughout our research, he consistently ' +
+      'demonstrated a deep understanding of Machine learning and data ' +
+      'mining and an unwavering commitment to producing high-quality ' +
+      'work. Salekin contributed significantly to our thesis project ' +
+      'by conducting thorough research, analyzing data meticulously. ' +
+      'He possesses excellent analytical skills, critical thinking, ' +
+      'which were evident i...',
+    name: 'S.B.M Reazul Karim',
+    role: 'Assistant Programmer at IIUC, BLET',
+    company: 'IIUC, BLET',
+    photoUrl: null,
+    linkedinUrl: null,
+    date: 'August 18, 2023',
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 5. Rahadur Rahman — Associate SQA Engineer managed for 6+ months.
+  // ──────────────────────────────────────────────────────────────────
+  {
+    id: 'rahadur-rahman-2023',
+    quote:
+      "I've had the pleasure of working alongside Md Salekin Newaz in " +
+      'the capacity of an Associate Software Quality Assurance (SQA) ' +
+      'engineer for more than six months. During this time, I have ' +
+      'been consistently impressed with his technical acumen, diligent ' +
+      'approach, and commitment to maintaining the highest standards ' +
+      'of software quality. Md Salekin Newaz possesses a deep ' +
+      'knowledge of testing methodologies and tools. His ability to ' +
+      'identify, troubleshoot, and address software anomalies has been ' +
+      'instrumental in ensuring the ...',
+    name: 'Rahadur Rahman',
+    role:
+      'Sr. Software Engineer | .NET, NodeJS, Angular, ReactJS',
+    company: 'BJIT',
+    photoUrl: null,
+    linkedinUrl: null,
+    date: 'August 17, 2023',
+  },
 ];
 
 /**
