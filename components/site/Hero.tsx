@@ -108,7 +108,7 @@ export function Hero({ identity }: HeroProps) {
   ] as const;
 
   const chipAreas = focusAreas.map(({ icon, label }) => ({ icon, label }));
-  const orbitCards: readonly OrbitCard[] = focusAreas.map((f) => ({
+  const orbitCards: OrbitCard[] = focusAreas.map((f) => ({
     id: f.id,
     icon: f.icon,
     title: f.title,
