@@ -92,7 +92,7 @@ export function HeroStage({ src, alt, cards }: Props) {
             transformStyle: 'preserve-3d',
           }}
         >
-          <HeroOrbit src={src} alt={alt} cards={cards} photoSize={260} />
+          <HeroOrbit src={src} alt={alt} cards={cards} photoSize={280} />
         </div>
       </div>
       {/* On phones, the orbit column is hidden (sm:hidden). Render a

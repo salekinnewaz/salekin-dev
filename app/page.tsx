@@ -3,15 +3,17 @@ import { getSiteSettings } from '@/lib/queries/site';
 import { listExperiencesOrdered } from '@/lib/queries/experiences';
 import { listEducationOrdered } from '@/lib/queries/education';
 import { Hero } from '@/components/site/Hero';
-import { CurrentRole } from '@/components/site/CurrentRole';
-import { FeaturedProjects } from '@/components/site/FeaturedProjects';
+import { ImpactMetrics } from '@/components/site/ImpactMetrics';
+import { AboutMe } from '@/components/site/AboutMe';
+import { ToolsAndTechnologies } from '@/components/site/ToolsAndTechnologies';
+import { SelectedProjects } from '@/components/site/SelectedProjects';
 import { ExperienceTimeline } from '@/components/site/ExperienceTimeline';
-import { HowIBuild } from '@/components/site/HowIBuild';
-import { CoreStack } from '@/components/site/CoreStack';
+import { Recommendations } from '@/components/site/Recommendations';
 import { AiDrivenQa } from '@/components/site/AiDrivenQa';
-import { AboutSection } from '@/components/site/AboutSection';
-import { EducationCerts } from '@/components/site/EducationCerts';
-import { ContactSection } from '@/components/site/ContactSection';
+import { Industries } from '@/components/site/Industries';
+import { CertificationsAndEducation } from '@/components/site/CertificationsAndEducation';
+import { ContactCta } from '@/components/site/ContactCta';
+import { ContactFormSection } from '@/components/site/ContactFormSection';
 import { env } from '@/lib/env';
 
 // SEO: the home page intentionally does NOT set its own `title` so the
@@ -59,13 +61,29 @@ export default async function HomePage() {
     <div className="flex flex-col">
       {sections.showHero ? <Hero identity={identity} /> : null}
 
-      {sections.showExperience ? (
-        <CurrentRole experiences={experiences} />
+      <ImpactMetrics />
+
+      {sections.showAbout ? <AboutMe identity={identity} /> : null}
+
+      {sections.showSkills ? (
+        <section
+          id="skills"
+          tabIndex={-1}
+          className="section-anchor relative"
+        >
+          <ToolsAndTechnologies />
+        </section>
       ) : null}
 
-      <Suspense fallback={null}>
-        <FeaturedProjects limit={3} />
-      </Suspense>
+      <section
+        id="work"
+        tabIndex={-1}
+        className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+      >
+        <Suspense fallback={null}>
+          <SelectedProjects limit={3} />
+        </Suspense>
+      </section>
 
       {sections.showExperience ? (
         <section
@@ -74,34 +92,46 @@ export default async function HomePage() {
           className="section-anchor relative py-20 sm:py-28"
         >
           <div className="mb-12 flex flex-col gap-3 reveal">
-            <span className="font-mono text-xs uppercase tracking-widest text-muted">
-              Experience
+            <span className="font-mono text-xs uppercase tracking-widest text-accent">
+              Career Journey
             </span>
             <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
-              Where I&apos;ve worked
+              My Professional Experience
             </h2>
           </div>
           <ExperienceTimeline experiences={experiences} />
         </section>
       ) : null}
 
-      <HowIBuild />
-
       <section
-        id="skills"
+        id="recommendations"
         tabIndex={-1}
-        className="section-anchor relative"
+        className="section-anchor relative bg-bg-2 py-20 sm:py-28"
       >
-        <CoreStack />
+        <Recommendations linkedin={identity.socialLinkedin} />
       </section>
 
       <AiDrivenQa />
 
-      {sections.showAbout ? <AboutSection identity={identity} /> : null}
+      <section
+        id="industries"
+        tabIndex={-1}
+        className="section-anchor relative py-16 sm:py-20"
+      >
+        <Industries />
+      </section>
 
-      {sections.showAbout ? <EducationCerts education={education} /> : null}
+      <section
+        id="certifications"
+        tabIndex={-1}
+        className="section-anchor relative bg-bg-2 py-20 sm:py-28"
+      >
+        <CertificationsAndEducation education={education} />
+      </section>
 
-      {sections.showContact ? <ContactSection identity={identity} /> : null}
+      <ContactCta identity={identity} />
+
+      <ContactFormSection />
 
       <script
         type="application/ld+json"

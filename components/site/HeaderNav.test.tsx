@@ -15,6 +15,7 @@ const allVisible = {
   experience: true,
   skills: true,
   contact: true,
+  recommendations: true,
 } as const;
 
 describe('HeaderNav', () => {
@@ -22,7 +23,7 @@ describe('HeaderNav', () => {
     // Provide the sections the observer will try to attach to. Match
     // the current NAV_SECTIONS list (Education is no longer a top-nav
     // destination).
-    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact']) {
+    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations']) {
       const el = document.createElement('section');
       el.id = id;
       document.body.appendChild(el);
@@ -35,7 +36,14 @@ describe('HeaderNav', () => {
     // the left of the header already serves as the "go home" link, and
     // rendering both would visually mark two items as the current page
     // on `/`.
-    for (const label of ['Work', 'Experience', 'Stack', 'About', 'Contact']) {
+    for (const label of [
+      'Work',
+      'Experience',
+      'Recommendations',
+      'Stack',
+      'About',
+      'Contact',
+    ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
     expect(screen.queryByRole('link', { name: /^home$/i })).toBeNull();
@@ -110,7 +118,7 @@ describe('HeaderNav', () => {
 
 describe('HeaderNav off-home behaviour', () => {
   beforeEach(() => {
-    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact']) {
+    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations']) {
       const el = document.createElement('section');
       el.id = id;
       document.body.appendChild(el);

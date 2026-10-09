@@ -149,37 +149,30 @@ describe('HomePage', () => {
     ]);
     const ui = await HomePage();
     await renderHomePage(ui);
-    // Section headings (h2) — plain editorial labels, no terminal
-    // prefixes. The on-page sections (per brief §24): Current Role,
-    // Featured Work, Experience, How I Build, Core Expertise,
-    // AI-Driven QA, About, Education & Certifications, Contact. Plus
-    // the h1 in the Hero.
+    // Section headings (h2) per the v3 brief layout:
+    // Impact (no h2 — stat cards), About, Skills (Core Expertise),
+    // Featured Work (Selected Projects), Experience, Recommendations,
+    // AI-Driven QA, Industries, Certifications, Contact (Get In Touch).
     expect(
-      screen.getByRole('heading', { level: 2, name: /what i.?m doing now/i }),
+      screen.getByRole('heading', { level: 2, name: /selected projects/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /featured work/i }),
+      screen.getByRole('heading', { level: 2, name: /my professional experience/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /where i.{0,3}ve worked/i }),
+      screen.getByRole('heading', { level: 2, name: /tools .{0,3} technologies/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /how i build/i }),
+      screen.getByRole('heading', { level: 2, name: /integrating ai into qa lifecycle/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /core expertise/i }),
+      screen.getByRole('heading', { level: 2, name: /quality.?driven engineering/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /ai.?driven qa/i }),
+      screen.getByRole('heading', { level: 2, name: /what people say/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /a bit about me/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /education .{0,3} certifications/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /let.?s build something/i }),
+      screen.getByRole('heading', { level: 2, name: /get in touch/i }),
     ).toBeInTheDocument();
   });
 

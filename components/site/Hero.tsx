@@ -121,13 +121,13 @@ export function Hero({ identity }: HeroProps) {
           </span>
 
           <h1
-            className="heading-display heading-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
+            className="heading-display text-5xl sm:text-6xl lg:text-7xl xl:text-[6rem] hero-stagger"
             data-hero-headline
             style={{ animationDelay: '80ms' }}
           >
-            <span className="block">{title.split(' ')[0]}</span>
+            <span className="block text-fg">{title.split(' ')[0]}</span>
             {title.split(' ').slice(1).length > 0 ? (
-              <span className="block">
+              <span className="block text-gradient">
                 {title.split(' ').slice(1).join(' ')}
               </span>
             ) : null}
@@ -160,11 +160,11 @@ export function Hero({ identity }: HeroProps) {
             className="mt-2 flex flex-wrap items-center gap-3 hero-stagger"
             style={{ animationDelay: '320ms' }}
           >
-            <Link href="/#work" className="btn-primary magnetic">
+            <Link href="/#work" className="btn-primary">
               view my work
               <span aria-hidden="true">↓</span>
             </Link>
-            <a href="/cv-download" className="btn-outline magnetic">
+            <a href="/cv-download" className="btn-secondary">
               download resume
               <span aria-hidden="true">↗</span>
             </a>
