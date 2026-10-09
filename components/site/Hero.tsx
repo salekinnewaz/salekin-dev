@@ -70,7 +70,7 @@ export function Hero({ identity }: HeroProps) {
           </h1>
 
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-sm uppercase tracking-widest text-fg-2 sm:text-base">
-            <span className="text-accent">Senior Software QA Engineer</span>
+            <span className="float-soft text-accent">Senior Software QA Engineer</span>
             <span aria-hidden="true" className="text-muted">·</span>
             <span>Playwright</span>
             <span aria-hidden="true" className="text-muted">·</span>
@@ -111,7 +111,10 @@ export function Hero({ identity }: HeroProps) {
             ))}
           </ul>
 
-          <p className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted">
+          <p
+            className="float-soft inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted"
+            style={{ animationDelay: '1.5s' }}
+          >
             <span className="relative inline-flex h-1.5 w-1.5" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />

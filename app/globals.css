@@ -465,6 +465,21 @@
   }
 }
 
+/* ─── Float-soft (gentle vertical bob, looping) ───────────────── */
+/* Used on the hero designation + company status line to give them a
+   slow "floating" feel. Bob is ±3px over 4.5s, ease-in-out infinite.
+   The global prefers-reduced-motion block at the bottom of this file
+   already pauses infinite animations, so reduced-motion users see no
+   movement — no separate guard needed. */
+.float-soft {
+  animation: float-soft 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes float-soft {
+  0%, 100% { transform: translateY(-3px); }
+  50%      { transform: translateY(3px); }
+}
+
 /* ─── Marquee (CSS-only, pauses on hover) ──────────────────────── */
 
 .marquee {

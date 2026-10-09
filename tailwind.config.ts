@@ -57,6 +57,10 @@ const config: Config = {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
+        'float-soft': {
+          '0%, 100%': { transform: 'translateY(-3px)' },
+          '50%': { transform: 'translateY(3px)' },
+        },
       },
       animation: {
         blink: 'blink 1s steps(2) infinite',
@@ -67,6 +71,7 @@ const config: Config = {
         pulse: 'pulse 2s ease-out infinite',
         'fade-up': 'fade-up 600ms ease both',
         shimmer: 'shimmer 3s linear infinite',
+        'float-soft': 'float-soft 4.5s ease-in-out infinite',
       },
       backgroundImage: {
         'accent-gradient':
