@@ -802,6 +802,18 @@
   padding-left: 0.5rem;
   border-left: 1px solid var(--color-border);
 }
+/* Active-label text is hidden until 2xl (≥1536px) so the rail's
+   WORK / EXPERIENCE / ABOUT labels never overlap the hero
+   composition at 1440px. The dots remain visible from lg+ for
+   the scroll-spy affordance. */
+.side-nav__label {
+  display: none;
+}
+@media (min-width: 1536px) {
+  .side-nav__label {
+    display: inline;
+  }
+}
 .side-nav__item { list-style: none; }
 .side-nav__link {
   position: relative;
@@ -1556,8 +1568,8 @@
 
 .hero-orbit {
   position: relative;
-  width: 380px;
-  height: 380px;
+  width: 320px;
+  height: 320px;
   display: block;
 }
 .hero-orbit__photo {
@@ -1599,13 +1611,13 @@
     0 22px 44px -18px color-mix(in oklab, var(--color-accent) 30%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
-/* Card positions — closer to the photo edge than before so the four
-   cards anchor visually adjacent to the circle, not floating far
-   away. Each card is centered on its corner of the photo. */
-.hero-orbit__card--tl { top: -0.5rem;    left: -1.75rem; }
-.hero-orbit__card--tr { top: -0.5rem;    right: -1.75rem; }
-.hero-orbit__card--bl { bottom: 1.6rem;  left: -1.75rem; }
-.hero-orbit__card--br { bottom: 1.6rem;  right: -1.75rem; }
+/* Card positions — anchored at the four corners of the photo
+   with a small inset so each card sits visually adjacent to the
+   circle without escaping the orbit wrapper. */
+.hero-orbit__card--tl { top: -0.5rem;    left: -3rem; }
+.hero-orbit__card--tr { top: -0.5rem;    right: -3rem; }
+.hero-orbit__card--bl { bottom: 1.4rem;  left: -3rem; }
+.hero-orbit__card--br { bottom: 1.4rem;  right: -3rem; }
 
 .hero-orbit__icon {
   display: inline-flex;
@@ -1615,6 +1627,24 @@
   height: 26px;
   color: var(--color-accent);
   flex-shrink: 0;
+}
+/* Per-card icon tints — the brief renders each capability card
+   with its own brand-tinted icon (red Playwright mask, cyan
+   code brackets, purple sparkles, cyan cloud). The card root
+   carries a data-attribute; the descendant .hero-orbit__icon
+   picks up the colour via the cascade so we keep a single
+   <HeroOrbit> component. */
+.hero-orbit__card[data-icon='playwright'] .hero-orbit__icon {
+  color: #f43f5e; /* rose-500 — theater mask hue */
+}
+.hero-orbit__card[data-icon='api'] .hero-orbit__icon {
+  color: var(--color-accent-2);
+}
+.hero-orbit__card[data-icon='ai'] .hero-orbit__icon {
+  color: var(--color-accent);
+}
+.hero-orbit__card[data-icon='cicd'] .hero-orbit__icon {
+  color: var(--color-accent-2);
 }
 .hero-orbit__icon svg { display: block; }
 

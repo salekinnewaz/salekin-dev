@@ -69,6 +69,7 @@ export function HeroOrbit({
           <div
             key={card.id}
             className={`hero-orbit__card ${posClass} float-soft`}
+            data-icon={card.icon}
             style={{ animationDelay: `${card.bobDelay}ms` }}
             role="group"
             aria-label={`${card.title} — ${card.detail}`}

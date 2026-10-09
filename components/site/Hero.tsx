@@ -130,9 +130,14 @@ export function Hero({ identity }: HeroProps) {
       tabIndex={-1}
       className="section-anchor relative pb-20 pt-14 sm:pt-20 lg:pt-24"
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-x-16">
-        {/* ─── LEFT column — copy + CTAs ─── */}
-        <div className="flex max-w-[640px] flex-col gap-7 lg:max-w-none">
+      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+        {/* ─── LEFT column — copy + CTAs ───
+            Left padding (pl) accounts for the fixed SideNav rail
+            that lives at left-6 / xl:left-10. The hero text column
+            starts well clear of the rail + its active-label
+            expansion, so the WORK/EXPERIENCE/… labels never overlap
+            the eyebrow or tagline. */}
+        <div className="flex max-w-[640px] flex-col gap-7 pl-14 sm:pl-16 lg:pl-20 xl:pl-24 lg:max-w-none">
           <span
             className="eyebrow eyebrow--muted hero-stagger"
             style={{ animationDelay: '0ms' }}
@@ -141,7 +146,7 @@ export function Hero({ identity }: HeroProps) {
           </span>
 
           <h1
-            className="heading-display whitespace-nowrap text-[clamp(2.75rem,5.4vw,5.25rem)] leading-[1.02] tracking-tight hero-stagger"
+            className="heading-display whitespace-nowrap text-[clamp(2.75rem,6.2vw,6rem)] leading-[1.02] tracking-tight hero-stagger"
             data-hero-headline
             style={{ animationDelay: '80ms' }}
           >
@@ -175,9 +180,7 @@ export function Hero({ identity }: HeroProps) {
             className="max-w-[540px] text-[1.05rem] leading-[1.65] text-fg-2 text-pretty sm:text-[1.18rem] hero-stagger"
             style={{ animationDelay: '260ms' }}
           >
-            {tagline.includes(identity.siteTitle)
-              ? tagline
-              : `I'm ${identity.siteTitle}. ${tagline}`}
+            {tagline}
           </p>
 
           <div
