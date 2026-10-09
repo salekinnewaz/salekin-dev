@@ -36,6 +36,11 @@ const config: Config = {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },
+        'mesh-drift': {
+          '0%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+          '50%': { transform: 'translate3d(-3%, 2%, 0) scale(1.05)' },
+          '100%': { transform: 'translate3d(2%, -2%, 0) scale(1.02)' },
+        },
         marquee: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
@@ -61,6 +66,7 @@ const config: Config = {
         blink: 'blink 1s steps(2) infinite',
         'fade-in': 'fadeIn 200ms ease-out both',
         'gradient-pan': 'gradient-pan 8s ease-in-out infinite',
+        'mesh-drift': 'mesh-drift 30s ease-in-out infinite alternate',
         marquee: 'marquee 40s linear infinite',
         pulse: 'pulse 2s ease-out infinite',
         'fade-up': 'fade-up 600ms ease both',
@@ -69,7 +75,9 @@ const config: Config = {
       },
       backgroundImage: {
         'accent-gradient':
-          'linear-gradient(110deg, var(--color-accent) 0%, var(--color-accent-2) 100%)',
+          'linear-gradient(120deg, var(--color-accent) 0%, var(--color-accent-2) 100%)',
+        'mesh-radial':
+          'radial-gradient(800px 600px at 20% 10%, color-mix(in oklab, var(--color-accent) 30%, transparent), transparent 60%)',
       },
     },
   },
