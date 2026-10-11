@@ -1,14 +1,9 @@
 /**
  * 01-home-hero.spec.ts
  *
- * Verifies the home-page hero: the H1, the orbit cards, the live
- * HeroTerminal, and the availability badge.
- *
- * The hero now renders just two orbit cards (Playwright +
- * AI-Driven QA) — the broader skill list lives in Core Expertise.
- * The FOCUS chip row and the ISTQB® chip in the eyebrow have been
- * removed; the ISTQB certification is asserted on the Education &
- * Certifications section instead.
+ * Verifies the home-page hero: the H1, the orbit cards (4 of them:
+ * Playwright, AI-Driven QA, API Testing, CI/CD), the FOCUS chip row,
+ * the live HeroTerminal, and the availability badge + ISTQB chip.
  */
 import { test, expect } from '@playwright/test';
 import { beforeEach as allureBeforeEach } from './utils/allure';
@@ -23,10 +18,10 @@ test.describe('Home / Hero', () => {
     await home.expectHeroHeadingHasName();
   });
 
-  test('renders the two hero orbit cards (Playwright + AI-Driven QA)', async ({ page }) => {
+  test('renders the four hero orbit cards (Playwright, AI-Driven QA, API Testing, CI/CD)', async ({ page }) => {
     const home = new HomePage(page);
     await home.goto();
-    await home.expectTwoOrbitCards();
+    await home.expectFourOrbitCards();
   });
 
   test('renders the live HeroTerminal with its macOS chrome', async ({
@@ -37,13 +32,13 @@ test.describe('Home / Hero', () => {
     await home.expectHeroTerminalRenders();
   });
 
-  test('primary CTA is "Explore My Work" and secondary is "Download Resume"', async ({
+  test('primary CTA is "View My Work" and secondary is "Download Resume"', async ({
     page,
   }) => {
     const home = new HomePage(page);
     await home.goto();
     await expect(
-      page.getByRole('link', { name: /explore my work/i }).first(),
+      page.getByRole('link', { name: /view my work/i }).first(),
     ).toBeVisible();
     await expect(
       page.getByRole('link', { name: /download resume/i }).first(),

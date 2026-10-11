@@ -1,10 +1,10 @@
 /**
  * HomePage
  *
- * The home route `/`. Includes the hero (H1, focus chips, orbit,
- * terminal, availability badge, ISTQB chip), the in-page section
- * anchors the HashScrollController relies on, and the featured
- * projects grid inside <Suspense>.
+ * The home route `/`. Includes the hero (H1, FOCUS chip row,
+ * orbit, terminal, ISTQB chip + availability badge), the in-page
+ * section anchors the HashScrollController relies on, and the
+ * featured projects grid inside <Suspense>.
  *
  * `goto(hash?)` accepts an optional hash so a spec can boot
  * directly to a section without a separate `page.goto` call.
@@ -25,10 +25,9 @@ export class HomePage extends BasePage {
   }
 
   /**
-   * The hero now renders just two orbit capability cards (Playwright,
-   * AI-Driven QA) — API Testing and CI/CD were moved to the Core
-   * Expertise section. There is no FOCUS chip row in the hero
-   * anymore; the orbit cards carry the same information.
+   * Four hero orbit cards: Playwright (tl), AI-Driven QA (tr),
+   * API Testing (bl), CI/CD (br). The same data drives the
+   * left FOCUS chip row.
    */
   get orbitCards(): Locator {
     return this.page.locator('.hero-orbit__card');
@@ -79,11 +78,13 @@ export class HomePage extends BasePage {
     expect(text).toMatch(/Newaz/);
   }
 
-  async expectTwoOrbitCards(): Promise<void> {
+  async expectFourOrbitCards(): Promise<void> {
     const cards = this.orbitCards;
-    await expect(cards).toHaveCount(2);
+    await expect(cards).toHaveCount(4);
     await expect(cards.nth(0)).toHaveText(/Playwright/);
     await expect(cards.nth(1)).toHaveText(/AI-Driven QA/);
+    await expect(cards.nth(2)).toHaveText(/API Testing/);
+    await expect(cards.nth(3)).toHaveText(/CI\/CD/);
   }
 
   async expectHeroTerminalRenders(): Promise<void> {
