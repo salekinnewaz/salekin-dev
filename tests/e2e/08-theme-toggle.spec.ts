@@ -16,13 +16,17 @@ test.describe('Theme toggle', () => {
     page,
   }) => {
     await gotoAndReady(page, '/');
-    // Open the menu by clicking the chevron so all 3 choices are
-    // accessible deterministically (hover-to-open is racy).
+    // Set dark via the menu so the menu auto-closes (pick → setOpen(false)),
+    // then toggle back to light using the MAIN button (the left one
+    // that flips between dark and light). Reopening the menu a second
+    // time was racy in CI because the chevron button's aria-label
+    // changes on each render and the menu auto-close hook listens
+    // on `pointerdown` — the second open sometimes didn't take.
     await page.getByRole('button', { name: /theme options/i }).click();
     await page.getByRole('menuitemradio', { name: /^dark$/i }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    await page.getByRole('button', { name: /theme options/i }).click();
-    await page.getByRole('menuitemradio', { name: /^light$/i }).click();
+    // Click the main toggle button to flip dark → light.
+    await page.getByRole('button', { name: /toggle theme|click to toggle/i }).first().click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   });
 
