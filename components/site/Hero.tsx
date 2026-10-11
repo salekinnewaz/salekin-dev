@@ -3,6 +3,7 @@ import type { SiteIdentity } from '@/lib/queries/site';
 import { HeroOrbit, type OrbitCard } from './HeroOrbit';
 import { HeroTerminal } from './HeroTerminal';
 import { FocusChip } from './FocusChip';
+import { AvailabilityBadge } from './AvailabilityBadge';
 import type { FocusIconId } from '@/lib/icons';
 
 type HeroProps = {
@@ -133,10 +134,13 @@ export function Hero({ identity }: HeroProps) {
         {/* ─── LEFT column — copy + CTAs ─── */}
         <div className="hero-left flex flex-col gap-6">
           <span
-            className="eyebrow eyebrow--muted hero-stagger"
+            className="availability-badge-wrap hero-stagger"
             style={{ animationDelay: '0ms' }}
           >
-            ISTQB® Certified · Open to Interesting Work
+            <span className="eyebrow eyebrow--muted availability-badge__cert">
+              ISTQB® Certified
+            </span>
+            <AvailabilityBadge />
           </span>
 
           <h1

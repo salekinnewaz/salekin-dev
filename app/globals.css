@@ -266,6 +266,182 @@
     font-feature-settings: 'tnum';
   }
 
+  /* ─ Availability badge (hero) ──────────────────────────────────
+     A highlighted pill that types "Interesting Work" one character
+     at a time, with each character entering in a small flying
+     motion (translate + fade + scale). The badge itself replaces
+     the old static "ISTQB® Certified · Open to Interesting Work"
+     eyebrow so the availability message reads as a CTA rather
+     than supporting copy.
+
+     • `.availability-badge-wrap` is a flex row that holds the
+       existing `ISTQB® Certified` eyebrow + the new pill side by
+       side, both inheriting the hero-stagger fade-in.
+     • `.availability-badge` is the pill itself: green-tinted
+       surface, leading pulsing dot, static `OPEN TO` label, then
+       the typed phrase, then a blinking caret.
+     • Each `.availability-badge__char` runs
+       `@keyframes availability-fly` on a 7.4s cycle. The animation
+       is invisible most of the cycle (opacity 0 + offset), and
+       only becomes visible briefly — but the per-char stagger via
+       inline `animationDelay` means the chars appear sequentially
+       near the start of the cycle, sit visible for ~2.5s, then
+       disappear sequentially near the end. Visually: type, hold,
+       erase, repeat.
+     • prefers-reduced-motion: badge is shown statically with all
+       characters visible and the caret hidden. */
+  .availability-badge-wrap {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .availability-badge__cert {
+    /* Keep the small accent line + label from the eyebrow pattern
+       so the two chips read as a matched pair. */
+  }
+  .availability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.42rem 0.85rem 0.42rem 0.7rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--color-fg);
+    background: color-mix(
+      in oklab,
+      var(--color-accent) 14%,
+      var(--color-card)
+    );
+    border: 1px solid
+      color-mix(in oklab, var(--color-accent) 45%, var(--color-border));
+    box-shadow:
+      0 0 0 1px
+        color-mix(in oklab, var(--color-accent) 10%, transparent)
+        inset,
+      0 6px 18px -10px
+        color-mix(in oklab, var(--color-accent) 70%, transparent);
+    transition:
+      transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+  }
+  .availability-badge:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(
+      in oklab,
+      var(--color-accent) 70%,
+      var(--color-border)
+    );
+    box-shadow:
+      0 0 0 1px
+        color-mix(in oklab, var(--color-accent) 18%, transparent)
+        inset,
+      0 10px 24px -12px
+        color-mix(in oklab, var(--color-accent) 80%, transparent);
+  }
+  .availability-badge__dot {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+  }
+  .availability-badge__dot-ping,
+  .availability-badge__dot-core {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #22c55e;
+  }
+  .availability-badge__dot-ping {
+    background: #22c55e;
+    animation: availability-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+    opacity: 0.6;
+  }
+  .availability-badge__dot-core {
+    background: #22c55e;
+    box-shadow: 0 0 6px color-mix(in oklab, #22c55e 70%, transparent);
+  }
+  @keyframes availability-ping {
+    0%   { transform: scale(1);   opacity: 0.55; }
+    75%  { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  .availability-badge__label {
+    color: var(--color-fg-2);
+    /* Static, never animates. Acts as the "prompt" before the
+       typed message. */
+  }
+  .availability-badge__type {
+    display: inline-flex;
+    align-items: baseline;
+    color: var(--color-fg);
+    /* Reserve enough width for the longest "Interesting Work" run
+       so the layout doesn't jump as chars appear. */
+    min-width: 9.5ch;
+  }
+  .availability-badge__char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(10px) scale(0.9);
+    /* The full cycle is 7.4s. Per-character delays (0..16 × 90ms
+       = 0..1.44s) create the visible "type" cascade at the start
+       of the cycle and the "erase" cascade at the end. Between
+       the cascades every char is fully visible. See
+       `@keyframes availability-fly`. */
+    animation: availability-fly 7.4s cubic-bezier(0.2, 0.8, 0.2, 1)
+      infinite both;
+    will-change: transform, opacity;
+  }
+  @keyframes availability-fly {
+    /* Hidden before the char's turn arrives. */
+    0%   { opacity: 0; transform: translateX(10px) scale(0.9); }
+    /* Quickly fly in. */
+    3%   { opacity: 1; transform: translateX(0)    scale(1); }
+    /* Stay visible while the rest of the phrase types and the
+       viewer reads it. */
+    60%  { opacity: 1; transform: translateX(0)    scale(1); }
+    /* Quickly fly out (erase). */
+    64%  { opacity: 0; transform: translateX(10px) scale(0.9); }
+    /* Stay hidden until the next cycle. */
+    100% { opacity: 0; transform: translateX(10px) scale(0.9); }
+  }
+  .availability-badge__caret {
+    display: inline-block;
+    width: 1px;
+    height: 0.95em;
+    margin-left: 2px;
+    background: var(--color-accent);
+    /* Reuse the existing terminal caret-blink timing so the badge
+       caret feels native to the rest of the site. */
+    animation: caret-blink 1.05s steps(2) infinite;
+    transform: translateY(1px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .availability-badge__char {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .availability-badge__caret {
+      /* No blinking caret when motion is reduced — the phrase is
+         already fully visible so a caret would just look like a
+         stray pixel. */
+      display: none;
+    }
+    .availability-badge__dot-ping {
+      animation: none;
+      opacity: 0.7;
+      transform: scale(1.4);
+    }
+  }
+
   /* ─ Section divider: `// ── name ───────────────` ─
      Renders a code-comment-style header with a long horizontal rule
      trailing into the right margin. Used in place of the gradient
