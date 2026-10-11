@@ -85,8 +85,16 @@ jobs:
 
       - name: Run Playwright
         # --project=chromium skips the mobile project.
-        # --reporter=line keeps the log scannable in CI output.
-        run: pnpm test:e2e --project=chromium --reporter=line
+        # We deliberately do NOT pass --reporter on the CLI: doing
+        # so would REPLACE the reporter array from playwright.config.ts
+        # (github + html + allure-playwright) with only the CLI
+        # value, and the allure-playwright reporter would never
+        # write its JSON results — leaving the live report at
+        # salekinnewaz.github.io/salekin-dev/ empty. Let the
+        # config's `reporter` array apply as-is; the `github`
+        # reporter already produces scannable, action-friendly
+        # annotations in CI logs.
+        run: pnpm test:e2e --project=chromium
         env:
           CI: true
 
