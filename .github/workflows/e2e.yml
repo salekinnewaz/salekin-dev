@@ -23,12 +23,12 @@ concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
-# GitHub Pages: contents:write to push the gh-pages branch
-# (JamesIves action), pages:write/id-token:write are NOT needed
-# because we use a branch-based source, not the workflow source.
+# Default permissions are restrictive (read-only) at the workflow
+# level. Each job can widen them as needed. The `pages` job
+# specifically needs `contents: write` to push the gh-pages branch
+# via the JamesIves action.
 permissions:
   contents: read
-  pages: write
 
 jobs:
   e2e:
@@ -165,6 +165,12 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # The JamesIves deploy action pushes to the gh-pages branch,
+    # which requires `contents: write`. We also need `pages: write`
+    # so the deployment can update the live site.
+    permissions:
+      contents: write
+      pages: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
