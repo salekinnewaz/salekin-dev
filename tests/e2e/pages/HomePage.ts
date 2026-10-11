@@ -24,10 +24,12 @@ export class HomePage extends BasePage {
     return this.page.locator('h1').first();
   }
 
-  get focusChips(): Locator {
-    return this.page.locator('.focus-chip__label');
-  }
-
+  /**
+   * The hero now renders just two orbit capability cards (Playwright,
+   * AI-Driven QA) — API Testing and CI/CD were moved to the Core
+   * Expertise section. There is no FOCUS chip row in the hero
+   * anymore; the orbit cards carry the same information.
+   */
   get orbitCards(): Locator {
     return this.page.locator('.hero-orbit__card');
   }
@@ -48,10 +50,6 @@ export class HomePage extends BasePage {
     return this.page.getByRole('status', {
       name: /open to interesting work/i,
     });
-  }
-
-  get istqbChip(): Locator {
-    return this.page.getByText(/ISTQB.*Certified/i).first();
   }
 
   // ── In-page section anchors ──────────────────────────────────────
@@ -81,17 +79,11 @@ export class HomePage extends BasePage {
     expect(text).toMatch(/Newaz/);
   }
 
-  async expectFourFocusChips(): Promise<void> {
-    const chips = this.focusChips;
-    await expect(chips).toHaveCount(4);
-    await expect(chips.nth(0)).toHaveText('Playwright');
-    await expect(chips.nth(1)).toHaveText('AI-Driven QA');
-    await expect(chips.nth(2)).toHaveText('API Testing');
-    await expect(chips.nth(3)).toHaveText('CI/CD');
-  }
-
-  async expectFourOrbitCards(): Promise<void> {
-    await expect(this.orbitCards).toHaveCount(4);
+  async expectTwoOrbitCards(): Promise<void> {
+    const cards = this.orbitCards;
+    await expect(cards).toHaveCount(2);
+    await expect(cards.nth(0)).toHaveText(/Playwright/);
+    await expect(cards.nth(1)).toHaveText(/AI-Driven QA/);
   }
 
   async expectHeroTerminalRenders(): Promise<void> {
@@ -109,10 +101,6 @@ export class HomePage extends BasePage {
     // (their opacity cycles).
     await expect(badge.locator('.availability-badge__char')).toHaveCount(16);
     await expect(badge.locator('.availability-badge__caret')).toHaveCount(1);
-  }
-
-  async expectIstqbChipVisible(): Promise<void> {
-    await expect(this.istqbChip).toBeVisible();
   }
 
   async expectSectionAnchored(id: 'hero' | 'work' | 'experience' | 'skills' | 'contact'): Promise<void> {

@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { SiteIdentity } from '@/lib/queries/site';
 import { HeroOrbit, type OrbitCard } from './HeroOrbit';
 import { HeroTerminal } from './HeroTerminal';
-import { FocusChip } from './FocusChip';
 import { AvailabilityBadge } from './AvailabilityBadge';
 import type { FocusIconId } from '@/lib/icons';
 
@@ -13,49 +12,38 @@ type HeroProps = {
 type FocusArea = {
   id: string;
   icon: FocusIconId;
-  label: string;
-  /** Title shown on the floating orbit card. */
   title: string;
-  /** One-line sub-label under the title. */
   detail: string;
-  /** Corner of the orbit the card anchors to. */
   position: 'tl' | 'tr' | 'bl' | 'br';
-  /** Desync delay (ms) for the bob animation. */
   bobDelay: number;
 };
 
 /**
  * Hero — first fold. Two-column grid inside the main container:
  *
- *   LEFT (~50%):
- *     • Eyebrow: `ISTQB® CERTIFIED · OPEN TO INTERESTING WORK`.
- *     • H1: `Salekin` (white) + `Newaz` (purple→cyan gradient) on
- *       one line at desktop. The data is `Md Salekin Newaz`; the
- *       `Md` honorific is intentionally omitted.
- *     • `SENIOR SOFTWARE QA ENGINEER` (accent, mono, uppercase).
- *     • `PLAYWRIGHT · AI-DRIVEN QA · QUALITY ENGINEERING`.
- *     • Tagline + 2 CTAs (gradient + outline).
- *     • FOCUS row: 4 icon chips + a `FOCUS` label.
- *     • Status line: `● SENIOR SOFTWARE QA ENGINEER @ BRAIN
- *       STATION 23 | Dhaka, Bangladesh`.
+ *   LEFT (~55%):
+ *     • Single quiet eyebrow: `SENIOR SOFTWARE QA ENGINEER · OPEN TO
+ *       INTERESTING WORK` (the ISTQB® certification has its own
+ *       section below, no need to repeat it in the eyebrow).
+ *     • H1: `Salekin` (white) + `Newaz` (purple→cyan gradient). The
+ *       data is `Md Salekin Newaz`; the `Md` honorific is dropped
+ *       so the gradient sits cleanly on the last name only.
+ *     • One short tagline + 2 CTAs (primary + outline).
+ *     • A small mono location/role line (the in-progress status
+ *       lives in the Current Role section).
  *
- *   RIGHT (~50%):
+ *   RIGHT (~45%):
  *     • A live, code-driven composition rendered by `HeroOrbit`:
  *       a circular profile photo (clipped from `/images/profile.jpg`,
- *       wrapped in a purple→cyan gradient ring + soft glow halo) with
- *       the four QA capability cards floating at the four corners,
- *       overlapping the photo's outer edge. Concentric decorative
- *       orbit rings + a few floating orbs sit behind the photo.
+ *       wrapped in a purple→cyan gradient ring) with TWO capability
+ *       cards floating at the top corners. We keep the orbit
+ *       minimal — Playwright + AI-Driven QA — to avoid repeating
+ *       the full skill list that already lives in Core Expertise.
  *     • Below the photo, the real `HeroTerminal` component — a tiny
- *       macOS-chrome terminal window (● ● ● traffic lights,
- *       `~/salekin — zsh` title, `● Always Learning` status badge)
- *       that types through a fixed script of whoami / focus / stack /
- *       availability / motto with a blinking caret.
+ *       macOS-chrome terminal window that types through a fixed
+ *       script of whoami / focus / stack / availability / motto
+ *       with a blinking caret.
  *     • Honours light + dark mode + reduced motion.
- *
- * The same `focusAreas` data drives the left FOCUS chip row and the
- * right orbit cards. The orbit cards carry slightly richer copy
- * (title + sub-label) which is why the data shape is unified here.
  */
 export function Hero({ identity }: HeroProps) {
   const title = identity.siteTitle || 'Md Salekin Newaz';
@@ -71,15 +59,13 @@ export function Hero({ identity }: HeroProps) {
   const firstName = nameParts[0] ?? title;
   const lastName = nameParts.slice(1).join(' ') || nameParts[0] || '';
 
-  // Single source of truth for both the left FOCUS chip row and the
-  // right floating orbit cards. The four capability areas match the
-  // brief's reference image (Playwright, API Testing, AI-Driven QA,
-  // CI/CD) and the positions are the four corners of the photo.
-  const focusAreas: readonly FocusArea[] = [
+  // Two cards only — Playwright + AI-Driven QA. API Testing and
+  // CI/CD are already covered in the Core Expertise section, so
+  // repeating them in the orbit would be visual noise.
+  const orbitCards: OrbitCard[] = [
     {
       id: 'playwright',
       icon: 'playwright',
-      label: 'Playwright',
       title: 'Playwright',
       detail: 'E2E Automation',
       position: 'tl',
@@ -88,41 +74,12 @@ export function Hero({ identity }: HeroProps) {
     {
       id: 'ai',
       icon: 'ai',
-      label: 'AI-Driven QA',
       title: 'AI-Driven QA',
       detail: 'Smarter Testing',
       position: 'tr',
       bobDelay: 600,
     },
-    {
-      id: 'api',
-      icon: 'api',
-      label: 'API Testing',
-      title: 'API Testing',
-      detail: 'REST · Swagger',
-      position: 'bl',
-      bobDelay: 300,
-    },
-    {
-      id: 'cicd',
-      icon: 'cicd',
-      label: 'CI/CD',
-      title: 'CI/CD',
-      detail: 'Faster Releases',
-      position: 'br',
-      bobDelay: 900,
-    },
-  ] as const;
-
-  const chipAreas = focusAreas.map(({ icon, label }) => ({ icon, label }));
-  const orbitCards: OrbitCard[] = focusAreas.map((f) => ({
-    id: f.id,
-    icon: f.icon,
-    title: f.title,
-    detail: f.detail,
-    position: f.position,
-    bobDelay: f.bobDelay,
-  }));
+  ];
 
   return (
     <section
@@ -130,16 +87,13 @@ export function Hero({ identity }: HeroProps) {
       tabIndex={-1}
       className="section-anchor relative pb-20 pt-14 sm:pt-20 lg:pt-24"
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-x-10 xl:gap-x-12">
+      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-x-10 xl:gap-x-12">
         {/* ─── LEFT column — copy + CTAs ─── */}
         <div className="hero-left flex flex-col gap-6">
           <span
-            className="availability-badge-wrap hero-stagger"
+            className="availability-badge-wrap hero-stagger inline-flex items-center gap-3"
             style={{ animationDelay: '0ms' }}
           >
-            <span className="eyebrow eyebrow--muted availability-badge__cert">
-              ISTQB® Certified
-            </span>
             <AvailabilityBadge />
           </span>
 
@@ -160,36 +114,21 @@ export function Hero({ identity }: HeroProps) {
           </p>
 
           <p
-            className="font-mono text-xs uppercase tracking-[0.16em] text-muted sm:text-[0.78rem] hero-stagger"
-            style={{ animationDelay: '210ms' }}
-          >
-            Playwright{' '}
-            <span aria-hidden="true" className="text-fg-2/50">
-              ·
-            </span>{' '}
-            AI-Driven QA{' '}
-            <span aria-hidden="true" className="text-fg-2/50">
-              ·
-            </span>{' '}
-            Quality Engineering
-          </p>
-
-          <p
             className="max-w-[540px] text-[1.05rem] leading-[1.65] text-fg-2 text-pretty sm:text-[1.18rem] hero-stagger"
-            style={{ animationDelay: '260ms' }}
+            style={{ animationDelay: '240ms' }}
           >
             {tagline}
           </p>
 
           <div
             className="flex flex-wrap items-center gap-3 hero-stagger"
-            style={{ animationDelay: '340ms' }}
+            style={{ animationDelay: '320ms' }}
           >
             <Link
               href="/#work"
               className="btn-primary inline-flex items-center gap-2 px-6 py-3.5 text-[0.95rem]"
             >
-              View My Work
+              Explore My Work
               <span aria-hidden="true">→</span>
             </Link>
             <a
@@ -201,74 +140,31 @@ export function Hero({ identity }: HeroProps) {
             </a>
           </div>
 
-          <ul
-            aria-label="Focus areas"
-            className="hero-focus flex flex-wrap items-center gap-2 hero-stagger"
-            style={{ animationDelay: '420ms' }}
-          >
-            <li className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
-              FOCUS
-            </li>
-            {chipAreas.map((c) => (
-              <li key={c.label}>
-                <FocusChip icon={c.icon} label={c.label} />
-              </li>
-            ))}
-          </ul>
-
-          <p
-            className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted hero-stagger"
-            style={{ animationDelay: '600ms' }}
-          >
-            <span
-              className="relative inline-flex h-1.5 w-1.5"
-              aria-hidden="true"
+          {location ? (
+            <p
+              className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted hero-stagger"
+              style={{ animationDelay: '420ms' }}
             >
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-            </span>
-            <span className="text-fg-2">
-              Senior Software QA Engineer @ Brain Station 23
-            </span>
-            {location ? (
-              <>
-                <span aria-hidden="true" className="text-fg-2/50">|</span>
-                <span className="normal-case tracking-normal">{location}</span>
-              </>
-            ) : null}
-          </p>
+              <span className="normal-case tracking-normal">{location}</span>
+            </p>
+          ) : null}
         </div>
 
-        {/* ─── RIGHT column — live hero orbit composition ───
-            Top half: a circular profile photo (clipped from
-            /images/profile.jpg, wrapped in a purple→cyan gradient
-            ring + soft glow halo) with the four QA capability cards
-            floating at the four corners, overlapping the photo's
-            outer edge. Concentric decorative orbit rings + a few
-            floating orbs sit behind the photo.
-
-            Bottom half: the real `HeroTerminal` component — a tiny
-            macOS-chrome terminal window that types through a fixed
-            script of whoami / focus / stack / availability / motto
-            with a blinking caret. See .hero-orbit* in
-            app/globals.css for the visual treatment. */}
+        {/* ─── RIGHT column — portrait + terminal ───
+            Top: a circular profile photo with two QA capability
+            cards floating at the top corners (Playwright, AI-Driven
+            QA). The bottom half hosts the real `HeroTerminal`
+            component — a small macOS-chrome terminal that types
+            through a fixed whoami / focus / stack / availability
+            / motto script. Decorative orbit rings + floating orbs
+            are intentionally omitted to keep the visual hierarchy
+            focused on the portrait and CTAs. */}
         <div className="hero-orbit-wrap">
           <div className="hero-orbit-stage">
-            <div className="hero-orbit-orbs" aria-hidden="true">
-              <span className="hero-orbit-orb hero-orbit-orb--1" />
-              <span className="hero-orbit-orb hero-orbit-orb--2" />
-              <span className="hero-orbit-orb hero-orbit-orb--3" />
-            </div>
-            <div className="hero-orbit-rings" aria-hidden="true">
-              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--1" />
-              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--2" />
-              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--3" />
-              <span className="hero-orbit-rings__ring hero-orbit-rings__ring--4" />
-            </div>
             <HeroOrbit
               cards={orbitCards}
               src="/images/profile.jpg"
-              alt="Profile photo of Salekin Newaz surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
+              alt="Profile photo of Salekin Newaz with two capability cards: Playwright and AI-Driven QA."
               photoSize={260}
             />
           </div>

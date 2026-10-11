@@ -61,7 +61,7 @@ const skillsBase = {
 
 const statsBase = {
   yearsCoding: 4,
-  sitesShipped: 24,
+  sitesShipped: 0,
   rolesHeld: 5,
 };
 

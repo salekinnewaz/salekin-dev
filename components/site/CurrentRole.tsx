@@ -21,12 +21,7 @@ const ACHIEVEMENTS: { label: string; detail: string }[] = [
   {
     label: '4+ concurrent international projects',
     detail:
-      'QA lead across logistics, oil & gas, IoT, e-commerce, and rideshare engagements running in parallel.',
-  },
-  {
-    label: 'Up to 60% reduction in regression cycles',
-    detail:
-      'Helped reduce regression cycle time through Playwright automation and CI/CD integration.',
+      'Senior QA lead across logistics, oil & gas, IoT, e-commerce, and rideshare engagements running in parallel.',
   },
   {
     label: '3 production releases · Norway client',

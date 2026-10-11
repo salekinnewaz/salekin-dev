@@ -10,15 +10,16 @@ type Props = {
 /**
  * Home-page "Featured Work" — the visual centerpiece of the site.
  *
- * Three cards in a single equal-width row (1/3 + 1/3 + 1/3 on `lg`).
- * The first card is visually emphasized through larger title and
- * body typography, plus slightly more padding — same image aspect
- * ratio and column footprint as the other two, so the row always
- * feels balanced and the bottom edges align. On screens narrower
- * than `lg`, cards reflow: 2 + 1 on `sm`, 1 + 1 + 1 on mobile.
+ * One prominent featured project + two supporting projects. The
+ * primary card spans two columns on `lg+` (≈ 2/3 width) and uses
+ * a 16:10 cover, while the two supporting cards share the remaining
+ * third column stacked vertically. The visual hierarchy matches
+ * the brief: the most complete case study (currently RS Sjoliv —
+ * the only named project) gets the most space; the two un-named
+ * international engagements sit alongside as supporting context.
  *
- * Plain "Featured Work" heading (no terminal prefix). No index badges,
- * no view-all rail, no `ls --featured` heading.
+ * On screens narrower than `lg` the grid reflows: 1 + 1 + 1 on
+ * mobile, with the primary card staying first.
  *
  * Falls back to the most recent published projects if no `featured`
  * flag is set in admin yet, so the section is never a blank
@@ -46,8 +47,8 @@ export async function FeaturedProjects({ limit = 3 }: Props) {
         <h2 className="heading-display heading-underline text-4xl sm:text-5xl">Featured Work</h2>
       </div>
 
-      <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 reveal-stagger">
-        <FeaturedCard project={primary} size="lg" />
+      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3 reveal-stagger">
+        <FeaturedCard project={primary} size="lg" className="lg:col-span-2 lg:row-span-2" />
 
         {rest.map((p) => (
           <FeaturedCard key={p.id} project={p} />
@@ -83,7 +84,11 @@ function FeaturedCard({
       href={`/projects/${slug}`}
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card no-underline transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-[0_18px_40px_-18px_color-mix(in_oklab,var(--color-accent)_55%,transparent)] ${className}`}
     >
-      <div className="relative w-full overflow-hidden aspect-[4/3] bg-mesh">
+      <div
+        className={`relative w-full overflow-hidden bg-mesh ${
+          isLg ? 'aspect-[16/10]' : 'aspect-[4/3]'
+        }`}
+      >
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -110,6 +115,11 @@ function FeaturedCard({
           isLg ? 'p-6 sm:p-7' : 'p-5'
         }`}
       >
+        {isLg ? (
+          <span className="font-mono text-[10px] uppercase tracking-widest text-accent">
+            primary case study
+          </span>
+        ) : null}
         <h3
           className={`heading-display text-fg transition-colors group-hover:text-accent ${
             isLg ? 'text-xl sm:text-2xl' : 'text-lg'

@@ -30,12 +30,17 @@ type SeedProject = {
 //    rideshare project delivered during the Associate Software QA
 //    Engineer role at Brain Station 23 (May 2022 – Dec 2023).
 //
-// 2 & 3. International client projects — the brief mentions "4+
-//    concurrent international projects" but does not name them. These
-//    two cards are clearly marked [INTERNATIONAL CLIENT] so a
-//    recruiter doesn't mistake them for finished write-ups. The
-//    admin panel can rename them with real titles when those names
-//    are available.
+// 2. Norway release programme — confirmed in the brief as 3
+//    production releases for a Norway-based client during the
+//    Senior Software QA Engineer role (2025 → Present). The client
+//    name is not in the brief, so the case study is framed as an
+//    engagement (release programme) rather than a named client.
+//
+// 3. Multi-industry international QA — confirmed in the brief as
+//    4+ concurrent international projects spanning logistics, oil &
+//    gas, IoT, e-commerce, and rideshare. Framed as a portfolio
+//    of engagements, with the industry mix stated explicitly so a
+//    reader can see what kinds of products were covered.
 const projects: SeedProject[] = [
   {
     slug: 'rs-sjoliv',
@@ -54,11 +59,11 @@ const projects: SeedProject[] = [
   },
   {
     slug: 'client-norway-release',
-    title: '[INTERNATIONAL CLIENT] — Norway release programme',
+    title: 'Norway Release Programme — 3 production releases',
     description:
-      'QA lead for 3 production releases delivered for a Norway-based client. UAT coordination, client sign-off, release readiness, cross-functional coordination.',
+      'Senior QA lead on a 3-release programme for a Norway-based client. UAT coordination, client sign-off, release readiness and cross-functional delivery.',
     body:
-      '## Overview\n\nPlaceholder case study — project name and copy to be added in the admin panel. The brief confirms 3 production releases delivered for a Norway-based client during the Senior Software QA Engineer role at Brain Station 23 (2025 – Present).\n\n## What I owned\n\n- UAT coordination\n- Client sign-off\n- Release readiness\n- Cross-functional coordination\n',
+      '## Overview\n\nThree production releases delivered for a Norway-based client during the Senior Software QA Engineer role at Brain Station 23 (2025 → Present). The client name is not published here; this case study describes the engagement.\n\n## What I owned\n\n- Release readiness reviews and go/no-go sign-off\n- UAT coordination with the client team\n- Cross-functional coordination across engineering, product, and client stakeholders\n- Regression and smoke execution per release window\n- Defect triage and stakeholder communication\n\n## Outcomes\n\n- Three production releases shipped against the agreed release window\n- UAT cycles completed with client sign-off on each release\n',
     imageUrl: null,
     repoUrl: null,
     liveUrl: null,
@@ -69,11 +74,11 @@ const projects: SeedProject[] = [
   },
   {
     slug: 'client-international',
-    title: '[INTERNATIONAL CLIENT] — Multi-industry QA',
+    title: 'Multi-Industry International QA — 4+ concurrent projects',
     description:
-      'QA across 4+ concurrent international projects in logistics, oil & gas, IoT, e-commerce and rideshare. Add the real client + project copy in the admin panel.',
+      'Senior QA across 4+ concurrent international projects spanning logistics, oil & gas, IoT, e-commerce, and rideshare engagements.',
     body:
-      '## Overview\n\nPlaceholder case study — name and copy to be added. The brief confirms 4+ concurrent international projects led from a senior QA role at Brain Station 23.\n\n## Industries\n\nLogistics · Oil & Gas · IoT · E-commerce · Rideshare.\n',
+      '## Overview\n\nA portfolio of 4+ concurrent international projects delivered from the Senior Software QA Engineer role at Brain Station 23. The work spans five industries: logistics, oil & gas, IoT, e-commerce, and rideshare. Client names are not published; this case study describes the scope and shape of the engagements.\n\n## Industries\n\nLogistics · Oil & Gas · IoT · E-commerce · Rideshare.\n\n## What I owned\n\n- QA strategy and planning across multiple parallel engagements\n- Test design for web, mobile, API, and IoT surfaces\n- API and performance testing (Postman, JMeter)\n- IoT testing on AWS-backed device platforms (AWS IoT Core, AWS DynamoDB)\n- Coordination with client engineering and product teams across time zones\n',
     imageUrl: null,
     repoUrl: null,
     liveUrl: null,
@@ -253,12 +258,13 @@ const settings: { key: string; value: string }[] = [
       soft: ['Test Strategy', 'Release Readiness', 'Mentoring', 'UAT'],
     }),
   },
-  // Stats. Brief §6 has 4+ concurrent international projects and 5
-  // roles. `years_coding` is set to 4 (Jan 2022 trainee role → 2026
-  // = 4 years). `sites_shipped` is left at 0 — the previous
-  // "24 portfolio sites" claim is not in the new brief and is
-  // dropped from the rendered UI. `roles_held` is 5 (4 Brain Station
-  // + 1 SEBPO).
+  // Stats. The home page does not currently render these counters,
+  // but the admin form still saves them. The values here are
+  // consistent with the verified career timeline:
+  //   - years_coding: 4 (first role started Jan 2022, current year 2026)
+  //   - sites_shipped: 0 — the prior "24 portfolio sites" claim is
+  //     not in the new brief and is intentionally not asserted here.
+  //   - roles_held: 5 (4 Brain Station 23 + 1 SEBPO)
   { key: 'stat_years_coding', value: '4' },
   { key: 'stat_sites_shipped', value: '0' },
   { key: 'stat_roles_held', value: '5' },

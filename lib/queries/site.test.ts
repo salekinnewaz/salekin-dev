@@ -108,8 +108,12 @@ describe('queries/site', () => {
       where: { key: { in: ['stat_years_coding', 'stat_sites_shipped', 'stat_roles_held'] } },
     });
     const settings = await getSiteSettings();
+    // `yearsCoding` and `rolesHeld` have honest positive defaults
+    // (verified career path). `sitesShipped` is intentionally 0 —
+    // the prior "24" claim is not in the verified career path and
+    // the counter is not rendered on the public site.
     expect(settings.stats.yearsCoding).toBeGreaterThan(0);
-    expect(settings.stats.sitesShipped).toBeGreaterThan(0);
+    expect(settings.stats.sitesShipped).toBe(0);
     expect(settings.stats.rolesHeld).toBeGreaterThan(0);
   });
 });

@@ -121,12 +121,16 @@ const DEFAULTS = {
     tools: [],
     soft: [],
   }),
-  // Honest defaults from the CV / seed data. Years coding is the
-  // span from first role (2022) to now; sites shipped is the
-  // documented 24 from the StackRefactor role; roles held counts
-  // the 5 distinct positions in the experience seed.
+  // Honest defaults from the CV / seed data. The home page does
+  // not currently render these counters — they exist only so the
+  // admin form can save values without re-asserting a 0 default.
+  //   - years_coding: 4 (first role started Jan 2022, current year 2026)
+  //   - sites_shipped: 0 — the prior "24 portfolio sites" claim is
+  //     not in the verified career path and is intentionally not
+  //     asserted here.
+  //   - roles_held: 5 (4 Brain Station 23 + 1 SEBPO)
   stat_years_coding: '4',
-  stat_sites_shipped: '24',
+  stat_sites_shipped: '0',
   stat_roles_held: '5',
 } as const;
 
