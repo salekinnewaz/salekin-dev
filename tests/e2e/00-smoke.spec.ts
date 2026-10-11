@@ -7,6 +7,7 @@
  */
 import { test, expect } from '@playwright/test';
 import { expectStatusOk, gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 const ROUTES = [
   { path: '/', mustContain: 'Salekin' },
@@ -18,6 +19,8 @@ const ROUTES = [
 ];
 
 test.describe('Smoke — public routes', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Smoke' }));
+
   for (const { path, mustContain } of ROUTES) {
     test(`GET ${path} → 200 + title + main + body content`, async ({
       page,

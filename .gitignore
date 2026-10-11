@@ -59,3 +59,7 @@ scripts/.shots/
 /playwright-report/
 /test-results/
 /playwright/.cache/
+
+# Allure — JSON results + generated static report
+/allure-results/
+/allure-report/

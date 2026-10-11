@@ -23,7 +23,11 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:allure": "playwright test && pnpm exec allure generate ./allure-results -o ./allure-report --clean",
+    "test:e2e:allure:open": "allure open ./allure-report",
+    "test:e2e:allure:serve": "allure serve ./allure-results",
+    "test:e2e:allure:clean": "rm -rf ./allure-results ./allure-report"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -49,6 +53,9 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitest/coverage-v8": "^2.1.8",
+    "allure-commandline": "^2.46.1",
+    "allure-js-commons": "^3.13.0",
+    "allure-playwright": "^3.13.0",
     "autoprefixer": "^10.6.1",
     "axe-core": "^4.10.0",
     "jsdom": "^25.0.1",

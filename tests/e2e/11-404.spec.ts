@@ -5,8 +5,11 @@
  * the site chrome (Header + Footer) still present.
  */
 import { test, expect } from '@playwright/test';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('404', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: '404' }));
+
   test('unknown route returns 404 and renders the themed not-found', async ({
     page,
   }) => {

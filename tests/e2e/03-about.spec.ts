@@ -6,8 +6,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('About', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'About' }));
+
   test('H1 contains the full name', async ({ page }) => {
     await gotoAndReady(page, '/about');
     const h1 = page.locator('main h1').first();

@@ -14,8 +14,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Header nav (desktop)', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Header nav' }));
+
   test('pill nav is visible with the expected section links', async ({
     page,
   }) => {

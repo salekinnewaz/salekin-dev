@@ -13,8 +13,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady, ADMIN_PASSWORD } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Admin auth', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Admin', feature: 'Auth' }));
+
   test('GET /admin while unauthenticated redirects to /admin/login', async ({
     page,
   }) => {

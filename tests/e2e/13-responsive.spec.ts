@@ -9,8 +9,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Responsive — desktop vs mobile', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Accessibility', feature: 'Responsive' }));
+
   test('desktop: pill nav visible, hamburger hidden', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await gotoAndReady(page, '/');

@@ -7,8 +7,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Header nav (mobile)', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Header nav (mobile)' }));
+
   test('hamburger is visible and the drawer is closed by default', async ({
     page,
   }) => {

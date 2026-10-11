@@ -3,6 +3,12 @@ name: E2E
 # Runs the Playwright suite on every push to main and on every
 # pull request targeting main. Mobile project is skipped to save
 # runner time; opt in with --project=mobile if needed.
+#
+# Outputs:
+#   - playwright-report (artifact, always)
+#   - test-results (artifact, on failure)
+#   - allure-results (artifact, always)
+#   - allure-report HTML hosted on GitHub Pages (on push to main)
 
 on:
   push:
@@ -10,10 +16,18 @@ on:
   pull_request:
     branches: [main]
 
-# Cancel an in-flight run for the same ref if a new commit lands.
+# Allow the pages job to run even when the e2e job is skipped (e.g.
+# when restricted branch). Also cancel any in-flight run for the
+# same ref so concurrent pushes don't pile up pages deploys.
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
+
+# GitHub Pages: explicit permission for the deploy-pages action.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   e2e:
@@ -93,6 +107,13 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
+      - name: Generate Allure report
+        # `allure-playwright` already wrote JSON results to
+        # ./allure-results during the test run; this step turns
+        # those into a static HTML report under ./allure-report.
+        if: always()
+        run: pnpm exec allure generate ./allure-results -o ./allure-report --clean
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -108,3 +129,39 @@ jobs:
           name: test-results
           path: test-results/
           retention-days: 7
+
+      - name: Upload Allure JSON results
+        # Raw JSON is small and useful for re-running the report
+        # generator locally without re-running the tests.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 14
+
+      - name: Upload Allure HTML report
+        # The generated static report. Published to GitHub Pages
+        # by the `pages` job below on push-to-main.
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+  # Deploy the freshly-built Allure report to GitHub Pages.
+  # Uses the official actions/deploy-pages so we get a stable
+  # URL like https://salekinnewaz.github.io/salekin-dev/.
+  pages:
+    name: Publish Allure report
+    needs: e2e
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

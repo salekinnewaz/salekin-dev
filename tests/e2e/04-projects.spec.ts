@@ -6,8 +6,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Projects index', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Projects' }));
+
   test('renders all seeded projects', async ({ page }) => {
     await gotoAndReady(page, '/projects');
     // The seed ships 3 projects: rs-sjoliv, client-norway-release,

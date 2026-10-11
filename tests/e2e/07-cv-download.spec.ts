@@ -7,8 +7,11 @@
  * never trips it.
  */
 import { test, expect } from '@playwright/test';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('CV download', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'CV download' }));
+
   test('responds with 2xx or 3xx (logs + redirects to the PDF)', async ({
     request,
   }) => {

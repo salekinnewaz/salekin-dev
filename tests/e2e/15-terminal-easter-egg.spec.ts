@@ -6,8 +6,11 @@
  * overlay; Escape closes it.
  */
 import { test, expect } from '@playwright/test';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('TerminalEasterEgg', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Terminal easter egg' }));
+
   test('Ctrl+K opens the overlay', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     // The component reads (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'.

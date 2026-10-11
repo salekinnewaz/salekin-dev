@@ -17,8 +17,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Contact form', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Contact form' }));
+
   test('renders the form at #contact with all 3 fields', async ({ page }) => {
     await gotoAndReady(page, '/#contact');
     const form = page.locator('#contact-form');

@@ -7,8 +7,11 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 test.describe('Project detail', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Project detail' }));
+
   test('rs-sjoliv renders the markdown body with sections', async ({
     page,
   }) => {

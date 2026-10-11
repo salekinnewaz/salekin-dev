@@ -33,17 +33,51 @@ const isCI = !!process.env.CI;
 
 export default defineConfig({
   testDir: './tests/e2e',
-  // Specs may also live in helpers/utils but those don't match
-  // the spec suffix; the `testIgnore` line below is a safety net.
   testMatch: /.*\.spec\.ts$/,
+  // `utils/**` holds helper modules (nav, seed, allure) — never
+  // executed as tests. The testMatch above already excludes them
+  // because they don't end in `.spec.ts`, but the explicit ignore
+  // is a safety net if someone adds a `.spec.ts` file inside utils.
   testIgnore: ['**/utils/**', '**/node_modules/**'],
   fullyParallel: isCI ? false : true,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   workers: isCI ? 1 : undefined,
+  // The conditional `as const` here is intentional: without it
+  // TypeScript widens the inner `['allure-playwright', { ... }]`
+  // to a `(string | object)[]` and `defineConfig` rejects it.
+  // `as const` makes the tuple readonly, which is assignable to
+  // the `ReporterDescription` union.
   reporter: isCI
-    ? [['github'], ['html', { open: 'never' }]]
-    : 'list',
+    ? ([
+        ['github'],
+        ['html', { open: 'never' }],
+        // Allure writes machine-readable JSON results to
+        // ./allure-results on every run. The static HTML report
+        // is generated on demand by `pnpm test:e2e:allure` (or
+        // built + deployed by the CI workflow). We always emit
+        // the JSON so a developer can build the report later
+        // from an old run without re-running tests.
+        [
+          'allure-playwright',
+          {
+            outputFolder: './allure-results',
+            detail: true,
+            embedVideos: true,
+          },
+        ],
+      ] as const)
+    : ([
+        ['list'],
+        [
+          'allure-playwright',
+          {
+            outputFolder: './allure-results',
+            detail: true,
+            embedVideos: true,
+          },
+        ],
+      ] as const),
 
   // Global setup re-seeds the test SQLite. Runs once before the
   // entire suite. Specs that mutate data (e.g. contact form)

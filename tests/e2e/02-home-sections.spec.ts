@@ -7,10 +7,13 @@
  */
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 const SECTIONS = ['hero', 'work', 'experience', 'skills', 'contact'] as const;
 
 test.describe('Home / In-page sections', () => {
+  test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Home / Sections' }));
+
   for (const id of SECTIONS) {
     test(`section #${id} exists and is reachable via the hash`, async ({
       page,

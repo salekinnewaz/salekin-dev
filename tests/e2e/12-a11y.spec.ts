@@ -25,13 +25,19 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { gotoAndReady } from './utils/nav';
+import { beforeEach as allureBeforeEach } from './utils/allure';
 
 const PAGES = ['/', '/about', '/projects'] as const;
 
-for (const path of PAGES) {
-  test(`axe scan: ${path} has no serious/critical violations`, async ({
-    page,
-  }) => {
+test.describe('Accessibility — axe scan', () => {
+  test.beforeEach(
+    allureBeforeEach({ epic: 'Accessibility', feature: 'axe-core' }),
+  );
+
+  for (const path of PAGES) {
+    test(`axe scan: ${path} has no serious/critical violations`, async ({
+      page,
+    }) => {
     await gotoAndReady(page, path);
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -66,4 +72,5 @@ for (const path of PAGES) {
       [],
     );
   });
-}
+  }
+});
