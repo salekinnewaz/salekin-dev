@@ -24,6 +24,17 @@ export default defineConfig({
       'components/**/*.test.tsx',
       'tests/**/*.test.ts',
     ],
+    // E2E specs live in tests/e2e/ and are picked up by Playwright
+    // (see playwright.config.ts). Make sure Vitest never tries to
+    // run them — they have a different runtime.
+    exclude: [
+      'node_modules/**',
+      'dist/**',
+      '.next/**',
+      'playwright-report/**',
+      'test-results/**',
+      'tests/e2e/**',
+    ],
     coverage: {
       provider: 'v8',
       include: ['lib/**/*.ts'],

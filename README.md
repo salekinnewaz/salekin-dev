@@ -72,6 +72,10 @@ Requires Node 20+, pnpm 9+. See `.env.example` for required env vars (DB URL, au
 | `pnpm dev` | Next.js dev server |
 | `pnpm build` | Production build |
 | `pnpm test` | Run vitest unit + integration tests |
+| `pnpm test:e2e` | Run Playwright E2E suite (chromium + iPhone 14) |
+| `pnpm test:e2e:headed` | Playwright with a visible browser |
+| `pnpm test:e2e:ui` | Playwright's interactive UI mode |
+| `pnpm test:e2e:report` | Open the last HTML report |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | `next lint` |
 | `pnpm db:push` | Push Prisma schema to DB |
@@ -103,7 +107,25 @@ lib/                     # DB, queries, auth, utils
 prisma/                  # Schema + migrations
 public/                  # Static assets
 scripts/                 # Deploy + maintenance scripts
-tests/                   # Test setup + helpers
+tests/                   # Vitest setup + helpers
+tests/e2e/               # Playwright specs (15 files, ~56 cases)
+  00-smoke.spec.ts       # Every public route returns 200 + body
+  01-home-hero.spec.ts   # Hero, focus chips, orbit, terminal, availability badge
+  02-home-sections.spec.ts
+  03-about.spec.ts
+  04-projects.spec.ts
+  05-project-detail.spec.ts
+  06-contact-form.spec.ts # RHF + zod + honeypot + success
+  07-cv-download.spec.ts
+  08-theme-toggle.spec.ts
+  09-header-nav.spec.ts          # Desktop
+  09-header-nav.mobile.spec.ts   # iPhone (mobile project)
+  10-admin-auth.spec.ts
+  11-404.spec.ts
+  12-a11y.spec.ts                # axe-core scan
+  13-responsive.spec.ts
+  14-skip-link.spec.ts
+  15-terminal-easter-egg.spec.ts
 ```
 
 ---

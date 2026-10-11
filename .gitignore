@@ -54,3 +54,8 @@ data/
 
 # Throwaway visual-comparison screenshots (Playwright captures, not assets)
 scripts/.shots/
+
+# Playwright E2E — report, test-results, local browser cache
+/playwright-report/
+/test-results/
+/playwright/.cache/
