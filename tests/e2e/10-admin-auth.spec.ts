@@ -12,8 +12,9 @@
  *   - The sign-out action returns to /admin/login.
  */
 import { test, expect } from '@playwright/test';
-import { gotoAndReady, ADMIN_PASSWORD } from './utils/nav';
 import { beforeEach as allureBeforeEach } from './utils/allure';
+import { AdminLoginPage } from './pages/AdminLoginPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
 
 test.describe('Admin auth', () => {
   test.beforeEach(allureBeforeEach({ epic: 'Admin', feature: 'Auth' }));
@@ -21,42 +22,33 @@ test.describe('Admin auth', () => {
   test('GET /admin while unauthenticated redirects to /admin/login', async ({
     page,
   }) => {
-    const res = await page.goto('/admin', { waitUntil: 'domcontentloaded' });
-    expect(res?.status()).toBeLessThan(400);
-    // Either a 307 redirect or a 200 with the login form rendered.
-    // The implementation uses redirect() in the page, so we end up
-    // on /admin/login.
-    await expect(page).toHaveURL(/\/admin\/login/);
+    const login = new AdminLoginPage(page);
+    await login.gotoUnauthenticated(page);
   });
 
   test('login form is rendered with a password input', async ({ page }) => {
-    await gotoAndReady(page, '/admin/login');
-    const input = page.locator('#admin-password');
-    await expect(input).toBeVisible();
-    await expect(input).toHaveAttribute('type', 'password');
+    const login = new AdminLoginPage(page);
+    await login.goto();
+    await login.expectPasswordInputVisible();
   });
 
   test('wrong password shows an error and stays on login', async ({
     page,
   }) => {
-    await gotoAndReady(page, '/admin/login');
-    await page.locator('#admin-password').fill('not-the-right-password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    // Error appears as role="alert" inside the form.
-    await expect(page.getByRole('alert')).toBeVisible();
-    await expect(page).toHaveURL(/\/admin\/login/);
+    const login = new AdminLoginPage(page);
+    await login.goto();
+    await login.signInWithPassword('not-the-right-password');
+    await login.expectErrorVisible();
   });
 
   test('correct password authenticates and lands on /admin', async ({
     page,
   }) => {
-    await gotoAndReady(page, '/admin/login');
-    await page.locator('#admin-password').fill(ADMIN_PASSWORD);
-    await page.getByRole('button', { name: /sign in/i }).click();
-    // Should now be on the dashboard.
-    await page.waitForURL(/\/admin(\/(?!login).*|$)/, { timeout: 10_000 });
-    expect(page.url()).not.toMatch(/\/admin\/login/);
-    // The admin form / messages UI renders.
-    await expect(page.locator('main')).toBeVisible();
+    const login = new AdminLoginPage(page);
+    const dashboard = new AdminDashboardPage(page);
+    await login.goto();
+    await login.signInWithTestPassword();
+    await dashboard.waitForArrival();
+    await dashboard.expectRendered();
   });
 });

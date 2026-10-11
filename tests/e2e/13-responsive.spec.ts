@@ -10,17 +10,17 @@
 import { test, expect } from '@playwright/test';
 import { gotoAndReady } from './utils/nav';
 import { beforeEach as allureBeforeEach } from './utils/allure';
+import { HeaderPage } from './pages/HeaderPage';
 
 test.describe('Responsive — desktop vs mobile', () => {
   test.beforeEach(allureBeforeEach({ epic: 'Accessibility', feature: 'Responsive' }));
 
   test('desktop: pill nav visible, hamburger hidden', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await gotoAndReady(page, '/');
-    // Two navs share this aria-label (pill nav + SideNav). Scope
-    // by class so we assert on the right one.
-    const nav = page.locator('nav.pill-nav[aria-label="Section navigation"]');
-    await expect(nav).toBeVisible();
+    const header = new HeaderPage(page);
+    await header.goto();
+    await expect(header.pillNav).toBeVisible();
+    // No button labelled "open menu" on desktop.
     await expect(
       page.getByRole('button', { name: /open menu/i }),
     ).toHaveCount(0);
@@ -28,13 +28,13 @@ test.describe('Responsive — desktop vs mobile', () => {
 
   test('mobile: hamburger visible, pill nav hidden', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await gotoAndReady(page, '/');
+    const header = new HeaderPage(page);
+    await header.goto();
     const hamburger = page.getByRole('button', { name: /open menu/i });
     await expect(hamburger).toBeVisible();
     // The pill nav is rendered with class .pill-nav which has
     // display:none below 640px.
-    const pill = page.locator('.pill-nav');
-    await expect(pill).toBeHidden();
+    await expect(page.locator('.pill-nav')).toBeHidden();
   });
 
   test('mobile: horizontal overflow is within tolerance', async ({

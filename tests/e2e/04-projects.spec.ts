@@ -5,37 +5,37 @@
  * chips render, and each card links to its own /projects/[slug].
  */
 import { test, expect } from '@playwright/test';
-import { gotoAndReady } from './utils/nav';
 import { beforeEach as allureBeforeEach } from './utils/allure';
+import { ProjectsListPage } from './pages/ProjectsListPage';
+import {
+  projectCards,
+  expectCardHasAtLeastOneTag,
+} from './components/ProjectCard';
 
 test.describe('Projects index', () => {
   test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Projects' }));
 
   test('renders all seeded projects', async ({ page }) => {
-    await gotoAndReady(page, '/projects');
-    // The seed ships 3 projects: rs-sjoliv, client-norway-release,
-    // client-international. Assert at least 3 cards.
-    const cards = page.locator('a[href^="/projects/"]');
-    const count = await cards.count();
-    expect(count, 'at least 3 seeded projects').toBeGreaterThanOrEqual(3);
+    const list = new ProjectsListPage(page);
+    await list.goto();
+    await list.expectAllSeededProjectsRender(3);
   });
 
   test('each card has a stack tag chip', async ({ page }) => {
-    await gotoAndReady(page, '/projects');
-    const cards = page.locator('a[href^="/projects/"]');
+    const list = new ProjectsListPage(page);
+    await list.goto();
+    const cards = projectCards(page);
     const count = await cards.count();
     for (let i = 0; i < count; i++) {
-      const card = cards.nth(i);
-      const tags = card.locator('.tag');
-      expect(await tags.count(), `card ${i} stack tags`).toBeGreaterThan(0);
+      await expectCardHasAtLeastOneTag(cards.nth(i));
     }
   });
 
   test('the RS Sjoliv case study is linked from the index', async ({
     page,
   }) => {
-    await gotoAndReady(page, '/projects');
-    const link = page.locator('a[href="/projects/rs-sjoliv"]');
-    await expect(link).toBeVisible();
+    const list = new ProjectsListPage(page);
+    await list.goto();
+    await list.expectSlugLinkVisible('rs-sjoliv');
   });
 });

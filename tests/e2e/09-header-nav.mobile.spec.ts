@@ -6,8 +6,8 @@
  * these because the drawer is mobile-only.
  */
 import { test, expect } from '@playwright/test';
-import { gotoAndReady } from './utils/nav';
 import { beforeEach as allureBeforeEach } from './utils/allure';
+import { MobileDrawerPage } from './pages/MobileDrawerPage';
 
 test.describe('Header nav (mobile)', () => {
   test.beforeEach(allureBeforeEach({ epic: 'Public site', feature: 'Header nav (mobile)' }));
@@ -15,40 +15,27 @@ test.describe('Header nav (mobile)', () => {
   test('hamburger is visible and the drawer is closed by default', async ({
     page,
   }) => {
-    await gotoAndReady(page, '/');
-    const hamburger = page.locator('button.hamburger[aria-controls="mobile-drawer"]');
-    await expect(hamburger).toBeVisible();
-    // The drawer element exists but is hidden (no data-open).
-    const drawer = page.locator('#mobile-drawer');
-    await expect(drawer).toBeAttached();
-    await expect(drawer).not.toHaveAttribute('data-open', 'true');
+    const drawer = new MobileDrawerPage(page);
+    await drawer.goto();
+    await drawer.expectHamburgerVisibleAndDrawerClosed();
   });
 
   test('hamburger opens the drawer, ESC closes it', async ({ page }) => {
-    await gotoAndReady(page, '/');
+    const drawer = new MobileDrawerPage(page);
+    await drawer.goto();
     // The hamburger button's aria-label flips between "Open menu"
-    // and "Close menu" depending on state. Grab it by its stable
-    // class + aria-controls attribute so the locator survives the
-    // re-render.
-    const hamburger = page.locator('button.hamburger[aria-controls="mobile-drawer"]');
-    await expect(hamburger).toHaveAttribute('aria-label', /open menu/i);
-    await hamburger.click();
-    const drawer = page.locator('#mobile-drawer');
-    await expect(drawer).toHaveAttribute('data-open', 'true');
-    // The aria-label on the hamburger now reads "Close menu".
-    await expect(hamburger).toHaveAttribute('aria-label', /close menu/i);
-    // ESC closes it.
-    await page.keyboard.press('Escape');
-    await expect(drawer).not.toHaveAttribute('data-open', 'true');
+    // and "Close menu" depending on state. The Page Object locates
+    // it by its stable class + aria-controls attribute so the
+    // locator survives the re-render.
+    await drawer.expectHamburgerLabelSaysOpen();
+    await drawer.open();
+    await drawer.closeViaEsc();
   });
 
   test('scrim click closes the drawer', async ({ page }) => {
-    await gotoAndReady(page, '/');
-    await page.locator('button.hamburger[aria-controls="mobile-drawer"]').click();
-    const drawer = page.locator('#mobile-drawer');
-    await expect(drawer).toHaveAttribute('data-open', 'true');
-    // The scrim is a sibling of the panel inside the drawer.
-    await page.locator('#mobile-drawer .drawer__scrim').click();
-    await expect(drawer).not.toHaveAttribute('data-open', 'true');
+    const drawer = new MobileDrawerPage(page);
+    await drawer.goto();
+    await drawer.open();
+    await drawer.closeViaScrim();
   });
 });

@@ -7,6 +7,10 @@
  */
 import { test, expect } from '@playwright/test';
 import { beforeEach as allureBeforeEach } from './utils/allure';
+import {
+  assertFirstTabFocusesSkipLink,
+  assertEnterLandsOnMain,
+} from './pages/SkipLinkPage';
 
 test.describe('Skip link', () => {
   test.beforeEach(allureBeforeEach({ epic: 'Accessibility', feature: 'Skip link' }));
@@ -15,15 +19,7 @@ test.describe('Skip link', () => {
     page,
   }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    // First Tab.
-    await page.keyboard.press('Tab');
-    // The first focusable element is the skip link.
-    const focused = page.locator(':focus');
-    await expect(focused).toBeVisible();
-    const text = (await focused.innerText()).toLowerCase();
-    expect(text).toContain('skip');
-    // Activating it moves the URL hash to #main.
-    await page.keyboard.press('Enter');
-    expect(new URL(page.url()).hash).toBe('#main');
+    await assertFirstTabFocusesSkipLink(page);
+    await assertEnterLandsOnMain(page);
   });
 });
