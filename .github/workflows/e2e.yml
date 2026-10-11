@@ -75,6 +75,24 @@ jobs:
         env:
           CI: true
 
+      - name: Deploy to Vercel (production)
+        # Auto-deploy on push to main. We invoke the Vercel CLI
+        # instead of installing the GitHub App because the Vercel
+        # project was created via CLI (not via the "Import" UI),
+        # so the GitHub integration isn't installed. The CLI
+        # approach: `vercel deploy --prod --yes --token $TOKEN`
+        # reads the linked `salekin-dev` project, builds with
+        # the existing env vars (TURSO_*, DATABASE_URL, etc.),
+        # and promotes the result to the production alias
+        # (salekin-dev.vercel.app). Skipped on PRs — only push
+        # to main should land in production. `--project` is
+        # passed explicitly because the `.vercel/project.json`
+        # link file is gitignored and absent on CI.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: pnpm exec vercel deploy --prod --yes --token "$VERCEL_TOKEN" --project prj_UejPnEPmnIel6eXz3HKsl6imzspm
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
