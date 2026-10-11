@@ -1,0 +1,5 @@
+id: salekin-theme
+name: Salekin Dark Theme
+description: Dark charcoal + purple/cyan/green palette for the Salekin E2E Allure report.
+cssFiles:
+  - styles.css

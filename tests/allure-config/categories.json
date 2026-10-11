@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Failed assertions",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*expect.*toBeVisible.*|.*expect.*toHaveText.*|.*expect.*toBeHidden.*|.*expect.*toHaveAttribute.*"
+  },
+  {
+    "name": "Test timeouts",
+    "matchedStatuses": ["broken"],
+    "messageRegex": ".*Timeout.*|.*exceeded.*|.*timed out.*"
+  },
+  {
+    "name": "Network / HTTP errors",
+    "matchedStatuses": ["broken", "failed"],
+    "messageRegex": ".*ECONNREFUSED.*|.*404.*|.*500.*|.*net::.*"
+  },
+  {
+    "name": "Skipped (intentional)",
+    "matchedStatuses": ["skipped"]
+  }
+]

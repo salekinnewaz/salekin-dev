@@ -1,0 +1,624 @@
+/*
+ * Salekin — Dark QA Theme for Allure 2 (v2.46.1)
+ *
+ * Loaded by Allure 2 as a plugin via the `--configDirectory` flag.
+ * The plugin manifest (../allure-plugin.yml) lists this file under
+ * `cssFiles`, which Allure injects into <head> after the core
+ * stylesheet using the `pluginStyleUrls` FTL variable in
+ * tpl/index.html.ftl. Because this file loads after the core,
+ * the overrides below win.
+ *
+ * Design language:
+ *   - Surfaces: deep charcoal (HSL 220 15% 8%) → slate (HSL 220 12% 14%)
+ *   - Foreground: high-contrast off-white (HSL 220 15% 92%)
+ *   - Accent (interactive / focus): violet (HSL 262 80% 65%)
+ *   - Status: green (passed), amber (broken), red (failed), slate (skipped)
+ *   - Type: Inter / system UI stack, increased line-height for readability
+ *   - Spacing: tighter gutters on widgets, more breathing room on cards
+ *
+ * No layout is restructured — selectors below map to existing
+ * Allure 2 classes. The plugin theme can be removed or replaced
+ * without breaking any test result.
+ */
+
+/* =========================================================================
+ * 1. Design tokens (CSS custom properties).
+ *    The Allure 2 bundle references a handful of these tokens. Declaring
+ *    them at :root lets us re-skin the whole report from one block.
+ * ========================================================================= */
+
+:root {
+  /* Surfaces */
+  --bg-app:        hsl(220 15% 9%);
+  --bg-surface:    hsl(220 13% 13%);
+  --bg-surface-2:  hsl(220 12% 17%);
+  --bg-elevated:   hsl(220 12% 21%);
+  --bg-hover:      hsl(220 12% 24%);
+
+  /* Text */
+  --fg-default:    hsl(220 15% 92%);
+  --fg-muted:      hsl(220 10% 70%);
+  --fg-subtle:     hsl(220 8% 55%);
+  --fg-on-accent:  hsl(220 20% 8%);
+
+  /* Borders + dividers */
+  --border-subtle: hsl(220 12% 22%);
+  --border-strong: hsl(220 12% 30%);
+
+  /* Accent (purple) */
+  --accent:        hsl(262 80% 67%);
+  --accent-hover:   hsl(262 80% 72%);
+  --accent-soft:   hsl(262 60% 25% / 0.35);
+
+  /* Status — chosen to read against charcoal, with ≥ 4.5:1 contrast */
+  --status-passed:    hsl(150 55% 55%);   /* green */
+  --status-passed-bg: hsl(150 50% 18%);
+  --status-failed:    hsl(0 75% 65%);     /* red */
+  --status-failed-bg: hsl(0 60% 22%);
+  --status-broken:    hsl(38 90% 60%);    /* amber */
+  --status-broken-bg: hsl(38 70% 22%);
+  --status-skipped:   hsl(220 10% 65%);   /* slate */
+  --status-skipped-bg: hsl(220 10% 25%);
+  --status-unknown:   hsl(280 60% 70%);   /* violet */
+  --status-unknown-bg: hsl(280 40% 25%);
+
+  /* Chart accents */
+  --chart-1: hsl(262 80% 67%);   /* violet */
+  --chart-2: hsl(190 80% 60%);   /* cyan */
+  --chart-3: hsl(150 55% 55%);   /* green */
+  --chart-4: hsl(38 90% 60%);    /* amber */
+  --chart-5: hsl(0 75% 65%);     /* red */
+
+  /* Type */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo,
+               Consolas, monospace;
+
+  /* Geometry */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-1: 0 1px 2px hsl(220 30% 4% / 0.5),
+              0 2px 6px hsl(220 30% 4% / 0.35);
+  --shadow-2: 0 2px 4px hsl(220 30% 4% / 0.55),
+              0 8px 24px hsl(220 30% 4% / 0.45);
+
+  color-scheme: dark;
+}
+
+/* =========================================================================
+ * 2. Document chrome.
+ * ========================================================================= */
+
+html, body {
+  background: var(--bg-app);
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override Allure's default pale surface on the top-level wrapper.
+   The SPA mounts into #content. */
+#content, .app, .report-view, .tab-content {
+  background: var(--bg-app);
+  color: var(--fg-default);
+}
+
+/* =========================================================================
+ * 3. Side navigation (left rail).
+ *    Allure 2's `.side-nav` is the persistent left column on desktop.
+ * ========================================================================= */
+
+.side-nav {
+  background: var(--bg-surface) !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  color: var(--fg-default);
+}
+
+.side-nav__brand,
+.side-nav__brand-icon {
+  /* Replace the default Allure shield with a subtle accent block. */
+  background: var(--bg-surface-2) !important;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.side-nav__title {
+  color: var(--fg-default);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.side-nav__nav-item,
+.side-nav__item {
+  color: var(--fg-muted);
+  border-radius: var(--radius-md);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.side-nav__nav-item:hover,
+.side-nav__item:hover {
+  background: var(--bg-hover);
+  color: var(--fg-default);
+}
+
+.side-nav__nav-item.is-active,
+.side-nav__item.is-active,
+.side-nav__nav-item[aria-selected="true"],
+.side-nav__item[aria-selected="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+/* =========================================================================
+ * 4. Header bar (top of every page).
+ * ========================================================================= */
+
+.app__header,
+.toolbar,
+.header {
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--fg-default);
+}
+
+.app__header__nav,
+.toolbar__group {
+  color: var(--fg-muted);
+}
+
+/* The tab strip at the top of the report. */
+.tab,
+.tabs__tab {
+  color: var(--fg-muted);
+  border-bottom: 2px solid transparent;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+.tab:hover,
+.tabs__tab:hover {
+  color: var(--fg-default);
+}
+
+.tab.is-active,
+.tabs__tab.is-active,
+.tab[aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* =========================================================================
+ * 5. Buttons.
+ * ========================================================================= */
+
+.button,
+button.button,
+.btn-secondary,
+.toolbar__button {
+  background: var(--bg-elevated);
+  color: var(--fg-default);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.button:hover,
+button.button:hover,
+.btn-secondary:hover,
+.toolbar__button:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+}
+
+.button.is-primary,
+button.button.is-primary,
+.button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--fg-on-accent);
+}
+
+.button.is-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+/* =========================================================================
+ * 6. Cards / widgets / islands.
+ *    Allure 2 uses `.island` for the elevated panels that hold widgets.
+ * ========================================================================= */
+
+.island,
+.widget,
+.summary__panel,
+.summary__group,
+.tree-summary__summary {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  color: var(--fg-default);
+}
+
+.widget__title,
+.summary__title,
+.tree-summary__title {
+  color: var(--fg-default);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* =========================================================================
+ * 7. Test case rows in the suites tree.
+ * ========================================================================= */
+
+.tree-nodes__node,
+.suite-tree__node,
+.tree__node,
+.test-row {
+  background: transparent;
+  color: var(--fg-default);
+  border-radius: var(--radius-md);
+  transition: background 120ms ease;
+}
+
+.tree-nodes__node:hover,
+.suite-tree__node:hover,
+.tree__node:hover,
+.test-row:hover {
+  background: var(--bg-hover);
+}
+
+/* The status chip on each test row. */
+.test-row__status,
+.suite-tree__node__status,
+.tree-nodes__node__status,
+.status {
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status--passed,
+.status_passed,
+.test-row__status_passed {
+  color: var(--status-passed) !important;
+  background: var(--status-passed-bg) !important;
+  border: 1px solid hsl(150 55% 40% / 0.6);
+}
+
+.status--failed,
+.status_failed,
+.test-row__status_failed {
+  color: var(--status-failed) !important;
+  background: var(--status-failed-bg) !important;
+  border: 1px solid hsl(0 75% 45% / 0.7);
+}
+
+.status--broken,
+.status_broken,
+.test-row__status_broken {
+  color: var(--status-broken) !important;
+  background: var(--status-broken-bg) !important;
+  border: 1px solid hsl(38 90% 45% / 0.6);
+}
+
+.status--skipped,
+.status_skipped,
+.test-row__status_skipped {
+  color: var(--status-skipped) !important;
+  background: var(--status-skipped-bg) !important;
+  border: 1px solid hsl(220 10% 40% / 0.6);
+}
+
+.status--unknown,
+.status_unknown {
+  color: var(--status-unknown) !important;
+  background: var(--status-unknown-bg) !important;
+}
+
+/* =========================================================================
+ * 8. Test case detail view.
+ * ========================================================================= */
+
+.test-details,
+.test-details__info,
+.test-details__preconditions,
+.test-details__steps {
+  background: var(--bg-surface);
+  color: var(--fg-default);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.test-details__title,
+.test-details__info-title {
+  color: var(--fg-default);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.test-details__section-title,
+.steps__title {
+  color: var(--fg-default);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+/* Failure blocks — keep them red but legible. */
+.test-details__failure,
+.failure,
+.exception {
+  background: var(--status-failed-bg);
+  border-left: 3px solid var(--status-failed);
+  border-radius: var(--radius-md);
+  color: var(--fg-default);
+  padding: 12px 16px;
+}
+
+.test-details__failure__message,
+.failure__message,
+.exception__message {
+  color: hsl(0 80% 80%);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Step lists (Allure's bdd-style steps). */
+.steps__step {
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.steps__step.is-passed,
+.steps__step--passed {
+  border-left: 3px solid var(--status-passed);
+}
+.steps__step.is-failed,
+.steps__step--failed {
+  border-left: 3px solid var(--status-failed);
+}
+.steps__step.is-broken,
+.steps__step--broken {
+  border-left: 3px solid var(--status-broken);
+}
+.steps__step.is-skipped,
+.steps__step--skipped {
+  border-left: 3px solid var(--status-skipped);
+}
+
+/* Attachments (screenshots, videos, traces, logs). */
+.attachment,
+.attachment-row {
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--fg-default);
+}
+
+.attachment__title,
+.attachment-row__title {
+  color: var(--fg-default);
+  font-weight: 500;
+}
+
+.attachment__icon,
+.attachment-row__icon {
+  color: var(--accent);
+}
+
+/* Pre-formatted code blocks (stack traces, console output). */
+pre, code, .monospace {
+  background: hsl(220 15% 6%);
+  color: var(--fg-default);
+  font-family: var(--font-mono);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* =========================================================================
+ * 9. Charts / status chart / severity chart.
+ *    Allure 2's status chart is rendered as inline SVG. We restyle the
+ *    colour palette via CSS custom properties + direct SVG selectors.
+ * ========================================================================= */
+
+.status-chart__legend,
+.legend {
+  color: var(--fg-muted);
+}
+
+.status-chart__legend__item,
+.legend__item {
+  color: var(--fg-default);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  margin-right: 6px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-subtle);
+}
+
+.status-chart__legend__item--passed,
+.legend__item_passed { color: var(--status-passed) !important; }
+.status-chart__legend__item--failed,
+.legend__item_failed { color: var(--status-failed) !important; }
+.status-chart__legend__item--broken,
+.legend__item_broken { color: var(--status-broken) !important; }
+.status-chart__legend__item--skipped,
+.legend__item_skipped { color: var(--status-skipped) !important; }
+
+/* Pie/donut SVG fills (Allure 2 uses both .pie and inline path fills). */
+.pie path,
+.donut path,
+svg.status-chart path {
+  stroke: var(--bg-surface);
+}
+
+.pie path.passed,
+.donut path.passed,
+.status-chart__pie path:nth-child(1) { fill: var(--status-passed); }
+.pie path.failed,
+.donut path.failed { fill: var(--status-failed); }
+.pie path.broken,
+.donut path.broken { fill: var(--status-broken); }
+.pie path.skipped,
+.donut path.skipped { fill: var(--status-skipped); }
+.pie path.unknown,
+.donut path.unknown { fill: var(--status-unknown); }
+
+/* Trend bars in duration / history charts. */
+.trend__bar,
+.sparkline rect,
+.chart rect {
+  fill: var(--accent);
+  stroke: none;
+}
+
+.trend__bar.is-passed,
+.chart rect.passed { fill: var(--status-passed); }
+.trend__bar.is-failed,
+.chart rect.failed { fill: var(--status-failed); }
+.trend__bar.is-broken,
+.chart rect.broken { fill: var(--status-broken); }
+
+/* =========================================================================
+ * 10. Tables.
+ * ========================================================================= */
+
+table {
+  color: var(--fg-default);
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+table thead th {
+  background: var(--bg-surface-2);
+  color: var(--fg-muted);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+table tbody td {
+  background: var(--bg-surface);
+  color: var(--fg-default);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+table tbody tr:hover td {
+  background: var(--bg-hover);
+}
+
+/* =========================================================================
+ * 11. Forms / inputs (the search box in the toolbar).
+ * ========================================================================= */
+
+input[type="text"],
+input[type="search"],
+.search__input {
+  background: var(--bg-elevated);
+  color: var(--fg-default);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+.search__input:focus {
+  border-color: var(--accent);
+  outline: none;
+  background: var(--bg-surface-2);
+}
+
+input::placeholder { color: var(--fg-subtle); }
+
+/* =========================================================================
+ * 12. Labels / metadata badges (epic, feature, story, tags).
+ * ========================================================================= */
+
+.label,
+.label__inner,
+.tag {
+  background: var(--bg-surface-2);
+  color: var(--fg-default);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+}
+
+.label_theme_epic,
+.label_theme_feature,
+.label_theme_story {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  border-color: transparent;
+}
+
+.label_theme_severity,
+.label_theme_tag {
+  background: var(--bg-elevated);
+  color: var(--fg-muted);
+}
+
+/* =========================================================================
+ * 13. Focus rings (a11y — high contrast against dark surfaces).
+ * ========================================================================= */
+
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* =========================================================================
+ * 14. Scrollbars (subtle dark variant on WebKit).
+ * ========================================================================= */
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-app); }
+::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated);
+  border-radius: 999px;
+  border: 2px solid var(--bg-app);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* =========================================================================
+ * 15. Selection.
+ * ========================================================================= */
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}

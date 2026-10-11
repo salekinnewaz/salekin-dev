@@ -24,7 +24,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:allure": "playwright test && pnpm exec allure generate ./allure-results -o ./allure-report --clean",
+    "test:e2e:allure": "playwright test && pnpm tsx scripts/generate-allure-report.ts",
     "test:e2e:allure:open": "allure open ./allure-report",
     "test:e2e:allure:serve": "allure serve ./allure-results",
     "test:e2e:allure:clean": "rm -rf ./allure-results ./allure-report"

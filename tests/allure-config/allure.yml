@@ -1,0 +1,28 @@
+# Allure 2 commandline config.
+#
+# This file is passed to `allure generate` via the
+# `--configDirectory` flag. Allure 2 reads `allure.yml` (or
+# .yaml/.json) from the configured directory and uses it to
+# resolve which plugins to load, in addition to the default
+# config in the install dir.
+#
+# The default `allure.yml` (in the allure-commandline
+# install) lists the core plugins by directory name. We add
+# `salekin-theme` here, which is a CSS-only plugin that
+# injects the dark QA theme into the report's <head>.
+#
+# `custom-logo-plugin` is NOT included — we override the
+# brand icon styling ourselves in salekin-theme's CSS rather
+# than rely on the default Allure shield.
+plugins:
+  - junit-xml-plugin
+  - xunit-xml-plugin
+  - trx-plugin
+  - behaviors-plugin
+  - packages-plugin
+  - screen-diff-plugin
+  - xctest-plugin
+  - jira-plugin
+  - xray-plugin
+  - salekin-theme
+
