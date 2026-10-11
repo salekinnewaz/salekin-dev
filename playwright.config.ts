@@ -86,6 +86,12 @@ export default defineConfig({
   // route is actually gated — the auth test needs something to
   // authenticate against. Both values are stable test fixtures.
   webServer: {
+    // Push + seed the test SQLite (idempotent — schema/data may
+    // already exist from a previous step), then build the prod
+    // bundle (locally only — in CI the workflow's Build step
+    // already produced .next/) and start the server. The Build
+    // step in the workflow runs first so the schema is in place
+    // when next build renders pages that query the DB.
     command: 'pnpm db:push && pnpm db:seed && pnpm build && pnpm start',
     url: BASE_URL,
     reuseExistingServer: !isCI,

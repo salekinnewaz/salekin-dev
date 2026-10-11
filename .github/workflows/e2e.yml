@@ -46,9 +46,21 @@ jobs:
         # Linux runners (libnss, libatk, etc).
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Prepare test DB
+        # The test SQLite is created and seeded BEFORE build, not
+        # inside Playwright's globalSetup. `next build` renders
+        # pages at build time and queries the DB (Education,
+        # Setting, etc.) — so the schema + seed data must exist
+        # first or the build fails with "table does not exist".
+        run: pnpm db:push && pnpm db:seed
+        env:
+          DATABASE_URL: file:./test.db
+          NODE_ENV: test
+
       - name: Build
         # Build the production bundle so webServer can `next start`.
-        # The seed runs inside the Playwright globalSetup, not here.
+        # The DB is already pushed + seeded by the previous step;
+        # globalSetup re-seeds before the browser launches.
         run: pnpm build
         env:
           DATABASE_URL: file:./test.db
