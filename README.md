@@ -7,6 +7,7 @@
 **The live site is here →** <https://salekin-dev.vercel.app>
 
 [![Live Site](https://img.shields.io/badge/🌐_Live_Site-salekin--dev.vercel.app-7c3aed?style=for-the-badge&logo=vercel&logoColor=white)](https://salekin-dev.vercel.app)
+[![E2E Report](https://img.shields.io/badge/📊_Allure_Report-Latest_Run-ff69b4?style=for-the-badge&logo=githubactions&logoColor=white)](https://salekinnewaz.github.io/salekin-dev/)
 [![ISTQB Certified](https://img.shields.io/badge/ISTQB®-Certified-22c55e?style=for-the-badge&logo=istqb&logoColor=white)](https://salekin-dev.vercel.app)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
@@ -75,7 +76,11 @@ Requires Node 20+, pnpm 9+. See `.env.example` for required env vars (DB URL, au
 | `pnpm test:e2e` | Run Playwright E2E suite (chromium + iPhone 14) |
 | `pnpm test:e2e:headed` | Playwright with a visible browser |
 | `pnpm test:e2e:ui` | Playwright's interactive UI mode |
-| `pnpm test:e2e:report` | Open the last HTML report |
+| `pnpm test:e2e:report` | Open the last Playwright HTML report |
+| `pnpm test:e2e:allure` | Run Playwright + generate Allure HTML report |
+| `pnpm test:e2e:allure:open` | Open the last Allure HTML report in a browser |
+| `pnpm test:e2e:allure:serve` | Ad-hoc Allure server from current `allure-results/` |
+| `pnpm test:e2e:allure:clean` | `rm -rf allure-results allure-report` |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | `next lint` |
 | `pnpm db:push` | Push Prisma schema to DB |
@@ -84,11 +89,25 @@ Requires Node 20+, pnpm 9+. See `.env.example` for required env vars (DB URL, au
 
 ---
 
+## 📊 E2E test report
+
+Every CI run publishes a full **Allure HTML report** to GitHub Pages: **[salekinnewaz.github.io/salekin-dev](https://salekinnewaz.github.io/salekin-dev/)**.
+
+The report groups 56 cases by Epic → Feature:
+
+- **Public site** — Smoke, Home / Hero, Home / Sections, About, Projects, Project detail, Contact form, CV download, Header nav (+ mobile), 404, Terminal easter egg
+- **Accessibility** — Theme toggle, axe-core scan, Responsive, Skip link
+- **Admin** — Auth
+
+Each test carries its duration, history (pass/fail trend across runs), and — on failure — embedded screenshot + video + trace. To regenerate locally: `pnpm test:e2e:allure`.
+
+---
+
 ## Deployment
 
 Deployed to **Vercel** at [salekin-dev.vercel.app](https://salekin-dev.vercel.app). See [`DEPLOY.md`](./DEPLOY.md) for the full deployment architecture (Turso OIDC, Vercel env vars, marketplace integration, etc).
 
-`git push origin main` is NOT yet wired to auto-deploy — run `vercel git connect` once in your local terminal to set that up.
+`git push origin main` **is** wired to auto-deploy — the GitHub Actions workflow runs the E2E suite, and if all 56 tests pass, deploys to Vercel production via the `vercel` CLI (the GitHub App isn't installed because the Vercel project was created via CLI, so the CLI path is used instead). PRs run tests only, no deploy.
 
 ---
 
