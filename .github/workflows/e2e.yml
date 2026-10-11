@@ -23,11 +23,12 @@ concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
-# GitHub Pages: explicit permission for the deploy-pages action.
+# GitHub Pages: contents:write to push the gh-pages branch
+# (JamesIves action), pages:write/id-token:write are NOT needed
+# because we use a branch-based source, not the workflow source.
 permissions:
   contents: read
   pages: write
-  id-token: write
 
 jobs:
   e2e:
@@ -144,13 +145,20 @@ jobs:
         # The generated static report. Published to GitHub Pages
         # by the `pages` job below on push-to-main.
         if: always()
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          path: allure-report
+          name: allure-report
+          path: allure-report/
+          retention-days: 14
 
-  # Deploy the freshly-built Allure report to GitHub Pages.
-  # Uses the official actions/deploy-pages so we get a stable
-  # URL like https://salekinnewaz.github.io/salekin-dev/.
+  # Deploy the freshly-built Allure report to GitHub Pages by
+  # pushing ./allure-report/ to the `gh-pages` branch. We use
+  # JamesIves' action (not the official actions/deploy-pages)
+  # because the latter requires a workflow-source Pages site
+  # with no branch source — the API doesn't reliably clear the
+  # branch source, so the Jekyll README kept being served from
+  # the branch instead of our Allure artifact. The branch model
+  # is simpler and well-tested.
   pages:
     name: Publish Allure report
     needs: e2e
@@ -159,9 +167,25 @@ jobs:
     timeout-minutes: 5
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Allure HTML report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        id: deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: allure-report
+          branch: gh-pages
+          single-commit: true
+          clean: true
+          git-config-name: github-actions[bot]
+          git-config-email: github-actions[bot]@users.noreply.github.com
