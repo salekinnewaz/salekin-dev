@@ -46,8 +46,10 @@ memory-bank/
 .agents/
 skills-lock.json
 
-# Source PDF for the CV (the public/ copy is what gets shipped)
-data/
+# Source assets for the CV (the public/ copy is what gets shipped).
+# Anchored to the repo root so src/data/ — the typed content modules —
+# stays tracked.
+/data/
 .vercel
 .env*
 .scratch/
