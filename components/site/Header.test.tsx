@@ -69,10 +69,15 @@ describe('Header', () => {
     expect(links.some((a) => a.getAttribute('href') === '#contact')).toBe(true);
   });
 
-  it('renders an admin pill', async () => {
+  it('does not expose an /admin link anywhere in the public header', async () => {
     const ui = await Header();
     render(ui);
-    expect(screen.getByRole('link', { name: /admin/i })).toBeInTheDocument();
+    // QA item 09: zero exposed /admin links in the public UI.
+    expect(screen.queryByRole('link', { name: /admin/i })).not.toBeInTheDocument();
+    const adminLinks = screen
+      .getAllByRole('link')
+      .filter((a) => (a.getAttribute('href') ?? '').includes('/admin'));
+    expect(adminLinks).toHaveLength(0);
   });
 
   it('falls back to "salekin.dev" when brand is empty', async () => {

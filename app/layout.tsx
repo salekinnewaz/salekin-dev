@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Header } from '@/components/site/Header';
 import { BackgroundLayers } from '@/components/site/BackgroundLayers';
-import { SideNav } from '@/components/site/SideNav';
 import { RevealObserver } from '@/components/site/RevealObserver';
 import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
 import { HashScrollController } from '@/components/site/HashScrollController';
@@ -140,7 +139,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       // useState initializer sees the correct value when hydration runs.
       try {
         var hash = window.location.hash.replace(/^#/, '');
-        var known = ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations'];
+        var known = ['hero', 'services', 'work', 'blog', 'experience', 'reviews', 'contact'];
         if (known.indexOf(hash) >= 0) {
           window.__specmdActive = hash;
           window.dispatchEvent(new CustomEvent('specmd:active-section', { detail: hash }));
@@ -284,7 +283,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         </a>
         <BackgroundLayers />
         <Header />
-        <SideNav />
         <RevealObserver />
         <HashScrollController />
         <TerminalEasterEgg />

@@ -10,12 +10,12 @@ import { HeaderNav } from './HeaderNav';
 
 const allVisible = {
   hero: true,
+  services: true,
   work: true,
-  about: true,
+  blog: true,
   experience: true,
-  skills: true,
+  reviews: true,
   contact: true,
-  recommendations: true,
 } as const;
 
 describe('HeaderNav', () => {
@@ -23,7 +23,7 @@ describe('HeaderNav', () => {
     // Provide the sections the observer will try to attach to. Match
     // the current NAV_SECTIONS list (Education is no longer a top-nav
     // destination).
-    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations']) {
+    for (const id of ['hero', 'services', 'work', 'blog', 'experience', 'reviews', 'contact']) {
       const el = document.createElement('section');
       el.id = id;
       document.body.appendChild(el);
@@ -37,11 +37,11 @@ describe('HeaderNav', () => {
     // rendering both would visually mark two items as the current page
     // on `/`.
     for (const label of [
+      'Services',
       'Work',
+      'Blog',
       'Experience',
-      'Recommendations',
-      'Stack',
-      'About',
+      'Reviews',
       'Contact',
     ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
@@ -54,16 +54,16 @@ describe('HeaderNav', () => {
       <HeaderNav
         visible={{
           ...allVisible,
-          skills: false,
+          blog: false,
           experience: false,
           work: false,
         }}
       />,
     );
-    expect(screen.queryByText('Stack')).not.toBeInTheDocument();
+    expect(screen.queryByText('Blog')).not.toBeInTheDocument();
     expect(screen.queryByText('Experience')).not.toBeInTheDocument();
     expect(screen.queryByText('Work')).not.toBeInTheDocument();
-    expect(screen.getAllByText('About').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Services').length).toBeGreaterThan(0);
   });
 
   it('toggles the mobile drawer when the hamburger is clicked', () => {
@@ -91,11 +91,11 @@ describe('HeaderNav', () => {
     expect(work.dataset.active).toBeUndefined();
     expect(work.querySelector('.pill-nav__indicator')).not.toBeInTheDocument();
 
-    const about = screen.getByRole('link', { name: /^about$/i });
-    expect(about.dataset.active).toBeUndefined();
-    fireEvent.click(about);
-    expect(about.dataset.active).toBe('true');
-    expect(about.querySelector('.pill-nav__indicator')).toBeInTheDocument();
+    const services = screen.getByRole('link', { name: /^services$/i });
+    expect(services.dataset.active).toBeUndefined();
+    fireEvent.click(services);
+    expect(services.dataset.active).toBe('true');
+    expect(services.querySelector('.pill-nav__indicator')).toBeInTheDocument();
     expect(work.dataset.active).toBeUndefined();
     expect(work.querySelector('.pill-nav__indicator')).not.toBeInTheDocument();
   });
@@ -103,22 +103,22 @@ describe('HeaderNav', () => {
   it('honours a primed active section from the URL hash', () => {
     // Simulate the layout's boot script having read the URL hash and
     // primed the module-level published value.
-    (window as unknown as { __specmdActive: string }).__specmdActive = 'skills';
+    (window as unknown as { __specmdActive: string }).__specmdActive = 'blog';
     // The module's `published` was initialized at import time, so we
     // also reset it explicitly to match the primed hash.
     return import('@/lib/hooks/use-active-section').then((m) => {
-      m.__resetActiveSectionForTests('skills');
+      m.__resetActiveSectionForTests('blog');
       render(<HeaderNav visible={allVisible} />);
-      const skills = screen.getByRole('link', { name: /^stack$/i });
-      expect(skills.dataset.active).toBe('true');
-      expect(skills.querySelector('.pill-nav__indicator')).toBeInTheDocument();
+      const blog = screen.getByRole('link', { name: /^blog$/i });
+      expect(blog.dataset.active).toBe('true');
+      expect(blog.querySelector('.pill-nav__indicator')).toBeInTheDocument();
     });
   });
 });
 
 describe('HeaderNav off-home behaviour', () => {
   beforeEach(() => {
-    for (const id of ['hero', 'work', 'about', 'experience', 'skills', 'contact', 'recommendations']) {
+    for (const id of ['hero', 'services', 'work', 'blog', 'experience', 'reviews', 'contact']) {
       const el = document.createElement('section');
       el.id = id;
       document.body.appendChild(el);
