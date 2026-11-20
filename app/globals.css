@@ -5,51 +5,116 @@
 /*
  * Visual system — salekin.dev
  *
- * Design tokens. Two accent colors (gradient mesh + glow effects).
- * Light + dark themes; dark is the default.
+ * Design tokens follow the refactor spec's Section 02 "Color & Surface
+ * Token Matrix" exactly. Dark is the default; Light is the alternate.
+ * The accent ramp is Emerald → Cyan → Indigo.
+ *
+ * Token names are deliberately mapped onto the existing Tailwind color
+ * scale (bg, bg-2, fg, fg-2, muted, card, border, ...) so every
+ * existing utility class keeps working while the palette moves to the
+ * spec's values.
  */
 
 :root,
 [data-theme='light'] {
-  --color-bg: #fafaf7;
-  --color-bg-2: #f0eee6;
-  --color-fg: #1a1a1a;
-  --color-fg-2: #4b4b46;
-  --color-muted: #6b6b66;
-  --color-card: rgba(255, 255, 255, 0.65);
-  --color-card-hover: rgba(255, 255, 255, 0.85);
-  --color-border: rgba(15, 15, 15, 0.10);
-  --color-border-strong: rgba(15, 15, 15, 0.18);
+  /* Surfaces */
+  --color-bg: #F8FAFC;        /* canvas */
+  --color-bg-2: #F1F5F9;      /* surface-subtle */
+  --color-card: #FFFFFF;      /* surface */
+  --color-card-hover: #FFFFFF;
+  --color-fg: #0B1220;
+  --color-fg-2: #334155;
+  /* Light-mode muted is slate-600 rather than slate-500. Slate-500 only
+     reaches 4.34:1 against --color-bg-2, which is below the 4.5:1
+     WCAG AA floor for the 12–13px metadata text that uses it. */
+  --color-muted: #556275;
 
-  --color-accent: #6d28d9;     /* violet-700 (overridable via settings) */
-  --color-accent-2: #06b6d4;   /* cyan-500  */
-  --color-accent-soft: rgba(109, 40, 217, 0.12);
+  /* Hairlines */
+  --color-border: rgba(15, 23, 42, 0.08);
+  --color-border-strong: rgba(15, 23, 42, 0.14);
 
-  --grid-line: rgba(15, 15, 15, 0.05);
-  --noise-opacity: 0.03;
+  /* Spotlight (mouse-tracking card glow) */
+  --spotlight-surface: rgba(16, 185, 129, 0.075);
+  --spotlight-border: rgba(16, 185, 129, 0.35);
 
-  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Brand accents */
+  /* Light-mode accent is emerald-700 rather than emerald-600.
+     Emerald-600 only reaches 3.60:1 against the light canvas, which
+     fails WCAG AA for the small accent text (section indexes, mono
+     labels, inline links). Emerald-700 clears 5:1 on every light
+     surface. */
+  --color-accent: #047857;    /* emerald-700 */
+  --color-accent-2: #0891B2;  /* cyan-600   */
+  --color-accent-3: #4F46E5;  /* indigo-600 */
+  --color-accent-soft: rgba(4, 120, 87, 0.10);
+
+  /* Per-card accent families (Services capability cards).
+     Light-mode values are darkened one step so the accent text and
+     icon glyphs clear WCAG AA (4.5:1) against the near-white card
+     surface; the dark-mode values below sit a step brighter. */
+  --svc-emerald: #047857;
+  --svc-cyan: #0E7490;
+  --svc-violet: #6D28D9;
+  --svc-blue: #1D4ED8;
+  --svc-amber: #B45309;
+  --svc-purple: #7E22CE;
+  --svc-emerald-soft: rgba(4, 120, 87, 0.10);
+  --svc-cyan-soft: rgba(14, 116, 144, 0.10);
+  --svc-violet-soft: rgba(109, 40, 217, 0.10);
+  --svc-blue-soft: rgba(29, 78, 216, 0.10);
+  --svc-amber-soft: rgba(180, 83, 9, 0.10);
+  --svc-purple-soft: rgba(126, 34, 206, 0.10);
+
+  --grid-line: rgba(15, 23, 42, 0.05);
+  --noise-opacity: 0.02;
+
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   color-scheme: light;
 }
 
 [data-theme='dark'] {
-  --color-bg: #080B14;        /* bg-primary   */
-  --color-bg-2: #0D1220;      /* bg-elevated */
-  --color-fg: #F8FAFC;        /* text-primary */
-  --color-fg-2: #CBD5E1;      /* text-secondary */
-  --color-muted: #94A3B8;     /* text-muted */
-  --color-card: #111827;      /* bg-card */
-  --color-card-hover: #172033;
-  --color-border: #263244;    /* border-color */
-  --color-border-strong: #1f2a3d;
+  /* Surfaces */
+  --color-bg: #05070C;        /* canvas */
+  --color-bg-2: #0F1524;      /* surface-subtle */
+  --color-card: #0B0F19;      /* surface */
+  --color-card-hover: #111827;
+  --color-fg: #F8FAFC;
+  --color-fg-2: #CBD5E1;
+  --color-muted: #94A3B8;
 
-  --color-accent: #8B5CF6;    /* violet-500 (accent-purple) */
-  --color-accent-2: #22D3EE;  /* cyan-400   (accent-cyan)  */
-  --color-accent-soft: rgba(139, 92, 246, 0.14);
+  /* Hairlines */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
 
-  --grid-line: rgba(139, 92, 246, 0.05);
+  /* Spotlight (mouse-tracking card glow) */
+  --spotlight-surface: rgba(16, 185, 129, 0.11);
+  --spotlight-border: rgba(16, 185, 129, 0.45);
+
+  /* Brand accents */
+  --color-accent: #10B981;    /* emerald-500 */
+  --color-accent-2: #06B6D4;  /* cyan-500    */
+  --color-accent-3: #6366F1;  /* indigo-500  */
+  --color-accent-soft: rgba(16, 185, 129, 0.14);
+
+  /* Per-card accent families — one step brighter than the light-mode
+     set so they read as luminous on the near-black canvas. */
+  --svc-emerald: #10B981;
+  --svc-cyan: #22D3EE;
+  --svc-violet: #A78BFA;
+  --svc-blue: #60A5FA;
+  --svc-amber: #FBBF24;
+  --svc-purple: #C084FC;
+  --svc-emerald-soft: rgba(16, 185, 129, 0.14);
+  --svc-cyan-soft: rgba(34, 211, 238, 0.14);
+  --svc-violet-soft: rgba(167, 139, 250, 0.14);
+  --svc-blue-soft: rgba(96, 165, 250, 0.14);
+  --svc-amber-soft: rgba(251, 191, 36, 0.14);
+  --svc-purple-soft: rgba(192, 132, 252, 0.14);
+
+  --grid-line: rgba(255, 255, 255, 0.04);
   --noise-opacity: 0;
 
   color-scheme: dark;
@@ -57,28 +122,61 @@
 
 /* Default = dark when no theme preference is set */
 :root:not([data-theme]) {
-  --color-bg: #080B14;
-  --color-bg-2: #0D1220;
+  --color-bg: #05070C;
+  --color-bg-2: #0F1524;
+  --color-card: #0B0F19;
+  --color-card-hover: #111827;
   --color-fg: #F8FAFC;
   --color-fg-2: #CBD5E1;
   --color-muted: #94A3B8;
-  --color-card: #111827;
-  --color-card-hover: #172033;
-  --color-border: #263244;
-  --color-border-strong: #1f2a3d;
-  --color-accent: #8B5CF6;
-  --color-accent-2: #22D3EE;
-  --color-accent-soft: rgba(139, 92, 246, 0.14);
-  --grid-line: rgba(139, 92, 246, 0.05);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --spotlight-surface: rgba(16, 185, 129, 0.11);
+  --spotlight-border: rgba(16, 185, 129, 0.45);
+  --color-accent: #10B981;
+  --color-accent-2: #06B6D4;
+  --color-accent-3: #6366F1;
+  --color-accent-soft: rgba(16, 185, 129, 0.14);
+  --svc-emerald: #10B981;
+  --svc-cyan: #22D3EE;
+  --svc-violet: #A78BFA;
+  --svc-blue: #60A5FA;
+  --svc-amber: #FBBF24;
+  --svc-purple: #C084FC;
+  --svc-emerald-soft: rgba(16, 185, 129, 0.14);
+  --svc-cyan-soft: rgba(34, 211, 238, 0.14);
+  --svc-violet-soft: rgba(167, 139, 250, 0.14);
+  --svc-blue-soft: rgba(96, 165, 250, 0.14);
+  --svc-amber-soft: rgba(251, 191, 36, 0.14);
+  --svc-purple-soft: rgba(192, 132, 252, 0.14);
+  --grid-line: rgba(255, 255, 255, 0.04);
   --noise-opacity: 0;
   color-scheme: dark;
 }
 
-/* Runtime accent override (set by inline <style> in layout from settings) */
+/* Runtime accent override (set by inline <style> in layout from settings).
+ *
+ * In dark mode the configured accent is used verbatim — it was chosen
+ * against the dark canvas. In light mode the accent is darkened by 22%
+ * before use, because an admin-selected brand colour that clears 4.5:1
+ * against a near-black canvas often falls below 4.5:1 against a
+ * near-white one. The darkening keeps the brand hue recognisable while
+ * guaranteeing the small accent text (section indexes, mono labels,
+ * inline links) stays legible. */
 :root[style*='--runtime-accent'] {
   --color-accent: var(--runtime-accent);
   --color-accent-2: var(--runtime-accent-2);
   --color-accent-soft: var(--runtime-accent-soft);
+}
+
+[data-theme='light'][style*='--runtime-accent'] {
+  --color-accent: color-mix(in oklab, var(--runtime-accent), #000000 22%);
+  --color-accent-2: color-mix(in oklab, var(--runtime-accent-2), #000000 14%);
+  --color-accent-soft: color-mix(
+    in oklab,
+    var(--runtime-accent),
+    transparent 90%
+  );
 }
 
 /* ─── Base ─────────────────────────────────────────────────────── */
@@ -90,12 +188,20 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
+    /* The floating navbar is ~68px tall plus the top offset. Reserve
+       that much space so a hash jump never parks a heading underneath
+       the navbar. */
+    scroll-padding-top: 84px;
   }
   body {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     background-color: var(--color-bg);
     color: var(--color-fg);
     overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
   }
   ::selection {
     background-color: var(--color-accent-soft);
@@ -141,35 +247,53 @@
 
 /* ─── Background layer (fixed, behind everything) ──────────────── */
 
-.bg-mesh {
+/*
+ * Architectural dot-matrix backdrop. A fine grid of dots rather than
+ * lines — it reads as engineering graph paper and stays quiet behind
+ * dense content. The radial mask fades it out toward the edges so the
+ * pattern never competes with the text.
+ */
+.bg-dot-matrix {
   position: fixed;
   inset: 0;
   z-index: -10;
   pointer-events: none;
-  background:
-    radial-gradient(800px 600px at 20% 10%, color-mix(in oklab, var(--color-accent) 30%, transparent), transparent 60%),
-    radial-gradient(700px 600px at 80% 30%, color-mix(in oklab, var(--color-accent-2) 22%, transparent), transparent 60%),
-    radial-gradient(900px 700px at 60% 80%, color-mix(in oklab, var(--color-accent) 20%, transparent), transparent 60%),
-    radial-gradient(600px 500px at 10% 90%, color-mix(in oklab, var(--color-accent-2) 18%, transparent), transparent 60%);
-  filter: blur(60px) saturate(120%);
-  opacity: 0.55;
-  animation: mesh-drift 30s ease-in-out infinite alternate;
+  background-image: radial-gradient(
+    circle at center,
+    var(--grid-line) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 78%);
 }
 
-[data-theme='light'] .bg-mesh { opacity: 0.45; }
-
-.bg-grid {
+/*
+ * Restrained top aurora glow — a single wide band of brand colour
+ * fading downward from the very top of the viewport. It gives the
+ * page a sense of light source without the busy multi-blob mesh the
+ * previous design used.
+ */
+.bg-aurora {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto 0;
+  height: 420px;
   z-index: -9;
   pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 25%, #000 0%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 25%, #000 0%, transparent 100%);
+  background:
+    radial-gradient(
+      900px 320px at 50% -8%,
+      color-mix(in oklab, var(--color-accent) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      600px 240px at 78% -4%,
+      color-mix(in oklab, var(--color-accent-2) 12%, transparent),
+      transparent 70%
+    );
 }
+
+[data-theme='light'] .bg-aurora { opacity: 0.7; }
 
 .bg-noise {
   position: fixed;
@@ -179,12 +303,6 @@
   opacity: var(--noise-opacity);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
-}
-
-@keyframes mesh-drift {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(-3%, 2%, 0) scale(1.05); }
-  100% { transform: translate3d(2%, -2%, 0) scale(1.02); }
 }
 
 /* ─── Components ───────────────────────────────────────────────── */
@@ -456,6 +574,447 @@
     color: var(--color-accent);
     border-color: var(--color-accent);
     background-color: var(--color-accent-soft);
+  }
+
+  /* ═══ Design system primitives (Phase 1) ═══════════════════════ */
+
+  /*
+   * SpotlightCard — the mouse-tracking surface used by every card in
+   * a bento grid. The `SpotlightCard` component writes `--mouse-x` /
+   * `--mouse-y` as the pointer moves; these rules turn them into a
+   * radial surface glow plus a 1px border glow. The lift is a
+   * deliberate -2px, not more — the card should feel responsive, not
+   * float away from the grid.
+   */
+  .spotlight-card {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    transition:
+      border-color 200ms ease,
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 200ms ease;
+  }
+  /* Radial surface wash that follows the cursor. */
+  .spotlight-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      320px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      var(--spotlight-surface),
+      transparent 72%
+    );
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  /* 1px border glow that follows the cursor. */
+  .spotlight-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+      280px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      var(--spotlight-border),
+      transparent 65%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  .spotlight-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-border-strong);
+    box-shadow: 0 12px 32px -20px rgba(0, 0, 0, 0.5);
+  }
+  .spotlight-card:hover::before,
+  .spotlight-card:hover::after {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spotlight-card,
+    .spotlight-card:hover {
+      transition: border-color 200ms ease;
+      transform: none;
+    }
+  }
+
+  /*
+   * Section divider — a single 1px horizontal gradient rule that
+   * separates two sections. There is exactly one between modules so
+   * the page rhythm reads as a continuous column, never as a stack of
+   * floating boxes with dead space between them.
+   */
+  .section-rule {
+    height: 1px;
+    width: 100%;
+    border: 0;
+    margin: 0;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--color-border-strong) 18%,
+      var(--color-border-strong) 82%,
+      transparent 100%
+    );
+  }
+
+  /*
+   * Bento footer — the pinned bottom bar of a card. Equal-height cards
+   * in a grid align their footers because the footer is pushed to the
+   * bottom with `margin-top: auto` and separated by a hairline.
+   */
+  .bento-footer {
+    margin-top: auto;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /*
+   * Graduated 1px border used by the hero terminal, the OSS spotlight
+   * and the contact hub. The gradient runs emerald → cyan → indigo
+   * around the perimeter.
+   */
+  .gradient-border {
+    position: relative;
+    border-radius: 16px;
+    background:
+      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+      linear-gradient(
+        135deg,
+        var(--color-accent),
+        var(--color-accent-2),
+        var(--color-accent-3)
+      ) border-box;
+    border: 1px solid transparent;
+  }
+
+  /* Filter / category pill — the shared control style for the Work
+     filter row, the Blog category tabs and the Contact service
+     selector. */
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background-color: transparent;
+    color: var(--color-fg-2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+  .filter-pill:hover {
+    color: var(--color-fg);
+    border-color: var(--color-border-strong);
+  }
+  .filter-pill[data-active='true'] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+  }
+
+  /* Monospace metadata pill used for badges, cadence and stack tags. */
+  .mono-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-2);
+    color: var(--color-fg-2);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* Section header index — the monospace "01 // SERVICES" marker. */
+  .section-index {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  /* ─── Services module (module 01) ──────────────────────────────── */
+
+  /*
+   * Per-card accent theming.
+   *
+   * Each capability card sets `data-accent` to one of the six families
+   * (emerald, cyan, violet, blue, amber, purple). The rules below
+   * remap the card's local `--svc` variables onto the theme-specific
+   * values declared in the token blocks, so the same markup renders
+   * correctly in dark and light without an inline style or a
+   * dark-mode variant class on every element.
+   */
+  [data-accent='emerald'] {
+    --svc-accent: var(--svc-emerald);
+    --svc-accent-soft: var(--svc-emerald-soft);
+  }
+  [data-accent='cyan'] {
+    --svc-accent: var(--svc-cyan);
+    --svc-accent-soft: var(--svc-cyan-soft);
+  }
+  [data-accent='violet'] {
+    --svc-accent: var(--svc-violet);
+    --svc-accent-soft: var(--svc-violet-soft);
+  }
+  [data-accent='blue'] {
+    --svc-accent: var(--svc-blue);
+    --svc-accent-soft: var(--svc-blue-soft);
+  }
+  [data-accent='amber'] {
+    --svc-accent: var(--svc-amber);
+    --svc-accent-soft: var(--svc-amber-soft);
+  }
+  [data-accent='purple'] {
+    --svc-accent: var(--svc-purple);
+    --svc-accent-soft: var(--svc-purple-soft);
+  }
+
+  /*
+   * Capability card — the six-card grid at the top of the Services
+   * module. The accent wash is a soft radial bloom in the top-left
+   * corner, which is where the icon tile sits.
+   */
+  .svc-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background-color: var(--color-card);
+    transition:
+      border-color 200ms ease,
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 200ms ease;
+  }
+  /* Accent bloom behind the icon tile. */
+  .svc-card::before {
+    content: '';
+    position: absolute;
+    top: -6rem;
+    left: -5rem;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle,
+      var(--svc-accent-soft) 0%,
+      transparent 68%
+    );
+    opacity: 0;
+    transition: opacity 260ms ease;
+    pointer-events: none;
+  }
+  .svc-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--svc-accent);
+    box-shadow: 0 18px 44px -26px var(--svc-accent);
+  }
+  .svc-card:hover::before {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .svc-card,
+    .svc-card:hover {
+      transition: border-color 200ms ease;
+      transform: none;
+    }
+  }
+
+  /*
+   * Icon tile — the rounded square at the top-left of a capability
+   * card. Holds the glyph in the card's own accent colour.
+   */
+  .svc-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex-shrink: 0;
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: 1px solid var(--svc-accent);
+    background-color: var(--svc-accent-soft);
+    color: var(--svc-accent);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .svc-card:hover .svc-icon {
+    box-shadow: 0 0 0 3px var(--svc-accent-soft);
+  }
+
+  /*
+   * Lifecycle pill — the Build / Test / Automate / Release / Support
+   * strip under the Services header.
+   */
+  .svc-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    color: var(--color-fg-2);
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    /* The pill itself must never break, but the row must be allowed to
+       wrap — otherwise five pills overflow a 375px viewport. */
+    max-width: 100%;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+  .svc-stage:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+  }
+  .svc-stage > span[aria-hidden='true'] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-accent);
+  }
+
+  /*
+   * Process step — one of the four "How I Work" cards.
+   */
+  .svc-process {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    transition:
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  .svc-process:hover {
+    border-color: var(--color-border-strong);
+    background-color: var(--color-card-hover);
+  }
+  .svc-process > span[aria-hidden='true'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    padding: 0.7rem;
+    border-radius: 10px;
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+
+  /*
+   * Engagement model — one of the four "Ways to Collaborate" cards.
+   */
+  .svc-model {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    transition:
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  .svc-model:hover {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+  }
+  .svc-model > span[aria-hidden='true'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    padding: 0.7rem;
+    border-radius: 10px;
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+
+  /*
+   * CTA banner — the gradient strip that closes the Services module.
+   * The wash runs emerald → cyan → indigo behind the copy, with a
+   * hairline border in the same ramp.
+   */
+  .svc-cta {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid var(--color-accent);
+    background:
+      linear-gradient(
+        100deg,
+        color-mix(in oklab, var(--color-accent) 26%, transparent) 0%,
+        color-mix(in oklab, var(--color-accent-2) 20%, transparent) 55%,
+        transparent 100%
+      ),
+      var(--color-card);
+  }
+  /* Diagonal sheen that keeps the banner from reading as flat fill. */
+  .svc-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 38%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent) 50%,
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+  .svc-cta > * {
+    position: relative;
+    z-index: 1;
   }
 
   /* ─ Form input ─ */

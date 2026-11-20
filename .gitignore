@@ -56,3 +56,6 @@ skills-lock.json
 
 # Throwaway visual-comparison screenshots (Playwright captures, not assets)
 scripts/.shots/
+
+# Phase 6 QA audit output (Playwright captures, not assets)
+qa-shots/

@@ -1,7 +1,11 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  content: [
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
@@ -13,6 +17,7 @@ const config: Config = {
         muted: 'var(--color-muted)',
         accent: 'var(--color-accent)',
         'accent-2': 'var(--color-accent-2)',
+        'accent-3': 'var(--color-accent-3)',
         'accent-soft': 'var(--color-accent-soft)',
         card: 'var(--color-card)',
         'card-hover': 'var(--color-card-hover)',
@@ -20,7 +25,8 @@ const config: Config = {
         'border-strong': 'var(--color-border-strong)',
       },
       fontFamily: {
-        sans: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       keyframes: {

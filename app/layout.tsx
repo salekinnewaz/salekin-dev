@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Header } from '@/components/site/Header';
+import { Navbar } from '@/components/site/Navbar';
+import { Footer } from '@/components/site/Footer';
 import { BackgroundLayers } from '@/components/site/BackgroundLayers';
 import { RevealObserver } from '@/components/site/RevealObserver';
-import { TerminalEasterEgg } from '@/components/site/TerminalEasterEgg';
 import { HashScrollController } from '@/components/site/HashScrollController';
-import { MotionDebug } from '@/components/site/MotionDebug';
+import { ThemeProvider } from '@/components/site/ThemeProvider';
+import { ToastProvider } from '@/components/site/ToastProvider';
+import { buildThemeInitScript } from '@/lib/site/theme-init-script';
 import { getSiteSettings } from '@/lib/queries/site';
 import { listEducationOrdered } from '@/lib/queries/education';
 import { env } from '@/lib/env';
@@ -101,52 +103,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   // Also adds .js to <html> (so .reveal/.reveal-stagger hide rules activate)
   // and pre-marks any reveal targets already in the viewport so the SSR'd
   // first paint is never blank, even before RevealObserver mounts.
-  const themeInitScript = `
-    (function() {
-      try {
-        var stored = localStorage.getItem('theme');
-        var pref = ${JSON.stringify(theme.defaultTheme)};
-        var resolved;
-        if (stored === 'light' || stored === 'dark') {
-          resolved = stored;
-        } else if (stored === 'system' || (stored == null && pref === 'system')) {
-          resolved = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        } else {
-          resolved = (pref === 'light' || pref === 'dark') ? pref : 'dark';
-        }
-        document.documentElement.setAttribute('data-theme', resolved);
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-      document.documentElement.classList.add('js');
-      // Mark already-on-screen reveal targets as shown. Done synchronously
-      // so the first paint includes their visible state; the React-driven
-      // IntersectionObserver takes over for everything below the fold.
-      try {
-        var els = document.querySelectorAll('.reveal:not(.is-visible), .reveal-stagger:not(.is-visible)');
-        var vh = window.innerHeight || document.documentElement.clientHeight;
-        for (var i = 0; i < els.length; i++) {
-          var r = els[i].getBoundingClientRect();
-          if (r.top < vh && r.bottom > 0) {
-            els[i].setAttribute('data-reveal-shown', '');
-          }
-        }
-      } catch (e) { /* IO will handle it */ }
-      // Publish the initial active section from the URL hash so the pill
-      // nav highlights the right item on first paint (no flash of Home
-      // being active when the URL is /#about). The hook module keeps a
-      // module-level published value; we mirror it here so the React
-      // useState initializer sees the correct value when hydration runs.
-      try {
-        var hash = window.location.hash.replace(/^#/, '');
-        var known = ['hero', 'services', 'work', 'blog', 'experience', 'reviews', 'contact'];
-        if (known.indexOf(hash) >= 0) {
-          window.__specmdActive = hash;
-          window.dispatchEvent(new CustomEvent('specmd:active-section', { detail: hash }));
-        }
-      } catch (e) { /* ignore */ }
-    })();
-  `.replace(/\s+/g, ' ').trim();
+  const themeInitScript = buildThemeInitScript(theme.defaultTheme);
 
   // Runtime override — only emit valid hex inputs
   const runtimeCss =
@@ -248,7 +205,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
         />
         {/* SEO: identity-verification links. `rel="author"` points at the
             canonical about anchor on this site; `rel="me"` is the
@@ -278,62 +235,24 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="flex min-h-screen flex-col bg-bg text-fg antialiased">
+        <ThemeProvider>
+        <ToastProvider>
         <a href="#main" className="skip-link">
           skip to content
         </a>
         <BackgroundLayers />
-        <Header />
+        <Navbar />
         <RevealObserver />
         <HashScrollController />
-        <TerminalEasterEgg />
-        <MotionDebug />
         <main
           id="main"
-          className="relative mx-auto w-full max-w-[1440px] flex-1 px-5 pb-20 sm:px-8 lg:px-16"
+          className="relative mx-auto w-full max-w-[1200px] flex-1 px-5 pb-16 sm:px-6"
         >
           {children}
         </main>
-        <footer className="relative border-t border-border">
-          <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-16">
-            <div className="flex items-center gap-2 font-mono text-xs text-muted">
-              <span className="text-accent">$</span>
-              <span>
-                © {new Date().getFullYear()} {identity.siteTitle} · built with care
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted">
-              {identity.contactEmail ? (
-                <a
-                  href={`mailto:${identity.contactEmail}`}
-                  className="hover:text-accent"
-                >
-                  {identity.contactEmail}
-                </a>
-              ) : null}
-              {identity.socialGithub ? (
-                <a
-                  href={identity.socialGithub}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-accent"
-                >
-                  GitHub
-                </a>
-              ) : null}
-              {identity.socialLinkedin ? (
-                <a
-                  href={identity.socialLinkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-accent"
-                >
-                  LinkedIn
-                </a>
-              ) : null}
-            </div>
-          </div>
-        </footer>
+        <Footer />
+        </ToastProvider>
+        </ThemeProvider>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

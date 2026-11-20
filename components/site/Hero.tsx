@@ -1,194 +1,151 @@
-import Link from 'next/link';
-import type { SiteIdentity } from '@/lib/queries/site';
-import { HeroStage } from './HeroStage';
-import { FocusChip } from './FocusChip';
-import type { FocusIconId } from '@/lib/icons';
+'use client';
 
-type HeroProps = {
-  identity: SiteIdentity;
-};
-
-type FocusArea = {
-  id: string;
-  icon: FocusIconId;
-  label: string;
-};
+import { useState } from 'react';
+import { InteractiveTerminal } from './InteractiveTerminal';
+import { SpotlightCard } from './SpotlightCard';
+import { ResumeModal } from './ResumeModal';
+import { CREDIBILITY_METRICS } from '@/src/data/experience';
 
 /**
- * Hero — first fold. Two-column grid inside the main container:
+ * Hero — the first fold.
  *
- *   LEFT (~50%):
- *     • Eyebrow: `ISTQB® CERTIFIED · OPEN TO INTERESTING WORK`.
- *     • H1: `Salekin` (white) + `Newaz` (purple→cyan gradient) on
- *       one line at desktop. The data is `Md Salekin Newaz`; the
- *       `Md` honorific is intentionally omitted.
- *     • `SENIOR SOFTWARE QA ENGINEER` (accent, mono, uppercase).
- *     • `PLAYWRIGHT · AI-DRIVEN QA · QUALITY ENGINEERING`.
- *     • Tagline + 2 CTAs (gradient + outline).
- *     • FOCUS row: 4 icon chips + a `FOCUS` label.
- *     • Status line: `● SENIOR SOFTWARE QA ENGINEER @ BRAIN
- *       STATION 23 | Dhaka, Bangladesh`.
+ * Asymmetric 12-column grid (Phase 2 of the refactor spec):
  *
- *   RIGHT (~50%):
- *     • The static `data/Neon QA Portfolio Hero Section.png`
- *       graphic — the finished composition containing the
- *       portrait, gradient ring, and four capability cards. It
- *       is served from `/images/hero-composition.png`. A subtle
- *       scroll parallax (≤ 32px over 600px) is preserved.
+ *   Left (7 cols) — status pill, display H1, positioning copy and three
+ *                   CTAs.
+ *   Right (5 cols) — the InteractiveTerminal telemetry panel.
  *
- * The 4 focus areas in `focusAreas` drive only the left FOCUS
- * chip row. The right column's cards are baked into the static
- * image and no longer rendered at runtime.
+ * Directly beneath, attached with `mt-10`, sits the credibility metric
+ * bar: a single divided SpotlightCard with four columns. It is a
+ * sibling of the grid rather than a separate section, so it reads as
+ * part of the hero rather than as the top of a new module.
+ *
+ * The hero owns the resume modal's open state itself. The page is a
+ * server component, so it cannot hand a callback down — the modal
+ * lives with the button that opens it.
  */
-export function Hero({ identity }: HeroProps) {
-  const title = identity.siteTitle || 'Md Salekin Newaz';
-  const tagline =
-    identity.siteTagline ||
-    'Building quality infrastructure that enables engineering teams to release with confidence.';
-  const location = identity.contactLocation?.trim();
 
-  // Strip the honorific "Md" prefix from the data so the gradient
-  // sits cleanly on the last name only. Fallback to the full title
-  // if the data is unexpected.
-  const nameParts = title.replace(/^Md\.?\s+/i, '').trim().split(/\s+/);
-  const firstName = nameParts[0] ?? title;
-  const lastName = nameParts.slice(1).join(' ') || nameParts[0] || '';
+type HeroProps = {
+  /** The owner's name — used in the status line. */
+  name?: string;
+  /** The current role line. */
+  role?: string;
+  /** Where the owner is based. */
+  location?: string;
+};
 
-  // The 4 focus areas. Single source of truth for the FOCUS chip
-  // row on the left. The right column's cards are baked into the
-  // static image (data/Neon QA Portfolio Hero Section.png) so this
-  // list no longer needs detail/position/progress/bobDelay fields.
-  const focusAreas: readonly FocusArea[] = [
-    { id: 'playwright', icon: 'playwright', label: 'Playwright' },
-    { id: 'api', icon: 'api', label: 'API Testing' },
-    { id: 'ai', icon: 'ai', label: 'AI-Driven QA' },
-    { id: 'cicd', icon: 'cicd', label: 'CI/CD' },
-  ] as const;
-
-  const chipAreas = focusAreas.map(({ icon, label }) => ({ icon, label }));
-
+export function Hero({
+  name = 'Md Salekin Newaz',
+  role = 'Senior Software QA Engineer',
+  location = 'Dhaka, Bangladesh',
+}: HeroProps) {
+  const [showResume, setShowResume] = useState(false);
   return (
     <section
       id="hero"
       tabIndex={-1}
-      className="section-anchor relative pb-20 pt-14 sm:pt-20 lg:pt-24"
+      className="section-anchor relative pb-12 pt-24 lg:pt-28"
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-x-10 xl:gap-x-12">
-        {/* ─── LEFT column — copy + CTAs ─── */}
-        <div className="hero-left flex flex-col gap-6">
-          <span
-            className="eyebrow eyebrow--muted hero-stagger"
-            style={{ animationDelay: '0ms' }}
-          >
-            ISTQB® Certified · Open to Interesting Work
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-6">
+        {/* ─── Left column (7 cols) ─── */}
+        <div className="flex flex-col gap-5 lg:col-span-7">
+          {/* Status pill */}
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-[0.72rem] font-medium text-[var(--color-fg-2)]">
+            <span aria-hidden="true" className="relative inline-flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-accent)] opacity-60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+            </span>
+            ISTQB® Certified · Available for QA Consulting &amp; Advisory
           </span>
 
-          <h1
-            className="heading-display whitespace-nowrap text-[clamp(2.75rem,6.2vw,6rem)] leading-[1.02] tracking-tight hero-stagger"
-            data-hero-headline
-            style={{ animationDelay: '80ms' }}
-          >
-            <span className="text-fg">{firstName}</span>{' '}
-            <span className="name-gradient">{lastName}</span>
+          {/* Display heading */}
+          <h1 className="text-[clamp(2.4rem,5.4vw,4.1rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-[var(--color-fg)]">
+            Ship faster without{' '}
+            <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text text-transparent">
+              breaking production.
+            </span>
           </h1>
 
-          <p
-            className="font-mono text-sm uppercase tracking-[0.18em] text-accent sm:text-[0.95rem] hero-stagger"
-            style={{ animationDelay: '160ms' }}
-          >
-            Senior Software QA Engineer
+          {/* Role line */}
+          <p className="font-mono text-sm uppercase tracking-[0.16em] text-[var(--color-accent)]">
+            {role}
           </p>
 
-          <p
-            className="font-mono text-xs uppercase tracking-[0.16em] text-muted sm:text-[0.78rem] hero-stagger"
-            style={{ animationDelay: '210ms' }}
-          >
-            Playwright{' '}
-            <span aria-hidden="true" className="text-fg-2/50">
-              ·
-            </span>{' '}
-            AI-Driven QA{' '}
-            <span aria-hidden="true" className="text-fg-2/50">
-              ·
-            </span>{' '}
-            Quality Engineering
+          {/* Positioning copy */}
+          <p className="max-w-[46ch] text-[1.02rem] leading-relaxed text-[var(--color-fg-2)] sm:text-[1.08rem]">
+            I build the quality infrastructure that lets engineering teams
+            release with confidence — Playwright automation, AI-driven QA,
+            API and load testing, and CI/CD integration for web, mobile
+            and IoT products.
           </p>
 
-          <p
-            className="max-w-[540px] text-[1.05rem] leading-[1.65] text-fg-2 text-pretty sm:text-[1.18rem] hero-stagger"
-            style={{ animationDelay: '260ms' }}
-          >
-            {tagline}
-          </p>
-
-          <div
-            className="flex flex-wrap items-center gap-3 hero-stagger"
-            style={{ animationDelay: '340ms' }}
-          >
-            <Link
-              href="/#work"
-              className="btn-primary inline-flex items-center gap-2 px-6 py-3.5 text-[0.95rem]"
-            >
-              View My Work
-              <span aria-hidden="true">→</span>
-            </Link>
+          {/* CTAs */}
+          <div className="flex flex-wrap items-center gap-2.5 pt-1">
             <a
-              href="/cv-download"
-              className="btn-outline inline-flex items-center gap-2 px-6 py-3.5 text-[0.95rem]"
+              href="#services"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-5 py-2.5 text-[0.9rem] font-semibold text-white shadow-[0_10px_30px_-12px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
             >
-              <span aria-hidden="true">↓</span>
-              Download Resume
+              Hire Me / QA Services <span aria-hidden="true">→</span>
             </a>
+            <a
+              href="#work"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border-strong)] px-5 py-2.5 text-[0.9rem] font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              View Case Studies
+            </a>
+            <button
+              type="button"
+              onClick={() => setShowResume(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-5 py-2.5 text-[0.9rem] font-medium text-[var(--color-fg-2)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              <span aria-hidden="true">▤</span>
+              Resume Preview
+            </button>
           </div>
 
-          <ul
-            aria-label="Focus areas"
-            className="hero-focus flex flex-wrap items-center gap-2 hero-stagger"
-            style={{ animationDelay: '420ms' }}
-          >
-            <li className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
-              FOCUS
-            </li>
-            {chipAreas.map((c) => (
-              <li key={c.label}>
-                <FocusChip icon={c.icon} label={c.label} />
-              </li>
-            ))}
-          </ul>
-
-          <p
-            className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted hero-stagger"
-            style={{ animationDelay: '600ms' }}
-          >
-            <span
-              className="relative inline-flex h-1.5 w-1.5"
-              aria-hidden="true"
-            >
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+          {/* Status line */}
+          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+            <span className="text-[var(--color-fg-2)]">{name}</span>
+            <span aria-hidden="true" className="text-[var(--color-fg-2)]/50">
+              |
             </span>
-            <span className="text-fg-2">
-              Senior Software QA Engineer @ Brain Station 23
-            </span>
-            {location ? (
-              <>
-                <span aria-hidden="true" className="text-fg-2/50">|</span>
-                <span className="normal-case tracking-normal">{location}</span>
-              </>
-            ) : null}
+            <span>{location}</span>
           </p>
         </div>
 
-        {/* ─── RIGHT column — static hero composition ───
-            The live orbit/terminal composition was replaced with the
-            finished static graphic per the latest brief. The image
-            already contains the photo + 4 capability cards in the
-            correct positions; no runtime composition is needed. */}
-        <HeroStage
-          src="/images/hero-composition.png"
-          alt="Profile photo surrounded by four QA capability cards: Playwright, AI-Driven QA, API Testing, and CI/CD."
-        />
+        {/* ─── Right column (5 cols) — telemetry ─── */}
+        <div className="lg:col-span-5">
+          <InteractiveTerminal />
+        </div>
       </div>
+
+      {/* ─── Credibility metric bar ─── */}
+      <div className="mt-10">
+        <SpotlightCard className="overflow-hidden">
+          <dl className="grid grid-cols-2 divide-x divide-y divide-[var(--color-border)] sm:grid-cols-4 sm:divide-y-0">
+            {CREDIBILITY_METRICS.map((metric) => (
+              <div
+                key={metric.label}
+                className="flex flex-col gap-1 px-4 py-4 sm:px-5"
+              >
+                <dt className="font-mono text-2xl font-bold leading-none text-[var(--color-fg)]">
+                  {metric.value}
+                </dt>
+                <dd className="flex flex-col gap-0.5">
+                  <span className="text-[0.78rem] font-medium leading-tight text-[var(--color-fg-2)]">
+                    {metric.label}
+                  </span>
+                  <span className="text-[0.68rem] leading-tight text-[var(--color-muted)]">
+                    {metric.detail}
+                  </span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </SpotlightCard>
+      </div>
+
+      {showResume ? <ResumeModal onClose={() => setShowResume(false)} /> : null}
     </section>
   );
 }

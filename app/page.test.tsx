@@ -22,17 +22,7 @@ vi.mock('@/lib/queries/projects', () => ({
 import { getSiteSettings } from '@/lib/queries/site';
 import { listExperiencesOrdered } from '@/lib/queries/experiences';
 import { listEducationOrdered } from '@/lib/queries/education';
-import { getHomepageProjects } from '@/lib/queries/projects';
 import HomePage from './page';
-
-const allSections = {
-  showHero: true,
-  showAbout: true,
-  showExperience: true,
-  showSkills: true,
-  showEducation: true,
-  showContact: true,
-};
 
 const identityBase = {
   siteTitle: 'Md Salekin Newaz',
@@ -49,6 +39,15 @@ const identityBase = {
   socialLinkedin: null,
   socialFacebook: null,
   socialX: null,
+};
+
+const allSections = {
+  showHero: true,
+  showAbout: true,
+  showExperience: true,
+  showSkills: true,
+  showEducation: true,
+  showContact: true,
 };
 
 const skillsBase = {
@@ -75,15 +74,18 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(listExperiencesOrdered).mockResolvedValue([]);
   vi.mocked(listEducationOrdered).mockResolvedValue([]);
-  vi.mocked(getHomepageProjects).mockResolvedValue([]);
+  vi.mocked(getSiteSettings).mockResolvedValue({
+    identity: identityBase,
+    sections: allSections,
+    theme: themeBase,
+    skills: skillsBase,
+    stats: statsBase,
+  });
 });
 
 /**
- * Render the home page output inside a Suspense boundary so the
- * streaming async sections (FeaturedProjects) can resolve. The page
- * component itself already wraps FeaturedProjects in <Suspense>, but
- * the test renderer requires the outer render to also be wrapped in
- * `act` so pending promises settle before assertions run.
+ * Render the home page output inside a Suspense boundary so any
+ * streaming async sections resolve before assertions run.
  */
 async function renderHomePage(ui: React.ReactElement) {
   await act(async () => {
@@ -92,189 +94,184 @@ async function renderHomePage(ui: React.ReactElement) {
 }
 
 describe('HomePage', () => {
-  it('renders hero with site title and role strap', async () => {
-    vi.mocked(getSiteSettings).mockResolvedValue({
-      identity: identityBase,
-      sections: allSections,
-      theme: themeBase,
-      skills: skillsBase,
-      stats: statsBase,
-    });
+  it('renders the hero heading and positioning copy', async () => {
     const ui = await HomePage();
     await renderHomePage(ui);
-    // Heading renders the person-facing first + last name. The
-    // honourific "Md" prefix from the data is intentionally stripped
-    // here so the gradient sits on the last name only (matches the
-    // design brief). Use a tolerant match so it works whether the
-    // text is rendered as one string or split across spans.
     expect(
-      screen.getByRole('heading', { level: 1, name: /salekin.{0,3}newaz/i }),
+      screen.getByRole('heading', {
+        level: 1,
+        name: /ship faster without breaking production/i,
+      }),
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Senior Software QA Engineer/i).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText(/quality infrastructure/i)).toBeInTheDocument();
-    // New role strap element (also surfaces in the Current Role section,
-    // so use getAllByText).
-    expect(screen.getAllByText(/Senior Software QA Engineer/i).length).toBeGreaterThan(0);
   });
 
-  it('renders all major sections when enabled', async () => {
-    vi.mocked(getSiteSettings).mockResolvedValue({
-      identity: identityBase,
-      sections: allSections,
-      theme: themeBase,
-      skills: skillsBase,
-      stats: statsBase,
-    });
-    // Provide a single featured project so the FeaturedProjects section
-    // renders its heading (otherwise it returns null when empty).
-    vi.mocked(getHomepageProjects).mockResolvedValue([
-      {
-        id: 'p1',
-        slug: 'specsmd',
-        title: 'specsmd',
-        description: 'A planning framework.',
-        imageUrl: null,
-        techStack: ['TypeScript'],
-        publishedAt: new Date('2026-01-01T00:00:00Z'),
-      },
-    ]);
-    // Provide a current experience so the Current Role section renders
-    // its heading (it returns null when there's no endDate === null row).
-    vi.mocked(listExperiencesOrdered).mockResolvedValue([
-      {
-        id: 'e1',
-        company: 'Brain Station 23',
-        role: 'Senior Software QA Engineer',
-        startDate: new Date('2025-01-01T00:00:00Z'),
-        endDate: null,
-        description: 'Lead QA.',
-        bullets: [],
-        sortOrder: 1,
-      },
-    ]);
+  it('renders all six numbered modules', async () => {
     const ui = await HomePage();
     await renderHomePage(ui);
-    // Section headings (h2) — plain editorial labels, no terminal
-    // prefixes. The on-page sections (per brief §24): Current Role,
-    // Featured Work, Experience, How I Build, Core Expertise,
-    // AI-Driven QA, About, Education & Certifications, Contact. Plus
-    // the h1 in the Hero.
     expect(
-      screen.getByRole('heading', { level: 2, name: /what i.?m doing now/i }),
+      screen.getByRole('heading', {
+        level: 2,
+        name: /software quality, development & delivery/i,
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /featured work/i }),
+      screen.getByRole('heading', {
+        level: 2,
+        name: /open source and client engagements/i,
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /where i.{0,3}ve worked/i }),
+      screen.getByRole('heading', { level: 2, name: /written from the work/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /how i build/i }),
+      screen.getByRole('heading', { level: 2, name: /where the work happened/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /core expertise/i }),
+      screen.getByRole('heading', {
+        level: 2,
+        name: /what colleagues and clients say/i,
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /ai.?driven qa/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /a bit about me/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /education .{0,3} certifications/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /let.?s build something/i }),
+      screen.getByRole('heading', { level: 2, name: /book a consultation/i }),
     ).toBeInTheDocument();
   });
 
-  it('hides every section when toggles are off', async () => {
-    vi.mocked(getSiteSettings).mockResolvedValue({
-      identity: identityBase,
-      sections: {
-        showHero: false,
-        showAbout: false,
-        showExperience: false,
-        showSkills: false,
-        showEducation: false,
-        showContact: false,
-      },
-      theme: themeBase,
-      skills: skillsBase,
-      stats: statsBase,
-    });
+  it('renders every section anchor the floating navbar links to', async () => {
     const ui = await HomePage();
     await renderHomePage(ui);
-    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+    for (const id of [
+      'hero',
+      'services',
+      'work',
+      'blog',
+      'experience',
+      'reviews',
+      'contact',
+    ]) {
+      const el = document.getElementById(id);
+      expect(el, `missing #${id}`).not.toBeNull();
+    }
   });
 
-  it('renders the experience timeline with a row per experience', async () => {
-    vi.mocked(getSiteSettings).mockResolvedValue({
-      identity: identityBase,
-      sections: allSections,
-      theme: themeBase,
-      skills: skillsBase,
-      stats: statsBase,
-    });
-    vi.mocked(listExperiencesOrdered).mockResolvedValue([
-      {
-        id: 'e1',
-        company: 'Brain Station 23',
-        role: 'Senior Software QA Engineer',
-        startDate: new Date('2025-01-01T00:00:00Z'),
-        endDate: null,
-        description: 'Lead QA across products.',
-        bullets: ['Built Playwright framework', 'Set up CI/CD', 'Mentored juniors'],
-        sortOrder: 1,
-      },
-      {
-        id: 'e2',
-        company: 'SEBPO',
-        role: 'Trainee QA Engineer',
-        startDate: new Date('2021-11-01T00:00:00Z'),
-        endDate: new Date('2021-12-31T00:00:00Z'),
-        description: 'Foundation training.',
-        bullets: [],
-        sortOrder: 2,
-      },
-    ]);
+  it('renders the four credibility metrics from the verified CV', async () => {
     const ui = await HomePage();
     await renderHomePage(ui);
-    // Company + role + bullets all render in the timeline. The current
-    // role row also gets surfaced in the dedicated Current Role section
-    // above the timeline, so substring matchers stay robust to either
-    // placement.
-    expect(screen.getAllByText(/Brain Station 23/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Senior Software QA Engineer/i).length).toBeGreaterThan(0);
-    expect(screen.getByText('Built Playwright framework')).toBeInTheDocument();
-    expect(screen.getByText('Foundation training.')).toBeInTheDocument();
+    expect(screen.getByText('5+')).toBeInTheDocument();
+    expect(screen.getByText(/Years in QA/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Zero-Rollback Prod Releases/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText('0-Dep')).toBeInTheDocument();
   });
 
-  it('renders the education list with one row per entry', async () => {
-    vi.mocked(getSiteSettings).mockResolvedValue({
-      identity: identityBase,
-      sections: allSections,
-      theme: themeBase,
-      skills: skillsBase,
-      stats: statsBase,
-    });
-    vi.mocked(listEducationOrdered).mockResolvedValue([
-      {
-        id: 'ed1',
-        institution: 'International Islamic University Chittagong',
-        degree: 'BSc in Computer Science & Engineering',
-        startYear: 2016,
-        endYear: 2020,
-        description: null,
-        sortOrder: 1,
-      },
-    ]);
+  it('renders the six service capabilities with their learn-more buttons', async () => {
     const ui = await HomePage();
     await renderHomePage(ui);
-    // BSc / institution should appear at least once on the page. The
-    // education row now lives in its own Education & Certifications
-    // section (per brief §24), not inside About. Substring matchers
-    // keep the test robust to either placement.
-    expect(screen.getAllByText(/B\.?Sc/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/IIUC|Chittagong/i).length).toBeGreaterThan(0);
+    const buttons = screen.getAllByRole('button', { name: /learn more/i });
+    expect(buttons.length).toBe(6);
+    expect(
+      screen.getByText('Test Automation & Quality Engineering'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('End-to-End Software Delivery'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the lifecycle strip, process steps and engagement models', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    for (const label of ['Build', 'Test', 'Automate', 'Release', 'Support']) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+    expect(screen.getByText('How I Work')).toBeInTheDocument();
+    expect(screen.getByText('Ways to Collaborate')).toBeInTheDocument();
+    expect(screen.getByText('Project Delivery')).toBeInTheDocument();
+    expect(screen.getByText('Ongoing Support')).toBeInTheDocument();
+  });
+
+  it('renders the three case studies with their read buttons', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    const buttons = screen.getAllByRole('button', { name: /read case study/i });
+    expect(buttons.length).toBe(3);
+  });
+
+  it('renders the open-source spotlight install command', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    expect(
+      screen.getByText('npm i -D playwright-summary-reporter'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the four engineering notes', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    const buttons = screen.getAllByRole('button', { name: /read article/i });
+    expect(buttons.length).toBe(4);
+  });
+
+  it('renders the career timeline with the current role expanded', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    expect(
+      screen.getByRole('button', { name: /Senior Software QA Engineer/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Jan 2025 — Present/)).toBeInTheDocument();
+  });
+
+  it('renders the verified credentials', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    expect(
+      screen.getByText(/ISTQB® Certified Tester — Foundation Level/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/AWS Cloud Foundations/)).toBeInTheDocument();
+  });
+
+  it('renders the three featured endorsements and hides the rest', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    expect(screen.getByText('Herman Kulild Dragesund')).toBeInTheDocument();
+    expect(screen.getByText('Junaid Aziz')).toBeInTheDocument();
+    expect(screen.getByText('Shahriar Morshed')).toBeInTheDocument();
+    expect(screen.queryByText('S.B.M Reazul Karim')).toBeNull();
+    expect(
+      screen.getByRole('button', { name: /\+ show 2 more endorsements/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the contact form with the five service pills', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    // Scope to the contact section: the blog category tabs reuse some
+    // of the same labels ("AI-Driven QA").
+    const contact = document.getElementById('contact');
+    expect(contact).not.toBeNull();
+    const pills = Array.from(
+      contact!.querySelectorAll('button[aria-pressed]'),
+    ).map((b) => b.textContent?.trim());
+    expect(pills).toEqual([
+      'Playwright Automation',
+      'AI-Driven QA',
+      'API & Load Testing',
+      'Release Audit / QA Lead',
+      'General / Mentoring',
+    ]);
+  });
+
+  it('renders the verified email, phone and Dhaka clock label', async () => {
+    const ui = await HomePage();
+    await renderHomePage(ui);
+    expect(
+      screen.getAllByText('salekinnewaz0@gmail.com').length,
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText('+880 1640-8369595').length).toBeGreaterThan(0);
+    expect(screen.getByText(/Dhaka, BD · UTC\+6/)).toBeInTheDocument();
   });
 });

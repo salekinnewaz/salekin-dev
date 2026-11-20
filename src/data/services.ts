@@ -8,6 +8,14 @@
  * certifications or client names.
  */
 
+/**
+ * The accent family a card is themed with. Each value maps to a set of
+ * CSS custom properties (--svc-accent, --svc-accent-soft) declared in
+ * `globals.css`, so the hue lives in the stylesheet rather than as an
+ * inline style on every element.
+ */
+export type ServiceAccent = 'emerald' | 'cyan' | 'violet' | 'blue' | 'amber' | 'purple';
+
 /** The 4 consulting offerings rendered in the Services bento grid. */
 export type Service = {
   /** Stable slug — also used as the React key and the contact pill id. */
@@ -115,6 +123,179 @@ export const SERVICES: readonly Service[] = [
   },
 ] as const;
 
+/**
+ * A capability card in the Services grid.
+ *
+ * The Services module opens with six capability cards arranged in a
+ * 3-column grid. Each card is themed with its own accent family so the
+ * grid reads as a spectrum rather than six identical boxes, and each
+ * carries an icon tile, a one-line summary and three deliverables.
+ */
+export type ServiceCapability = {
+  /** Stable slug — also used as the React key. */
+  id: string;
+  /** Card title. */
+  title: string;
+  /** One-sentence summary under the title. */
+  summary: string;
+  /** Icon key — maps to a glyph in the `SERVICE_ICONS` table. */
+  icon: string;
+  /** The accent family the card is themed with. */
+  accent: ServiceAccent;
+  /** 3 concrete deliverables with a checkmark. */
+  deliverables: readonly string[];
+  /** Long-form description used by the contact form prefill. */
+  description: string;
+};
+
+/**
+ * The six capability cards. The first four map onto the canonical
+ * `SERVICES` entries above (and therefore onto the contact pills); the
+ * two delivery-oriented cards map onto the same contact channel via
+ * `SERVICE_CAPABILITY_PILL`.
+ */
+export const SERVICE_CAPABILITIES: readonly ServiceCapability[] = [
+  {
+    id: 'test-automation',
+    title: 'Test Automation & Quality Engineering',
+    summary:
+      'Design and implement scalable test automation solutions to ensure product quality and accelerate delivery.',
+    icon: 'layers',
+    accent: 'emerald',
+    deliverables: [
+      'End-to-end automation (Playwright, Selenium)',
+      'CI/CD integration (GitHub Actions, Azure Pipelines)',
+      'Test framework design (POM, fixtures, reporting)',
+    ],
+    description:
+      'End-to-end test automation built on Playwright and Selenium, wired into GitHub Actions or Azure Pipelines, with a Page Object Model core, shared fixtures and consolidated reporting.',
+  },
+  {
+    id: 'frontend-development',
+    title: 'Frontend Development & QA Support',
+    summary:
+      'Build and enhance modern, user-centric web applications and ensure their quality through a developer’s QA perspective.',
+    icon: 'code',
+    accent: 'cyan',
+    deliverables: [
+      'Frontend development with Angular & TypeScript',
+      'Feature implementation, UI development & integration',
+      'Quality assurance, code review, and issue resolution',
+    ],
+    description:
+      'Angular and TypeScript feature delivery paired with hands-on QA — component integration, code review and defect resolution from the developer side of the table.',
+  },
+  {
+    id: 'ai-modernization',
+    title: 'AI-Augmented QA Modernization',
+    summary:
+      'Leverage AI to improve test design, automation, defect analysis, and overall QA efficiency.',
+    icon: 'chip',
+    accent: 'violet',
+    deliverables: [
+      'AI-assisted test case generation and review',
+      'Defect analysis and root cause identification',
+      'AI-integrated workflows (e.g., Copilot, Claude, MCP)',
+    ],
+    description:
+      'AI applied where it measurably helps — assisted test case generation and review, root cause analysis, and Copilot/Claude/MCP workflows woven into the existing QA process.',
+  },
+  {
+    id: 'api-performance',
+    title: 'API, Performance & Reliability Testing',
+    summary:
+      'Validate functionality, performance, and stability across APIs and integrated systems.',
+    icon: 'database',
+    accent: 'blue',
+    deliverables: [
+      'API testing (Postman, Swagger/OpenAPI)',
+      'Load and stress testing (JMeter)',
+      'Reliability and scalability validation (web, mobile, IoT)',
+    ],
+    description:
+      'API contract coverage through Postman and Swagger/OpenAPI, load and stress benchmarks with JMeter, and reliability validation across web, mobile and IoT fleets.',
+  },
+  {
+    id: 'release-advisory',
+    title: 'Release Readiness & QA Advisory',
+    summary:
+      'Provide strategic QA planning, risk assessment, and release support for a smooth go-to-market.',
+    icon: 'rocket',
+    accent: 'amber',
+    deliverables: [
+      'QA strategy, test planning, and risk coverage',
+      'UAT coordination and stakeholder alignment',
+      'Release readiness review and quality sign-off',
+    ],
+    description:
+      'Strategic QA planning, risk assessment and release support — from test strategy and UAT coordination through to a defensible release sign-off.',
+  },
+  {
+    id: 'end-to-end-delivery',
+    title: 'End-to-End Software Delivery',
+    summary:
+      'Collaborate across the full SDLC to turn requirements into a high-quality, production-ready product.',
+    icon: 'stack',
+    accent: 'purple',
+    deliverables: [
+      'Requirement analysis and solution planning',
+      'Development, testing, and quality assurance',
+      'CI/CD, deployment, and post-release support',
+    ],
+    description:
+      'Full-lifecycle delivery — requirement analysis through development, testing, CI/CD deployment and post-release support for web, mobile and IoT products.',
+  },
+] as const;
+
+/**
+ * Maps a capability card to the contact-pill it should preselect when
+ * its "Learn More" / request action fires. The four canonical service
+ * ids map to themselves; the two delivery cards fold into the closest
+ * existing pill so the contact form never receives an unknown id.
+ */
+export const SERVICE_CAPABILITY_PILL: Record<string, string> = {
+  'test-automation': 'playwright-automation',
+  'frontend-development': 'playwright-automation',
+  'ai-modernization': 'ai-driven-qa',
+  'api-performance': 'api-load-testing',
+  'release-advisory': 'release-qa-lead',
+  'end-to-end-delivery': 'release-qa-lead',
+};
+
+/**
+ * The glyph shown in each capability card's icon tile. Kept as a plain
+ * map so the data module stays free of JSX.
+ */
+export const SERVICE_ICONS: Record<string, string> = {
+  layers: 'layers',
+  code: 'code',
+  chip: 'chip',
+  database: 'database',
+  rocket: 'rocket',
+  stack: 'stack',
+};
+
+/**
+ * The lifecycle strip under the Services header. Each stage is a pill
+ * with an icon and a label, mirroring the SDLC the engagements cover.
+ */
+export type ServiceStage = {
+  /** Stable key. */
+  id: string;
+  /** Icon name from the `ServiceIcon` set. */
+  icon: string;
+  /** Stage label. */
+  label: string;
+};
+
+export const SERVICE_STAGES: readonly ServiceStage[] = [
+  { id: 'build', icon: 'code-2', label: 'Build' },
+  { id: 'test', icon: 'layers-2', label: 'Test' },
+  { id: 'automate', icon: 'bolt', label: 'Automate' },
+  { id: 'release', icon: 'box', label: 'Release' },
+  { id: 'support', icon: 'headset', label: 'Support' },
+] as const;
+
 /** The 3-step engagement model rendered as a divided bar below the grid. */
 export type EngagementStep = {
   /** Step index, rendered as a monospace "01". */
@@ -143,6 +324,95 @@ export const ENGAGEMENT_STEPS: readonly EngagementStep[] = [
     index: '03',
     title: 'Handoff & CI Ownership',
     detail: 'Your team runs it',
+  },
+] as const;
+
+/**
+ * One step in the "How I Work" process bar. Each step carries its own
+ * icon and a short explanatory line.
+ */
+export type ProcessStep = {
+  /** Stable key. */
+  id: string;
+  /** Step number, rendered as "1." */
+  number: string;
+  /** Step title. */
+  title: string;
+  /** One-line explanation. */
+  detail: string;
+  /** Icon name from the `ServiceIcon` set. */
+  icon: string;
+};
+
+export const PROCESS_STEPS: readonly ProcessStep[] = [
+  {
+    id: 'discover',
+    number: '1.',
+    title: 'Discover',
+    detail: 'Understand goals, requirements, and scope.',
+    icon: 'target',
+  },
+  {
+    id: 'plan',
+    number: '2.',
+    title: 'Plan',
+    detail: 'Define solution, test strategy, and delivery approach.',
+    icon: 'layers-2',
+  },
+  {
+    id: 'build-test',
+    number: '3.',
+    title: 'Build & Test',
+    detail: 'Develop, test (manual & automated), and iterate.',
+    icon: 'code-2',
+  },
+  {
+    id: 'release-support',
+    number: '4.',
+    title: 'Release & Support',
+    detail: 'Deliver, monitor, and provide ongoing support.',
+    icon: 'rocket-2',
+  },
+] as const;
+
+/**
+ * One engagement model in the "Ways to Collaborate" row.
+ */
+export type EngagementModel = {
+  /** Stable key. */
+  id: string;
+  /** Model title. */
+  title: string;
+  /** One-line explanation. */
+  detail: string;
+  /** Icon name from the `ServiceIcon` set. */
+  icon: string;
+};
+
+export const ENGAGEMENT_MODELS: readonly EngagementModel[] = [
+  {
+    id: 'project-delivery',
+    title: 'Project Delivery',
+    detail: 'End-to-end development and QA for a specific scope.',
+    icon: 'person',
+  },
+  {
+    id: 'team-augmentation',
+    title: 'Team Augmentation',
+    detail: 'Extend your team with QA and/or frontend development skills.',
+    icon: 'users',
+  },
+  {
+    id: 'advisory',
+    title: 'Advisory & Consulting',
+    detail: 'QA strategy, process improvement, and tooling recommendations.',
+    icon: 'board',
+  },
+  {
+    id: 'ongoing-support',
+    title: 'Ongoing Support',
+    detail: 'Continuous testing, quality assurance, and post-release maintenance.',
+    icon: 'headset',
   },
 ] as const;
 
