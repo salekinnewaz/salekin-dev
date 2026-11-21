@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ResumeModal } from './ResumeModal';
-import { HeroIcon, MetricIconGlyph } from './HeroIcons';
+import { HeroIcon, MetricIconGlyph, GitHubGlyph } from './HeroIcons';
 import { StackTechIcon } from './StackIcons';
 import { CREDIBILITY_METRICS } from '@/src/data/experience';
 import {
@@ -369,9 +369,59 @@ export function Hero({
                     <span className="text-[0.78rem] font-medium leading-tight text-[var(--color-fg-2)]">
                       {metric.label}
                     </span>
-                    <span className="text-[0.68rem] leading-tight text-[var(--color-muted)]">
-                      {metric.detail}
-                    </span>
+                    {metric.detail ? (
+                      <span className="text-[0.68rem] leading-tight text-[var(--color-muted)]">
+                        {metric.detail}
+                      </span>
+                    ) : null}
+                    {/*
+                      The package link. It sits where the other cards'
+                      detail line sits, so the fourth card reads at the
+                      same weight as its neighbours — the link is styled
+                      like the muted detail text, not like a call to
+                      action.
+
+                      The name wraps rather than truncating: at narrow
+                      widths an ellipsis would hide which package it
+                      is, and the whole point of the link is that the
+                      name is legible. `min-w-0` on the parent lets the
+                      flex child shrink instead of pushing the card
+                      wider than its column.
+                    */}
+                    {metric.link ? (
+                      <a
+                        href={metric.link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hero-metric-link group inline-flex min-w-0 max-w-full items-start gap-1 text-[0.68rem] leading-tight text-[var(--color-muted)] underline decoration-[var(--color-border)] underline-offset-2 transition-colors hover:text-[var(--color-fg-2)] hover:decoration-[var(--color-accent)]"
+                      >
+                        <span className="min-w-0 break-all">{metric.link.text}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
+                          className="mt-[0.1rem] h-[0.62rem] w-[0.62rem] flex-shrink-0 opacity-70 transition-opacity group-hover:opacity-100"
+                        >
+                          <path d="M14 4h6v6" />
+                          <path d="M20 4 10 14" />
+                          <path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10" />
+                        </svg>
+                      </a>
+                    ) : null}
+                    {metric.supporting ? (
+                      <span className="inline-flex min-w-0 max-w-full items-start gap-1.5 text-[0.68rem] leading-tight text-[var(--color-muted)]">
+                        <span className="hero-metric-supporting-icon mt-[0.12rem]">
+                          <GitHubGlyph />
+                        </span>
+                        <span className="min-w-0">{metric.supporting.text}</span>
+                      </span>
+                    ) : null}
                   </dd>
                 </div>
               </div>

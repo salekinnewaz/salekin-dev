@@ -2552,6 +2552,19 @@
 }
 .hero-metric-icon svg { display: block; }
 
+/* The GitHub mark beside the "Open Source Contributor" line. It is
+   filled rather than stroked, so it needs no extra weight to stay
+   legible at 11px — matching the muted detail text around it. */
+.hero-metric-supporting-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
 /* ─── Core Stack technology icons ────────────────────────────────── */
 
 .hero-stack-icon {

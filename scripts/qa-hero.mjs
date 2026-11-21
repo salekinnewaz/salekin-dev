@@ -301,9 +301,47 @@ await p.waitForTimeout(900);
 {
   const values = await p.locator('#hero dl dt').allTextContents();
   record(
-    'The metric bar shows 5+, 4+, 3, 0-Dep',
-    values.map((v) => v.trim()).join(',') === '5+,4+,3,0-Dep',
+    'The metric bar shows 5+, 4+, 3, 435+',
+    values.map((v) => v.trim()).join(',') === '5+,4+,3,435+',
     values.map((v) => v.trim()).join(','),
+  );
+
+  // The fourth metric carries the npm download count and links to the
+  // published package. It is the only metric with a link, so the
+  // assertion is scoped to it rather than to the whole bar.
+  const fourth = await p.evaluate(() => {
+    const cells = [...document.querySelectorAll('#hero dl > div')];
+    const cell = cells[3];
+    if (!cell) return null;
+    const link = cell.querySelector('a');
+    const l = link?.getBoundingClientRect();
+    const c = cell.getBoundingClientRect();
+    return {
+      label: cell.querySelector('dd span')?.textContent?.trim() ?? '',
+      href: link?.getAttribute('href') ?? null,
+      target: link?.getAttribute('target') ?? null,
+      rel: link?.getAttribute('rel') ?? null,
+      supporting: cell.textContent?.includes('Open Source Contributor') ?? false,
+      overflowsCell: l ? l.right > c.right + 1 : null,
+    };
+  });
+  record(
+    'The fourth metric reads "npm Downloads" and links to the npm package',
+    fourth !== null &&
+      fourth.label === 'npm Downloads' &&
+      fourth.href ===
+        'https://www.npmjs.com/package/playwright-summary-reporter?activeTab=versions' &&
+      fourth.target === '_blank' &&
+      (fourth.rel ?? '').includes('noopener'),
+    JSON.stringify(fourth),
+  );
+  record(
+    'The fourth metric names the open source contribution',
+    fourth !== null && fourth.supporting,
+  );
+  record(
+    'The package link does not overflow its metric cell',
+    fourth !== null && fourth.overflowsCell === false,
   );
 
   const cols = await p.evaluate(() => {

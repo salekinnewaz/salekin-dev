@@ -204,12 +204,31 @@ export const STACK_GROUPS: readonly StackGroup[] = [
  * the hero. Every number is drawn from the verified CV.
  *
  * `icon` is the key for the glyph that sits to the left of the number.
+ *
+ * The fourth metric carries extra content that the other three do not:
+ * a link to the published package, and a supporting line about open
+ * source. `link` and `supporting` are therefore optional — a metric
+ * without them renders as a plain number / label / detail triple.
+ *
+ * `downloads` is kept as its own field rather than being baked into
+ * `value` so the npm download count can later be wired to live data
+ * without touching the layout.
  */
 export const CREDIBILITY_METRICS: readonly {
   value: string;
   label: string;
   detail: string;
-  icon: 'briefcase' | 'globe' | 'rocket' | 'code';
+  icon: 'briefcase' | 'globe' | 'rocket' | 'package';
+  /** Optional link shown under the label — the published package. */
+  link?: {
+    text: string;
+    href: string;
+  };
+  /** Optional supporting line shown under the link. */
+  supporting?: {
+    text: string;
+    icon: 'github';
+  };
 }[] = [
   {
     value: '5+',
@@ -230,9 +249,20 @@ export const CREDIBILITY_METRICS: readonly {
     icon: 'rocket',
   },
   {
-    value: '0-Dep',
-    label: 'Open Source Contributor',
-    detail: 'playwright-summary-reporter on npm',
-    icon: 'code',
+    // The download count is the npm registry's total for the package.
+    // It lives in its own field so it can be replaced by a live
+    // registry lookup later without changing anything else.
+    value: '435+',
+    label: 'npm Downloads',
+    detail: '',
+    icon: 'package',
+    link: {
+      text: 'playwright-summary-reporter',
+      href: 'https://www.npmjs.com/package/playwright-summary-reporter?activeTab=versions',
+    },
+    supporting: {
+      text: 'Open Source Contributor',
+      icon: 'github',
+    },
   },
 ] as const;

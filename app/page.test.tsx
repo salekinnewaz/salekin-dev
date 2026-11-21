@@ -182,7 +182,21 @@ describe('HomePage', () => {
     expect(
       within(heroMetrics).getByText(/Production Releases/i),
     ).toBeInTheDocument();
-    expect(screen.getByText('0-Dep')).toBeInTheDocument();
+    expect(screen.getByText('435+')).toBeInTheDocument();
+    expect(screen.getByText(/npm Downloads/i)).toBeInTheDocument();
+    // The package name is a real link to the npm registry, and it
+    // opens in a new tab without leaking the referrer.
+    const pkgLink = within(heroMetrics).getByRole('link', {
+      name: /playwright-summary-reporter/i,
+    });
+    expect(pkgLink.getAttribute('href')).toBe(
+      'https://www.npmjs.com/package/playwright-summary-reporter?activeTab=versions',
+    );
+    expect(pkgLink.getAttribute('target')).toBe('_blank');
+    expect(pkgLink.getAttribute('rel')).toContain('noopener');
+    expect(
+      within(heroMetrics).getByText(/Open Source Contributor/i),
+    ).toBeInTheDocument();
   });
 
   it('renders the six service capabilities with their learn-more buttons', async () => {
