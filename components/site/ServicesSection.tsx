@@ -10,6 +10,7 @@ import {
   SERVICE_STAGES,
 } from '@/src/data/services';
 import { requestService } from '@/lib/site/service-selection';
+import { DISCOVERY_CALL_URL } from '@/lib/constants';
 
 /**
  * ServicesSection — module 01.
@@ -26,6 +27,12 @@ import { requestService } from '@/lib/site/service-selection';
  * "Learn More →" on a card publishes the matching contact-pill id on
  * the shared channel and scrolls to #contact, where the contact form
  * preselects that pill.
+ *
+ * The closing CTA is the exception: "Book a Free Discovery Call" opens
+ * the Calendly scheduler in a new tab, because a visitor who wants a
+ * slot should not have to write a message to get one. The smaller
+ * link beneath it still routes to the contact form for anyone who
+ * would rather send their brief in writing.
  */
 export function ServicesSection() {
   return (
@@ -203,17 +210,40 @@ export function ServicesSection() {
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => requestService('general')}
-          className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-5 py-3 text-[0.88rem] font-bold text-white shadow-[0_12px_30px_-14px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
-        >
-          <span aria-hidden="true" className="inline-flex h-4 w-4">
-            <ServiceIcon name="board" />
-          </span>
-          Book a Free Discovery Call{' '}
-          <span aria-hidden="true">→</span>
-        </button>
+        <div className="flex shrink-0 flex-col items-start gap-2.5">
+          {/*
+            The primary action books a slot directly on Calendly, so a
+            visitor can take a 30-minute call without having to write
+            their brief out first. It opens in a new tab because
+            Calendly is a hosted scheduler with its own navigation.
+          */}
+          <a
+            href={DISCOVERY_CALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-5 py-3 text-[0.88rem] font-bold text-white shadow-[0_12px_30px_-14px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
+          >
+            <span aria-hidden="true" className="inline-flex h-4 w-4">
+              <ServiceIcon name="board" />
+            </span>
+            Book a Free Discovery Call{' '}
+            <span aria-hidden="true">→</span>
+          </a>
+
+          {/*
+            The alternative path, for visitors who would rather send
+            the details in writing. It preselects the general enquiry
+            pill in the contact form and scrolls there.
+          */}
+          <button
+            type="button"
+            onClick={() => requestService('general')}
+            className="inline-flex w-fit items-center gap-1.5 text-[0.8rem] font-medium text-[var(--color-fg-2)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:text-[var(--color-accent)] hover:decoration-[var(--color-accent)]"
+          >
+            or send a message instead
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
     </section>
   );

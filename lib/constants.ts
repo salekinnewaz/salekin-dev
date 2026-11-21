@@ -41,3 +41,14 @@ export const PROFILE_IMAGE_SETTING_KEYS = {
   /** An explicit admin override of the render mode, when set. */
   mode: 'profile_image_mode',
 } as const;
+
+/**
+ * The Calendly scheduling page for the 30-minute discovery call.
+ *
+ * The booking CTA in the Services section links straight here, so a
+ * visitor can take a slot without composing a message first. The
+ * contact form stays available for people who would rather write
+ * their brief out.
+ */
+export const DISCOVERY_CALL_URL =
+  'https://calendly.com/salekinnewaz0/30min';
