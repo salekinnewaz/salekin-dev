@@ -172,8 +172,12 @@ describe('HomePage', () => {
     await renderHomePage(ui);
     expect(screen.getByText('5+')).toBeInTheDocument();
     expect(screen.getByText(/Years in QA/i)).toBeInTheDocument();
+    // Scope to the hero's metric list — "Production Releases" also
+    // appears in the experience section copy.
+    const heroMetrics = document.querySelector('#hero dl') as HTMLElement;
+    expect(heroMetrics).not.toBeNull();
     expect(
-      screen.getByText(/Zero-Rollback Prod Releases/i),
+      within(heroMetrics).getByText(/Production Releases/i),
     ).toBeInTheDocument();
     expect(screen.getByText('0-Dep')).toBeInTheDocument();
   });

@@ -7,6 +7,7 @@ import {
   saveProfilePositionAction,
   type ProfileImageState,
 } from '@/lib/actions/profile-image';
+import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
 
 const INITIAL: ProfileImageState = { ok: false, error: '' };
 
@@ -190,7 +191,7 @@ export function ProfileImageManager({
                 {hasCustomImage ? 'Custom portrait active' : 'Using the default portrait'}
               </span>
               <span className="font-mono text-xs text-muted">
-                /images/profile.jpg
+                {DEFAULT_PROFILE_IMAGE}
               </span>
             </div>
           </div>
@@ -199,12 +200,12 @@ export function ProfileImageManager({
             <span className="font-mono text-xs uppercase tracking-widest text-muted">
               Hero preview
             </span>
-            <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-full border-2 border-accent/50 shadow-[0_0_30px_var(--color-accent-glow)]">
+            <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-2xl border-2 border-accent/50 shadow-[0_0_30px_var(--color-accent-glow)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewSrc}
                 alt="Hero preview of the profile portrait"
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain object-bottom"
                 style={{ objectPosition: previewPosition }}
               />
             </div>

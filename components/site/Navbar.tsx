@@ -64,7 +64,7 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-5 sm:pt-4">
       <div
-        className={`mx-auto flex max-w-[1200px] items-center justify-between gap-3 rounded-2xl border px-3 py-2 transition-[background-color,border-color,box-shadow] duration-200 sm:px-4 ${
+        className={`mx-auto flex max-w-[1480px] items-center justify-between gap-3 rounded-2xl border px-3 py-2 transition-[background-color,border-color,box-shadow] duration-200 sm:px-4 ${
           scrolled
             ? 'border-[var(--color-border-strong)] bg-[color-mix(in_oklab,var(--color-card)_78%,transparent)] shadow-[0_12px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl'
             : 'border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-card)_55%,transparent)] backdrop-blur-xl'
@@ -181,7 +181,7 @@ export function Navbar() {
       {/* ─── Mobile slide-down drawer ─── */}
       <div
         id="mobile-nav-drawer"
-        className={`mx-auto mt-2 max-w-[1200px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-card)_92%,transparent)] backdrop-blur-xl transition-[max-height,opacity,margin] duration-300 lg:hidden ${
+        className={`mx-auto mt-2 max-w-[1480px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-card)_92%,transparent)] backdrop-blur-xl transition-[max-height,opacity,margin] duration-300 lg:hidden ${
           open ? 'mb-2 max-h-[26rem] opacity-100' : 'max-h-0 opacity-0'
         }`}
         aria-hidden={!open}

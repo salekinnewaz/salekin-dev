@@ -1,14 +1,19 @@
 /**
  * Hero composition data.
  *
- * The hero's right column is built from four floating capability cards
- * arranged around a circular portrait, plus a QA Pipeline widget that
- * sits below. This file holds the copy for those pieces so the Hero
+ * The hero's right column is built from a large portrait standing on a
+ * tilted emerald frame, a vertical stack of four capability cards to the
+ * portrait's left, and a QA Pipeline card floating over the portrait's
+ * lower-right. This file holds the copy for those pieces so the Hero
  * component stays presentational.
  */
 
-/** Icon key for a floating capability card. */
-export type HeroCardIcon = 'code' | 'layers' | 'chip' | 'database';
+/** Icon key for a capability card. */
+export type HeroCardIcon =
+  | 'playwright'
+  | 'layers'
+  | 'sparkles'
+  | 'git-branch';
 
 export type HeroCapabilityCard = {
   /** Stable key — React key and icon lookup. */
@@ -19,47 +24,36 @@ export type HeroCapabilityCard = {
   detail: string;
   /** Which icon to render. */
   icon: HeroCardIcon;
-  /**
-   * Where the card sits relative to the portrait, in the reference
-   * composition. `top-left` / `bottom-left` / `top-right` /
-   * `bottom-right`.
-   */
-  corner: 'top-left' | 'bottom-left' | 'top-right' | 'bottom-right';
 };
 
 /**
- * The four floating capability cards that orbit the hero portrait.
- * Order is the reading order (top-left, top-right, bottom-left,
- * bottom-right) so the DOM order matches the visual order.
+ * The four capability cards, stacked vertically to the left of the
+ * portrait. The order is the reading order top-to-bottom.
  */
 export const HERO_CAPABILITY_CARDS: readonly HeroCapabilityCard[] = [
   {
     id: 'frontend-development',
     title: 'Frontend Development',
     detail: 'Angular · TypeScript',
-    icon: 'code',
-    corner: 'top-left',
+    icon: 'playwright',
   },
   {
     id: 'test-automation',
     title: 'Test Automation',
     detail: 'Playwright · CI/CD',
     icon: 'layers',
-    corner: 'top-right',
   },
   {
     id: 'ai-driven-qa',
     title: 'AI-Driven QA',
     detail: 'Copilot · MCP · Claude',
-    icon: 'chip',
-    corner: 'bottom-left',
+    icon: 'sparkles',
   },
   {
     id: 'api-performance',
     title: 'API & Performance',
     detail: 'Postman · JMeter',
-    icon: 'database',
-    corner: 'bottom-right',
+    icon: 'git-branch',
   },
 ] as const;
 
@@ -69,23 +63,39 @@ export type PipelineStage = {
   id: string;
   /** Stage label. */
   label: string;
-  /** Small caption under the label. */
-  detail: string;
   /** Completion state — drives the check/dot indicator. */
   state: 'done' | 'active' | 'pending';
 };
 
 /**
  * The QA Pipeline widget: Build → Test → Quality → Release.
- * The first three stages are complete and the last is in flight, which
- * is what gives the widget its progress feel.
+ * All four stages are complete, which is what gives the widget its
+ * "Passed" status in the header.
  */
 export const HERO_PIPELINE: readonly PipelineStage[] = [
-  { id: 'build', label: 'Build', detail: 'CI triggered', state: 'done' },
-  { id: 'test', label: 'Test', detail: '248 cases', state: 'done' },
-  { id: 'quality', label: 'Quality', detail: 'Gate passed', state: 'done' },
-  { id: 'release', label: 'Release', detail: 'Shipping', state: 'active' },
+  { id: 'build', label: 'Build', state: 'done' },
+  { id: 'test', label: 'Test', state: 'done' },
+  { id: 'quality', label: 'Quality', state: 'done' },
+  { id: 'release', label: 'Release', state: 'done' },
 ] as const;
+
+/** Icon key for a Core Stack technology badge. */
+export type StackIcon =
+  | 'playwright'
+  | 'typescript'
+  | 'javascript'
+  | 'angular'
+  | 'github-actions'
+  | 'docker'
+  | 'aws'
+  | 'mysql';
+
+export type StackTechnology = {
+  /** The label shown in the badge. */
+  name: string;
+  /** Which glyph to render. */
+  icon: StackIcon;
+};
 
 /**
  * The Core Stack badges, in the exact order they appear in the
@@ -93,13 +103,13 @@ export const HERO_PIPELINE: readonly PipelineStage[] = [
  * the intended visual hierarchy (automation first, then languages,
  * then framework, then CI/CD, then platform).
  */
-export const HERO_CORE_STACK: readonly string[] = [
-  'Playwright',
-  'TypeScript',
-  'JavaScript',
-  'Angular',
-  'GitHub Actions',
-  'Docker',
-  'AWS',
-  'MySQL',
+export const HERO_CORE_STACK: readonly StackTechnology[] = [
+  { name: 'Playwright', icon: 'playwright' },
+  { name: 'TypeScript', icon: 'typescript' },
+  { name: 'JavaScript', icon: 'javascript' },
+  { name: 'Angular', icon: 'angular' },
+  { name: 'GitHub Actions', icon: 'github-actions' },
+  { name: 'Docker', icon: 'docker' },
+  { name: 'AWS', icon: 'aws' },
+  { name: 'MySQL', icon: 'mysql' },
 ] as const;

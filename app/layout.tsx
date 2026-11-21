@@ -246,7 +246,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <HashScrollController />
         <main
           id="main"
-          className="relative mx-auto w-full max-w-[1200px] flex-1 px-5 pb-16 sm:px-6"
+          className="relative mx-auto w-full max-w-[1480px] flex-1 px-5 pb-16 sm:px-6"
         >
           {children}
         </main>

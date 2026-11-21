@@ -2,25 +2,29 @@
 
 import { useState } from 'react';
 import { ResumeModal } from './ResumeModal';
-import { HeroIcon } from './HeroIcons';
+import { HeroIcon, MetricIconGlyph } from './HeroIcons';
+import { StackTechIcon } from './StackIcons';
 import { CREDIBILITY_METRICS } from '@/src/data/experience';
 import {
   HERO_CAPABILITY_CARDS,
   HERO_CORE_STACK,
   HERO_PIPELINE,
 } from '@/src/data/hero';
+import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
 
 /**
  * Hero — the first fold.
  *
  * Two-column composition:
  *
- *   Left (6 cols) — certification badge, display H1, positioning copy,
- *                   three CTAs and the owner status line.
- *   Right (6 cols) — the portrait stack: a circular portrait inside an
- *                   emerald/teal glow frame, four floating capability
- *                   cards orbiting it, and the QA Pipeline widget
- *                   beneath.
+ *   Left (6 cols) — certification badge, display H1, role label,
+ *                   positioning copy, three CTAs in a single row and the
+ *                   owner status line.
+ *   Right (6 cols) — the portrait stage: a large portrait standing on
+ *                   a tilted emerald frame, a vertical stack of four
+ *                   capability cards to the portrait's left, and the QA
+ *                   Pipeline card floating over the portrait's
+ *                   lower-right.
  *
  * Directly beneath, attached with `mt-10`, sits the credibility metric
  * bar (four columns) followed by the Core Stack badge row.
@@ -45,7 +49,7 @@ type HeroProps = {
   location?: string;
   /**
    * The portrait to display. Defaults to the shipped asset at
-   * `/images/profile.jpg` until an admin uploads a replacement.
+   * the shipped cut-out until an admin uploads a replacement.
    */
   profileImage?: {
     /** The public URL of the active portrait. */
@@ -67,7 +71,7 @@ export function Hero({
 
   const portraitSrc = profileImage
     ? `/profile-image?v=${profileImage.version}`
-    : '/images/profile.jpg';
+    : DEFAULT_PROFILE_IMAGE;
   const portraitPosition = profileImage?.position ?? '50% 30%';
 
   return (
@@ -77,8 +81,8 @@ export function Hero({
       className="section-anchor relative overflow-x-clip pb-12 pt-24 lg:pt-28"
     >
       <div className="hero-grid grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-6">
-        {/* ─── Left column (6 cols) ─── */}
-        <div className="flex flex-col gap-5 lg:col-span-6">
+        {/* ─── Left column ─── */}
+        <div className="flex flex-col gap-5 lg:col-span-5">
           {/* Certification badge */}
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-[0.72rem] font-medium text-[var(--color-fg-2)]">
             <span aria-hidden="true" className="relative inline-flex h-1.5 w-1.5">
@@ -89,12 +93,47 @@ export function Hero({
           </span>
 
           {/* Display heading */}
-          <h1 className="text-[clamp(2.4rem,4.4vw,4.1rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-[var(--color-fg)]">
-            Build, Test and Ship{' '}
-            <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text text-transparent">
+          {/*
+            The headline breaks after "Ship" on every viewport that can
+            fit it, matching the reference's two-line stack. Below the
+            point where the first line no longer fits on its own, the
+            break is released and the text reflows naturally.
+          */}
+          <h1 className="text-[clamp(2.1rem,3.2vw,3.3rem)] font-extrabold leading-[1.06] tracking-[-0.03em] text-[var(--color-fg)]">
+            <span className="hero-line">
+              Build, Test and Ship
+            </span>{' '}
+            <span className="hero-line hero-line-accent bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text text-transparent">
               Reliable Software.
             </span>
           </h1>
+
+          {/*
+            The hand-drawn swoosh that underlines the headline in the
+            reference. It is an SVG rather than a border so the stroke
+            can taper at both ends the way a marker stroke does.
+          */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 340 26"
+            fill="none"
+            preserveAspectRatio="none"
+            className="hero-headline-underline"
+          >
+            <path
+              d="M4 19C46 8 118 3 196 5c46 1.2 104 5.4 140 12"
+              stroke="var(--color-accent)"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M18 22c44-8 108-12 176-11 40 .6 88 3 122 8"
+              stroke="var(--color-accent-2)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              opacity="0.7"
+            />
+          </svg>
 
           {/* Role line */}
           <p className="font-mono text-sm uppercase tracking-[0.16em] text-[var(--color-accent)]">
@@ -102,31 +141,31 @@ export function Hero({
           </p>
 
           {/* Positioning copy */}
-          <p className="max-w-[52ch] text-[1.02rem] leading-relaxed text-[var(--color-fg-2)] sm:text-[1.08rem]">
+          <p className="max-w-[62ch] text-[0.94rem] leading-relaxed text-[var(--color-fg-2)] sm:text-[0.97rem]">
             Senior Software QA Engineer with development experience, focused
             on building quality, scalable, and user-friendly software across
             the full SDLC — from development and testing to release and
             ongoing support.
           </p>
 
-          {/* CTAs */}
+          {/* CTAs — all three in a single row on desktop */}
           <div className="flex flex-wrap items-center gap-2.5 pt-1">
             <a
               href="#services"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-5 py-2.5 text-[0.9rem] font-semibold text-white shadow-[0_10px_30px_-12px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-4 py-2.5 text-[0.85rem] font-semibold text-white shadow-[0_10px_30px_-12px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
             >
               Hire Me / QA Services <span aria-hidden="true">→</span>
             </a>
             <a
               href="#work"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border-strong)] px-5 py-2.5 text-[0.9rem] font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border-strong)] px-4 py-2.5 text-[0.85rem] font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             >
               View Case Studies
             </a>
             <button
               type="button"
               onClick={() => setShowResume(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-5 py-2.5 text-[0.9rem] font-medium text-[var(--color-fg-2)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-4 py-2.5 text-[0.85rem] font-medium text-[var(--color-fg-2)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             >
               <span aria-hidden="true">▤</span>
               Resume Preview
@@ -143,96 +182,139 @@ export function Hero({
           </p>
         </div>
 
-        {/* ─── Right column (6 cols) — portrait stack ─── */}
-        <div className="lg:col-span-6">
-          {/*
-            The composition mirrors the reference artwork: a circular
-            portrait with a neon glow ring at the centre, and four
-            glass capability cards in the four corners. It is laid
-            out as a grid so the cards never overlap the portrait and
-            never escape the column — the composition scales as one
-            unit with the viewport.
-          */}
-          <div className="hero-orbit">
-            {/* Glow rings behind the portrait */}
+        {/* ─── Right column — portrait stage ─── */}
+        <div className="lg:col-span-7">
+          <div className="hero-stage">
+            {/* Ambient illumination behind the whole stage */}
             <div
               aria-hidden="true"
-              className="hero-orbit-glow pointer-events-none absolute inset-0"
+              className="hero-stage-glow pointer-events-none absolute inset-0"
             />
 
-            {/* Floating capability cards — corners of the composition */}
-            {HERO_CAPABILITY_CARDS.map((card) => (
-              <div
-                key={card.id}
-                className={`hero-float-card hero-float-${card.corner}`}
-              >
-                <span className="hero-float-icon">
-                  <HeroIcon name={card.icon} />
-                </span>
-                <span className="hero-float-text">
-                  <span className="hero-float-title">{card.title}</span>
-                  <span className="hero-float-detail">{card.detail}</span>
-                </span>
-                <span aria-hidden="true" className="hero-float-bar" />
-              </div>
-            ))}
-
-            {/* Portrait — centred in the composition */}
-            <div className="hero-portrait">
-              <div className="hero-portrait-frame absolute inset-0 rounded-full" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={portraitSrc}
-                alt={`${name} — profile portrait`}
-                width={320}
-                height={320}
-                // Explicit width/height on the element plus the aspect
-                // ratio wrapper means the box is reserved before the
-                // bytes arrive, so the hero never shifts.
-                className="relative h-full w-full rounded-full object-cover"
-                style={{ objectPosition: portraitPosition }}
-                // The portrait is decorative-adjacent: the alt text
-                // already names the owner, and the shape is decorative.
-                fetchPriority="high"
-                decoding="async"
-              />
-            </div>
-          </div>
-
-          {/* ─── QA Pipeline widget ─── */}
-          <div className="hero-pipeline mt-8">
-            <div className="flex items-center justify-between gap-3">
-              <span className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                QA Pipeline
-              </span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[var(--color-accent)]">
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-                Live
-              </span>
-            </div>
-            <ol className="mt-3 grid grid-cols-4 gap-1.5">
-              {HERO_PIPELINE.map((stage, i) => (
-                <li key={stage.id} className="relative flex flex-col gap-1.5">
-                  {/* Connector */}
-                  {i < HERO_PIPELINE.length - 1 ? (
-                    <span
-                      aria-hidden="true"
-                      className="absolute left-[calc(50%+14px)] right-[calc(-50%+14px)] top-[9px] h-px bg-[var(--color-border-strong)]"
-                    />
-                  ) : null}
-                  <span
-                    aria-hidden="true"
-                    className={`hero-pipeline-dot hero-pipeline-${stage.state}`}
-                  />
-                  <span className="text-[0.72rem] font-medium leading-tight text-[var(--color-fg)]">
-                    {stage.label}
+            {/*
+              The capability cards stack vertically to the LEFT of the
+              portrait. They are a sibling of the portrait stage rather
+              than children of it, so the portrait can be sized and
+              positioned independently of the card column.
+            */}
+            <ul className="hero-cap-stack">
+              {HERO_CAPABILITY_CARDS.map((card) => (
+                <li key={card.id} className="hero-cap-card">
+                  <span className="hero-cap-icon">
+                    <HeroIcon name={card.icon} />
                   </span>
-                  <span className="font-mono text-[0.58rem] uppercase tracking-[0.1em] leading-tight text-[var(--color-muted)]">
-                    {stage.detail}
+                  <span className="hero-cap-text">
+                    <span className="hero-cap-title">{card.title}</span>
+                    <span className="hero-cap-detail">{card.detail}</span>
                   </span>
                 </li>
               ))}
-            </ol>
+            </ul>
+
+            {/* ─── Portrait stage ─── */}
+            <div className="hero-portrait-stage">
+              {/* The tilted rounded-rectangle the portrait stands on */}
+              <div
+                aria-hidden="true"
+                className="hero-portrait-frame pointer-events-none absolute inset-0"
+              />
+
+              {/*
+                The photo itself.
+
+                The default portrait is a cut-out PNG — the studio
+                backdrop is removed at build time (see
+                `scripts/cutout-portrait.swift`) so the subject reads as
+                a cut-out standing on the tilted frame, the way the
+                reference does.
+
+                An admin-uploaded image is rendered the same way, so
+                swapping the portrait never changes the composition: the
+                frame, the card column and the QA Pipeline are all
+                sized independently of the photo.
+              */}
+              <div className="hero-portrait">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={portraitSrc}
+                  alt={`${name} — profile portrait`}
+                  width={400}
+                  height={400}
+                  className="relative h-full w-full object-contain object-bottom"
+                  style={{ objectPosition: portraitPosition }}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </div>
+            </div>
+
+            {/* ─── QA Pipeline — floating over the portrait's lower right ─── */}
+            <div className="hero-pipeline">
+              {/* Browser chrome: traffic lights on the left, title and
+                  status pill on the right. */}
+              <div className="hero-pipeline-bar">
+                <span aria-hidden="true" className="hero-pipeline-dots">
+                  <i className="hero-pipeline-dot-red" />
+                  <i className="hero-pipeline-dot-yellow" />
+                  <i className="hero-pipeline-dot-green" />
+                </span>
+                <span className="font-mono text-[0.68rem] font-semibold tracking-[-0.01em] text-[var(--color-fg)]">
+                  QA Pipeline
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)] px-2 py-0.5 font-mono text-[0.58rem] font-semibold tracking-[0.02em] text-[var(--color-on-accent)] shadow-[0_0_14px_-4px_var(--color-accent)]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    width="9"
+                    height="9"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12.5 10 17.5 19 7" />
+                  </svg>
+                  Passed
+                </span>
+              </div>
+
+              <ol className="hero-pipeline-track">
+                {HERO_PIPELINE.map((stage, i) => (
+                  <li key={stage.id} className="relative flex flex-col gap-1.5">
+                    {/* Connector */}
+                    {i < HERO_PIPELINE.length - 1 ? (
+                      <span
+                        aria-hidden="true"
+                        className="hero-pipeline-line absolute left-[calc(50%+9px)] right-[calc(-50%+9px)] top-[9px] h-px"
+                      />
+                    ) : null}
+                    <span
+                      aria-hidden="true"
+                      className="hero-pipeline-check"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={3.4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        width="100%"
+                        height="100%"
+                      >
+                        <path d="M5 12.5 10 17.5 19 7" />
+                      </svg>
+                    </span>
+                    <span className="text-[0.7rem] font-medium leading-tight text-[var(--color-fg-2)]">
+                      {stage.label}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         </div>
       </div>
@@ -244,19 +326,24 @@ export function Hero({
             {CREDIBILITY_METRICS.map((metric) => (
               <div
                 key={metric.label}
-                className="flex flex-col gap-1 px-4 py-4 sm:px-5"
+                className="flex items-start gap-3 px-4 py-4 sm:px-5"
               >
-                <dt className="font-mono text-2xl font-bold leading-none text-[var(--color-fg)]">
-                  {metric.value}
-                </dt>
-                <dd className="flex flex-col gap-0.5">
-                  <span className="text-[0.78rem] font-medium leading-tight text-[var(--color-fg-2)]">
-                    {metric.label}
-                  </span>
-                  <span className="text-[0.68rem] leading-tight text-[var(--color-muted)]">
-                    {metric.detail}
-                  </span>
-                </dd>
+                <span className="hero-metric-icon">
+                  <MetricIconGlyph name={metric.icon} />
+                </span>
+                <div className="flex min-w-0 flex-col gap-1">
+                  <dt className="font-mono text-2xl font-bold leading-none text-[var(--color-fg)]">
+                    {metric.value}
+                  </dt>
+                  <dd className="flex flex-col gap-0.5">
+                    <span className="text-[0.78rem] font-medium leading-tight text-[var(--color-fg-2)]">
+                      {metric.label}
+                    </span>
+                    <span className="text-[0.68rem] leading-tight text-[var(--color-muted)]">
+                      {metric.detail}
+                    </span>
+                  </dd>
+                </div>
               </div>
             ))}
           </dl>
@@ -270,9 +357,12 @@ export function Hero({
         </span>
         <ul className="flex flex-wrap items-center gap-1.5">
           {HERO_CORE_STACK.map((tech) => (
-            <li key={tech}>
-              <span className="inline-flex items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-2)] px-2.5 py-1 font-mono text-[0.68rem] text-[var(--color-fg-2)]">
-                {tech}
+            <li key={tech.name}>
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-2)] py-1 pl-1.5 pr-2.5 font-mono text-[0.68rem] text-[var(--color-fg-2)]">
+                <span className="hero-stack-icon">
+                  <StackTechIcon name={tech.icon} />
+                </span>
+                {tech.name}
               </span>
             </li>
           ))}

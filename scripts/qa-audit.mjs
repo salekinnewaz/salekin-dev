@@ -127,18 +127,21 @@ for (const vp of VIEWPORTS) {
       );
     }
 
-    // ─── 4. Tight 1200px container ─────────────────────────────────
+    // ─── 4. Bounded page container ─────────────────────────────────
+    // The container is 1480px wide (the reference's own measure), so
+    // the assertion is that no section's inner wrapper exceeds that
+    // bound — not the old 1200px figure.
     {
       const widths = await page.evaluate(() =>
         Array.from(document.querySelectorAll('section[id] > div'))
           .map((el) => Math.round(el.getBoundingClientRect().width))
           .filter((w) => w > 0),
       );
-      const over = widths.filter((w) => w > 1200);
+      const over = widths.filter((w) => w > 1480);
       record(
         vp.name,
         theme,
-        '4. Container capped at 1200px',
+        '4. Container capped at 1480px',
         over.length === 0,
         over.length ? `overflowing: ${over.join(', ')}` : `widths ${[...new Set(widths)].join('/')}`,
       );

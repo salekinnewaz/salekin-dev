@@ -23,7 +23,7 @@ export function Footer() {
 
   return (
     <footer className="relative border-t border-[var(--color-border)]">
-      <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-5 sm:px-6 md:flex-row md:gap-6">
+      <div className="mx-auto flex max-w-[1480px] flex-col items-center justify-between gap-3 px-5 py-5 sm:px-6 md:flex-row md:gap-6">
         {/* Identity */}
         <p className="font-mono text-[0.7rem] text-[var(--color-muted)]">
           © {year}{' '}

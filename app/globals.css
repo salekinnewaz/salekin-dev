@@ -54,6 +54,12 @@
   --color-accent-3: #4F46E5;  /* indigo-600 */
   --color-accent-soft: rgba(4, 120, 87, 0.10);
 
+  /* Text painted ON a solid --color-accent fill (the hero's "Passed"
+     pill, the QA Pipeline check discs). Light-mode emerald-700 is
+     dark enough that white text clears 5.4:1, whereas near-black text
+     would only reach 3.1:1 and fail WCAG AA. */
+  --color-on-accent: #FFFFFF;
+
   /* Per-card accent families (Services capability cards).
      Light-mode values are darkened one step so the accent text and
      icon glyphs clear WCAG AA (4.5:1) against the near-white card
@@ -111,6 +117,11 @@
   --color-accent-3: #6366F1;  /* indigo-500  */
   --color-accent-soft: rgba(16, 185, 129, 0.14);
 
+  /* Dark-mode emerald-500 is bright, so the text painted on top of a
+     solid accent fill has to be near-black — white would only reach
+     2.5:1 and fail WCAG AA. */
+  --color-on-accent: #04211A;
+
   /* Per-card accent families — one step brighter than the light-mode
      set so they read as luminous on the near-black canvas. */
   --svc-emerald: #10B981;
@@ -155,6 +166,7 @@
   --color-accent-2: #06B6D4;
   --color-accent-3: #6366F1;
   --color-accent-soft: rgba(16, 185, 129, 0.14);
+  --color-on-accent: #04211A;
   --svc-emerald: #10B981;
   --svc-cyan: #22D3EE;
   --svc-violet: #A78BFA;
@@ -195,6 +207,10 @@
     var(--runtime-accent),
     transparent 90%
   );
+  /* A runtime accent that is light enough to need near-black text would
+     break the light-mode "white on accent" rule, so keep the light
+     theme's on-accent colour aligned with the darkened accent. */
+  --color-on-accent: #FFFFFF;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────── */
@@ -2149,11 +2165,10 @@
 }
 
 /* ─── Hero layout ────────────────────────────────────────────────── */
-/*   The two-column split needs the right column to be at least 34rem
-   wide for the four capability cards to hold their titles and tool
-   lists on one line. Below 1150px the column cannot be that wide, so
-   the hero stacks into a single column and the composition — which
-   then has the full container to itself — keeps its proportions.
+/*   The hero is a two-column split. The right column carries the
+   portrait stage; below 1150px the columns cannot both hold their
+   content, so the hero stacks into a single column and the stage takes
+   the full container width.
 
    The doubled class name raises the specificity above Tailwind's
    `lg:grid-cols-12` / `lg:col-span-6` utilities, which are emitted
@@ -2167,210 +2182,127 @@
   }
 }
 
-/* ─── Hero portrait stack (right column) ──────────────────────────── */
-/*   The composition mirrors the reference artwork: a circular portrait */
-/*   with a neon glow ring at the centre and four glass capability     */
-/*   cards in the four corners.                                        */
-/*                                                                     */
-/*   The composition is a single grid unit that scales with the column: */
-/*     • the portrait is centred and sized as a fraction of the orbit   */
-/*       box, so it always sits in the middle;                          */
-/*     • the four cards are absolutely positioned in the corners and    */
-/*       are sized as a fraction of the orbit box too, so the gap      */
-/*       between a card's inner edge and the portrait circle is a       */
-/*       constant proportion at every viewport.                         */
-/*                                                                     */
-/*   Below 1024px the cards fall back to a 2×2 grid underneath the      */
-/*   portrait so they never crowd it on a narrow viewport.              */
+/* ─── Hero portrait stage ────────────────────────────────────────── */
+/*   The right column is a single stage:
+     • a large portrait on the right, standing on a tilted rounded
+       rectangle filled with an emerald→teal gradient;
+     • four capability cards stacked vertically to the portrait's left;
+     • the QA Pipeline card floating over the portrait's lower right.
 
-.hero-orbit {
-  --hero-card-w: 31%;      /* card width as a share of the orbit box */
-  --hero-portrait: 33%;    /* portrait diameter as a share of the box */
-  --hero-card-inset: 0%;   /* outer inset of the cards in the corners */
+   The stage is a grid so the two halves size against each other: the
+   card column takes a fixed share, the portrait takes the rest. Both
+   halves are `position: relative` so their absolutely-positioned
+   children can anchor to them. */
+
+.hero-stage {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
-  /* The composition keeps the reference artwork's proportions: wide and
-     short, so the cards in the corners overlap the portrait's upper
-     and lower bands the way they do in the reference. */
-  aspect-ratio: 1 / 0.585;
-  margin-inline: auto;
+  min-height: 31rem;
+  padding-bottom: 1.5rem;
 }
 
-/* The glow: soft radial blooms behind the portrait plus a faint
-   conic sweep for the neon ring feel. It is painted inside the orbit
-   box — a negative inset would push the blurred layer past the
-   section and give the page a horizontal scrollbar. */
-.hero-orbit-glow {
-  inset: 0;
+/* The ambient green illumination behind the whole stage. */
+.hero-stage-glow {
   background:
     radial-gradient(
-      42% 42% at 50% 50%,
-      color-mix(in oklab, var(--color-accent) 30%, transparent) 0%,
-      transparent 70%
-    ),
-    radial-gradient(
-      34% 34% at 24% 76%,
-      color-mix(in oklab, var(--color-accent-2) 24%, transparent) 0%,
+      46% 46% at 72% 42%,
+      color-mix(in oklab, var(--color-accent) 26%, transparent) 0%,
       transparent 72%
     ),
     radial-gradient(
-      30% 30% at 78% 22%,
-      color-mix(in oklab, var(--color-accent) 18%, transparent) 0%,
+      36% 36% at 88% 68%,
+      color-mix(in oklab, var(--color-accent-2) 22%, transparent) 0%,
       transparent 74%
-    );
-  filter: blur(16px);
-}
-
-/* Portrait well — the circular frame the photo sits in. Centred in
-   the composition and sized as a share of the orbit box. */
-.hero-portrait {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--hero-portrait);
-  aspect-ratio: 1 / 1;
-  transform: translate(-50%, -50%);
-  isolation: isolate;
-}
-/* The frame is the neon ring that hugs the portrait in the reference:
-   an accent → accent-2 gradient stroke with a soft bloom behind it.
-   The gradient is painted as a ring only — the centre stays clear so
-   the photo shows through. */
-.hero-portrait-frame {
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background:
-    linear-gradient(var(--color-bg-2), var(--color-bg-2)) padding-box,
-    linear-gradient(
-      140deg,
-      var(--color-accent) 0%,
-      var(--color-accent-2) 55%,
-      var(--color-accent) 100%
-    ) border-box;
-  /* Mask the centre out so only the ring is painted and the portrait
-     shows through. `closest-side` anchors the gradient ray to the
-     box edge — without it a `circle` gradient resolves its stops
-     against the farthest corner and the hole would be far too small. */
-  -webkit-mask:
+    ),
     radial-gradient(
-      circle closest-side,
-      transparent calc(100% - 2px),
-      #000 calc(100% - 2px)
+      32% 32% at 30% 60%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent) 0%,
+      transparent 76%
     );
-  mask:
-    radial-gradient(
-      circle closest-side,
-      transparent calc(100% - 2px),
-      #000 calc(100% - 2px)
-    );
-  box-shadow:
-    0 0 0 3px color-mix(in oklab, var(--color-accent) 14%, transparent),
-    0 0 40px -4px color-mix(in oklab, var(--color-accent) 60%, transparent),
-    0 0 96px -14px color-mix(in oklab, var(--color-accent-2) 55%, transparent);
-}
-/* The photo itself sits above the frame's fill but below its ring so
-   the glow reads as an outer halo rather than a border overlay. */
-.hero-portrait img {
-  z-index: 0;
-  border-radius: 999px;
-  background: var(--color-bg-2);
+  filter: blur(22px);
 }
 
-/* ─── Floating capability cards ──────────────────────────────────── */
-/*   Reference style: a glass tile with a neon gradient edge, an icon
-   at the top, the capability name, the tool list, and a gradient bar. */
+/* ─── Capability card column (left of the portrait) ──────────────── */
 
-.hero-float-card {
-  position: absolute;
+.hero-cap-stack {
+  position: relative;
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  width: var(--hero-card-w);
-  padding: 0.7rem 0.8rem 0.75rem;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-cap-card {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
   border: 1px solid
-    color-mix(in oklab, var(--color-accent) 45%, transparent);
-  border-radius: 16px;
-  background:
-    linear-gradient(
-      150deg,
-      color-mix(in oklab, var(--color-card) 92%, transparent),
-      color-mix(in oklab, var(--color-bg-2) 86%, transparent)
-    );
+    color-mix(in oklab, var(--color-accent) 55%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-card) 92%, transparent),
+    color-mix(in oklab, var(--color-bg-2) 86%, transparent)
+  );
   color: var(--color-fg);
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
   box-shadow:
-    0 14px 32px -20px color-mix(in oklab, #000 70%, transparent),
+    0 12px 28px -20px color-mix(in oklab, #000 70%, transparent),
+    0 0 26px -14px color-mix(in oklab, var(--color-accent) 75%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 4%, transparent);
   transition:
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
     border-color 200ms ease,
     box-shadow 200ms ease;
-  will-change: transform;
 }
-.hero-float-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--color-accent) 75%, transparent);
+.hero-cap-card:hover {
+  transform: translateX(3px);
+  border-color: color-mix(in oklab, var(--color-accent) 72%, transparent);
   box-shadow:
-    0 22px 44px -18px color-mix(in oklab, var(--color-accent) 30%, transparent),
+    0 18px 38px -20px color-mix(in oklab, var(--color-accent) 34%, transparent),
+    0 0 30px -12px color-mix(in oklab, var(--color-accent) 70%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
 
-/* Card positions — the four corners of the composition. Each card's
-   inner edge stops short of the portrait circle: the portrait spans
-   the middle 34% of the box, so a 30%-wide card in a corner clears it
-   by (100 − 34 − 2×30) / 2 ≈ 3% of the box on each side. */
-.hero-float-top-left {
-  top: var(--hero-card-inset);
-  left: var(--hero-card-inset);
-}
-.hero-float-top-right {
-  top: var(--hero-card-inset);
-  right: var(--hero-card-inset);
-}
-.hero-float-bottom-left {
-  bottom: var(--hero-card-inset);
-  left: var(--hero-card-inset);
-}
-.hero-float-bottom-right {
-  bottom: var(--hero-card-inset);
-  right: var(--hero-card-inset);
-}
-
-.hero-float-icon {
+.hero-cap-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
-  padding: 0.32rem;
-  border-radius: 9px;
+  padding: 0.34rem;
+  border-radius: 10px;
   border: 1px solid color-mix(in oklab, var(--color-accent) 34%, transparent);
   background: color-mix(in oklab, var(--color-accent) 12%, transparent);
   color: var(--color-accent);
 }
-.hero-float-icon svg { display: block; }
+.hero-cap-icon svg { display: block; }
 
-.hero-float-text {
+.hero-cap-text {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.12rem;
   min-width: 0;
 }
-.hero-float-title {
+.hero-cap-title {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.01em;
   color: var(--color-fg);
 }
-.hero-float-detail {
+.hero-cap-detail {
   display: block;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.58rem;
@@ -2384,127 +2316,307 @@
   overflow-wrap: anywhere;
 }
 
-/* The gradient bar that closes the card, as in the reference. */
-.hero-float-bar {
-  display: block;
-  width: 100%;
-  height: 4px;
-  margin-top: auto;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    var(--color-accent) 0%,
-    var(--color-accent-2) 62%,
-    color-mix(in oklab, var(--color-border-strong) 90%, transparent) 62%,
-    color-mix(in oklab, var(--color-border-strong) 90%, transparent) 100%
-  );
+/* ─── Portrait stage ─────────────────────────────────────────────── */
+
+.hero-portrait-stage {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  min-height: 31rem;
 }
 
-/* ─── QA Pipeline widget ─────────────────────────────────────────── */
+/* The tilted rounded rectangle behind the portrait. In the reference it
+   is a *thin, bright emerald outline* around a dark translucent pane,
+   with a soft green bloom — not a filled emerald slab. The portrait
+   stands in front of it, so the pane reads as a glowing frame the
+   subject is standing inside. */
+.hero-portrait-frame {
+  inset: 12% 10% 8% 12%;
+  border-radius: 34px;
+  transform: rotate(9deg);
+  /* A thin emerald ring — the reference's outline is a bright hairline,
+     not a heavy band. */
+  border: 3px solid #22e59a;
+  /* The pane itself is nearly transparent — just a faint emerald wash
+     so the outline reads as a frame rather than a hole. */
+  background:
+    linear-gradient(
+      148deg,
+      color-mix(in oklab, var(--color-accent) 14%, transparent) 0%,
+      color-mix(in oklab, var(--color-accent-2) 11%, transparent) 52%,
+      color-mix(in oklab, var(--color-accent) 6%, transparent) 100%
+    );
+  /* The green bloom: a tight halo on the edge plus two wide washes
+     that light the space around the pane. */
+  box-shadow:
+    0 0 14px -2px color-mix(in oklab, var(--color-accent) 85%, transparent),
+    0 0 48px -6px color-mix(in oklab, var(--color-accent) 60%, transparent),
+    0 0 130px -16px color-mix(in oklab, var(--color-accent-2) 50%, transparent),
+    inset 0 0 34px -16px
+      color-mix(in oklab, var(--color-accent) 65%, transparent);
+}
+
+/* The photo. It is a cut-out with a real alpha channel, so it reads as
+   a cut-out standing on the tilted frame, the way the reference does.
+   The face keeps its natural proportions — no circular crop, no
+   distortion. */
+.hero-portrait {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: visible;
+  /* The subject is cut out of the square asset, so the image is sized
+     to the stage height and the head lands near the top — the way the
+     reference shows it. */
+  padding: 0 8% 0 8%;
+}
+/* The cut-out is square, so at a fixed height it is as wide as it is
+   tall. The reference shows the figure occupying most of the frame's
+   height with the body running off the bottom, so the width is capped
+   to keep the figure from overwhelming the composition. */
+.hero-portrait img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: min(23rem, 92%);
+  object-fit: contain;
+  object-position: top center;
+}
+
+/* ─── QA Pipeline — floating over the portrait's lower right ─────── */
 
 .hero-pipeline {
-  padding: 0.9rem 1rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: color-mix(in oklab, var(--color-card) 82%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  position: absolute;
+  right: 0;
+  bottom: 1%;
+  z-index: 4;
+  width: min(20.5rem, 92%);
+  padding: 0.85rem 0.95rem 0.95rem;
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 62%, transparent);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--color-card) 92%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    0 20px 44px -20px color-mix(in oklab, #000 75%, transparent),
+    0 0 34px -14px color-mix(in oklab, var(--color-accent) 70%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
 
-.hero-pipeline-dot {
+.hero-pipeline-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The green progress line running behind the four check marks. */
+.hero-pipeline-line {
+  background: var(--color-accent);
+  box-shadow: 0 0 10px -2px color-mix(in oklab, var(--color-accent) 85%, transparent);
+}
+
+/* The four green check marks, joined by the progress line. In the
+   reference these are solid emerald discs with a dark check glyph, not
+   outlined rings. */
+.hero-pipeline-check {
   position: relative;
   z-index: 1;
-  display: block;
-  width: 18px;
-  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  padding: 3px;
   border-radius: 999px;
-  border: 2px solid var(--color-border-strong);
-  background: var(--color-card);
-}
-.hero-pipeline-done {
-  border-color: var(--color-accent);
+  border: none;
   background: var(--color-accent);
-  box-shadow: 0 0 12px -2px var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 14px -3px var(--color-accent);
 }
-.hero-pipeline-active {
-  border-color: var(--color-accent-2);
-  background: color-mix(in oklab, var(--color-accent-2) 22%, transparent);
-  box-shadow: 0 0 12px -2px var(--color-accent-2);
+
+/* The browser chrome across the top of the QA Pipeline card. */
+.hero-pipeline-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: -0.85rem -0.95rem 0.9rem;
+  padding: 0.6rem 0.95rem;
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--color-accent) 24%, transparent);
+  background: color-mix(in oklab, var(--color-bg-2) 55%, transparent);
 }
-.hero-pipeline-active::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
+
+.hero-pipeline-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+.hero-pipeline-dots i {
+  display: block;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
-  background: var(--color-accent-2);
-  animation: hero-pulse 1.8s ease-in-out infinite;
 }
-.hero-pipeline-pending {
-  border-style: dashed;
-}
+.hero-pipeline-dot-red { background: #ff5f57; }
+.hero-pipeline-dot-yellow { background: #febc2e; }
+.hero-pipeline-dot-green { background: #28c840; }
 
 @keyframes hero-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%      { opacity: 0.35; transform: scale(0.7); }
 }
 
-/* ─── Responsive collapse ────────────────────────────────────────── */
-/*   1024–1149px: the hero is stacked (see the layout rule above), so
-   the composition has the whole container. It is capped and centred so
-   it does not balloon to the full width. */
-@media (min-width: 1024px) and (max-width: 1149px) {
-  .hero-orbit {
-    max-width: 40rem;
+/* ─── Headline lines ─────────────────────────────────────────────── */
+/*   The reference stacks the headline as two lines: "Build, Test and
+   Ship" over "Reliable Software.". Each line is its own block so the
+   break is exact. Below 900px the first line no longer fits on its own,
+   so the lines go back to inline and reflow naturally. */
+.hero-line {
+  display: block;
+}
+@media (max-width: 899px) {
+  .hero-line {
+    display: inline;
   }
 }
 
-/*   Below 1024px the four orbiting cards cannot sit beside a portrait
-   without crowding it, so they fall back to a 2×2 grid underneath. */
+/* ─── Headline underline swoosh ──────────────────────────────────── */
+/*   The hand-drawn marker stroke beneath the headline in the reference.
+   It sits on its own line between the H1 and the role label. */
+.hero-headline-underline {
+  display: block;
+  width: min(19rem, 58%);
+  height: 1.1rem;
+  margin-top: -0.55rem;
+  margin-left: 0.1rem;
+  overflow: visible;
+}
+
+/* ─── Metric bar icons ───────────────────────────────────────────── */
+
+.hero-metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--color-accent);
+}
+.hero-metric-icon svg { display: block; }
+
+/* ─── Core Stack technology icons ────────────────────────────────── */
+
+.hero-stack-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-accent);
+  opacity: 0.85;
+}
+.hero-stack-icon svg { display: block; }
+
+/* ─── Responsive collapse ────────────────────────────────────────── */
+/*   1024–1149px: the hero is stacked (see the layout rule above), so
+   the stage has the whole container. It is capped and centred so it
+   does not balloon to the full width. */
+@media (min-width: 1024px) and (max-width: 1149px) {
+  .hero-stage {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+}
+
+/*   Below 1024px the two halves of the stage cannot sit side by side
+   without crowding the portrait, so the portrait comes first and the
+   capability cards fall into a 2×2 grid underneath it. The pipeline
+   card drops out of its floating position and flows after the portrait
+   so it can never collide with the card grid. */
 @media (max-width: 1023px) {
-  .hero-orbit {
+  .hero-stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'portrait'
+      'pipeline'
+      'cards';
+    gap: 1.4rem;
+    min-height: 0;
+    padding-bottom: 0;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+  .hero-cap-stack {
+    grid-area: cards;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'portrait portrait'
-      'tl       tr'
-      'bl       br';
     gap: 0.6rem;
-    aspect-ratio: auto;
-    width: 100%;
-    max-width: 30rem;
-    margin-inline: auto;
   }
-  .hero-orbit-glow { grid-area: portrait; position: relative; inset: auto; }
-  .hero-portrait {
+  .hero-portrait-stage {
     grid-area: portrait;
-    position: relative;
-    top: auto;
-    left: auto;
-    width: 62%;
-    transform: none;
+    min-height: 0;
+    height: auto;
+    /* The frame is sized in absolute terms here so it stays a snug
+       border around the figure instead of ballooning with the stage. */
+    width: min(20rem, 100%);
+    aspect-ratio: 3 / 4;
     margin-inline: auto;
   }
-  .hero-float-card {
-    position: static;
-    width: auto;
-    justify-self: stretch;
+  /* The frame hugs the figure at this size rather than swallowing it. */
+  .hero-portrait-frame {
+    inset: 5% 9% 5% 9%;
   }
-  .hero-float-top-left     { grid-area: tl; }
-  .hero-float-top-right    { grid-area: tr; }
-  .hero-float-bottom-left  { grid-area: bl; }
-  .hero-float-bottom-right { grid-area: br; }
+  .hero-portrait {
+    padding: 0 6% 0 6%;
+  }
+  .hero-portrait img {
+    max-width: min(16rem, 78%);
+  }
+  .hero-pipeline {
+    grid-area: pipeline;
+    position: static;
+    width: 100%;
+    margin-top: 0;
+  }
 }
+
+@media (max-width: 640px) {
+  .hero-cap-stack {
+    grid-template-columns: 1fr;
+  }
+  .hero-portrait-stage {
+    width: min(17rem, 100%);
+    aspect-ratio: 1 / 1;
+  }
+  .hero-portrait-frame {
+    inset: 4% 7% 4% 7%;
+  }
+  .hero-portrait img {
+    max-width: min(14rem, 76%);
+  }
+}
+
 @media (max-width: 480px) {
-  .hero-orbit { gap: 0.45rem; }
-  .hero-float-card { padding: 0.5rem 0.6rem 0.55rem; }
-  .hero-float-icon { width: 26px; height: 26px; }
-  .hero-float-title { font-size: 0.74rem; }
-  .hero-float-detail { font-size: 0.55rem; }
+  .hero-cap-card { padding: 0.6rem 0.7rem; }
+  .hero-cap-icon { width: 28px; height: 28px; }
+  .hero-cap-title { font-size: 0.76rem; }
+  .hero-cap-detail { font-size: 0.55rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-float-card,
-  .hero-float-card:hover {
+  .hero-cap-card,
+  .hero-cap-card:hover {
     animation: none !important;
     transform: none !important;
   }

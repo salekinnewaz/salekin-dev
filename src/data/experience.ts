@@ -202,30 +202,37 @@ export const STACK_GROUPS: readonly StackGroup[] = [
 /**
  * The 4 headline credibility metrics shown in the bar directly beneath
  * the hero. Every number is drawn from the verified CV.
+ *
+ * `icon` is the key for the glyph that sits to the left of the number.
  */
 export const CREDIBILITY_METRICS: readonly {
   value: string;
   label: string;
   detail: string;
+  icon: 'briefcase' | 'globe' | 'rocket' | 'code';
 }[] = [
   {
     value: '5+',
-    label: 'Years in QA',
-    detail: 'Jan 2022 — present, plus ISTQB® Certified',
+    label: 'Years in QA & Development',
+    detail: 'Jan 2022 — Present, ISTQB® Certified',
+    icon: 'briefcase',
   },
   {
     value: '4+',
-    label: 'Concurrent Global Projects',
-    detail: 'Norway · Canada · USA clients',
+    label: 'Global Projects',
+    detail: 'Norway · Canada · USA',
+    icon: 'globe',
   },
   {
     value: '3',
-    label: 'Zero-Rollback Prod Releases',
-    detail: 'Delivered for a Norway-based client',
+    label: 'Production Releases',
+    detail: 'Delivered with confidence',
+    icon: 'rocket',
   },
   {
     value: '0-Dep',
-    label: 'Open Source Reporter',
+    label: 'Open Source Contributor',
     detail: 'playwright-summary-reporter on npm',
+    icon: 'code',
   },
 ] as const;

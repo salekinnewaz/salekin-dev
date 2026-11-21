@@ -7,6 +7,7 @@ import { ReviewsSection } from '@/components/site/ReviewsSection';
 import { ContactSection } from '@/components/site/ContactSection';
 import { getSiteSettings } from '@/lib/queries/site';
 import { env } from '@/lib/env';
+import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
 
 // The home page reads the admin-managed portrait from the database on
 // every request, so it must not be statically prerendered — otherwise
@@ -62,7 +63,7 @@ export default async function HomePage() {
     <div className="flex flex-col">
       <Hero
         profileImage={{
-          src: site.profileImage.dataUri ? '/profile-image' : '/images/profile.jpg',
+          src: site.profileImage.dataUri ? '/profile-image' : DEFAULT_PROFILE_IMAGE,
           position: site.profileImage.position,
           version: site.profileImage.version,
         }}

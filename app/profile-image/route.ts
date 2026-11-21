@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSiteSettings } from '@/lib/queries/site';
+import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,7 +35,7 @@ export async function GET() {
   if (!dataUri) {
     return new NextResponse(null, {
       status: 302,
-      headers: { Location: '/images/profile.jpg' },
+      headers: { Location: DEFAULT_PROFILE_IMAGE },
     });
   }
 
@@ -44,7 +45,7 @@ export async function GET() {
     // Serve the default rather than a broken image.
     return new NextResponse(null, {
       status: 302,
-      headers: { Location: '/images/profile.jpg' },
+      headers: { Location: DEFAULT_PROFILE_IMAGE },
     });
   }
 
