@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { isAdminConfigured, isAuthed } from '@/lib/security/admin-session';
+import { hashBytes } from '@/lib/utils/hash';
+import { hasAlphaChannel } from '@/lib/utils/image-alpha';
+import { PROFILE_IMAGE_SETTING_KEYS } from '@/lib/constants';
+import { MAX_DATA_URI_LENGTH } from '@/lib/queries/site';
 
 /**
  * Profile image management.
@@ -24,13 +28,26 @@ import { isAdminConfigured, isAuthed } from '@/lib/security/admin-session';
  * bail out before touching the database.
  */
 
-/** 5 MB of raw binary. Base64 inflates by ~4/3. */
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+/**
+ * 3 MB of raw binary. Base64 inflates by ~4/3, so a 3 MB upload is
+ * about 4 MB of data URI.
+ *
+ * Why not 5 MB: the hosting platform rejects request bodies over
+ * about 4.5 MB with a bare HTTP 413, before this action ever runs. A
+ * 5 MB limit would therefore be unreachable in production — the
+ * admin would see a platform error instead of this app's friendly
+ * message. 3 MB leaves enough headroom for the multipart overhead and
+ * still fits comfortably inside the database's TEXT capacity.
+ */
+const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
 
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-const SETTING_IMAGE_KEY = 'profile_image';
-const SETTING_POSITION_KEY = 'profile_image_position';
+const SETTING_IMAGE_KEY = PROFILE_IMAGE_SETTING_KEYS.image;
+const SETTING_POSITION_KEY = PROFILE_IMAGE_SETTING_KEYS.position;
+const SETTING_HAS_ALPHA_KEY = PROFILE_IMAGE_SETTING_KEYS.hasAlpha;
+const SETTING_IS_SET_KEY = PROFILE_IMAGE_SETTING_KEYS.isSet;
+const SETTING_MODE_KEY = PROFILE_IMAGE_SETTING_KEYS.mode;
 
 export type ProfileImageState =
   | {
@@ -122,7 +139,7 @@ export async function saveProfileImageAction(
   if (file.size > MAX_IMAGE_BYTES) {
     return {
       ok: false,
-      error: 'Image is too large. The maximum is 5 MB.',
+      error: 'Image is too large. The maximum is 3 MB.',
     };
   }
 
@@ -130,7 +147,7 @@ export async function saveProfileImageAction(
   try {
     const buf = await file.arrayBuffer();
     if (buf.byteLength > MAX_IMAGE_BYTES) {
-      return { ok: false, error: 'Image is too large. The maximum is 5 MB.' };
+      return { ok: false, error: 'Image is too large. The maximum is 3 MB.' };
     }
     bytes = Buffer.from(buf);
   } catch {
@@ -155,10 +172,29 @@ export async function saveProfileImageAction(
 
   const dataUri = `data:${sniffed};base64,${bytes.toString('base64')}`;
 
+  // The write side needs its own bound: the read side refuses an
+  // over-long row, but a row that was stored oversized would be
+  // invisible rather than rejected.
+  if (dataUri.length > MAX_DATA_URI_LENGTH) {
+    return {
+      ok: false,
+      error: 'Image is too large. The maximum is 3 MB.',
+    };
+  }
+
+  // Whether the image carries an alpha channel decides how the hero
+  // renders it: a cut-out stands on the frame, an opaque photo fills
+  // it. This is read from the bytes, not from the declared MIME.
+  const alpha = hasAlphaChannel(bytes, sniffed);
+
   // Keep the object-position alongside the image so a crop survives a
   // subsequent image replacement only when the admin explicitly asks
   // for it (the form sends the current position).
   const position = parsePosition(formData.get('position'));
+
+  // An explicit render-mode override from the admin panel wins over
+  // the detected one. Clearing it returns the hero to detection.
+  const mode = parseMode(formData.get('mode'));
 
   try {
     await db.setting.upsert({
@@ -170,6 +206,21 @@ export async function saveProfileImageAction(
       where: { key: SETTING_POSITION_KEY },
       update: { value: position },
       create: { key: SETTING_POSITION_KEY, value: position },
+    });
+    await db.setting.upsert({
+      where: { key: SETTING_HAS_ALPHA_KEY },
+      update: { value: alpha ? 'true' : 'false' },
+      create: { key: SETTING_HAS_ALPHA_KEY, value: alpha ? 'true' : 'false' },
+    });
+    await db.setting.upsert({
+      where: { key: SETTING_IS_SET_KEY },
+      update: { value: 'true' },
+      create: { key: SETTING_IS_SET_KEY, value: 'true' },
+    });
+    await db.setting.upsert({
+      where: { key: SETTING_MODE_KEY },
+      update: { value: mode },
+      create: { key: SETTING_MODE_KEY, value: mode },
     });
   } catch (err) {
     console.error('saveProfileImageAction failed:', err);
@@ -240,7 +291,7 @@ export async function saveProfilePositionAction(
 
 /**
  * Clear the stored portrait and fall back to the shipped default
- * (/images/profile.jpg).
+ * (/images/profile-cutout.png).
  */
 export async function restoreDefaultProfileImageAction(
   _prev: ProfileImageState,
@@ -260,6 +311,23 @@ export async function restoreDefaultProfileImageAction(
       where: { key: SETTING_POSITION_KEY },
       update: { value: '50% 30%' },
       create: { key: SETTING_POSITION_KEY, value: '50% 30%' },
+    });
+    // The shipped default is a cut-out PNG, so the mode returns to
+    // `cutout` along with everything else.
+    await db.setting.upsert({
+      where: { key: SETTING_HAS_ALPHA_KEY },
+      update: { value: 'true' },
+      create: { key: SETTING_HAS_ALPHA_KEY, value: 'true' },
+    });
+    await db.setting.upsert({
+      where: { key: SETTING_IS_SET_KEY },
+      update: { value: 'false' },
+      create: { key: SETTING_IS_SET_KEY, value: 'false' },
+    });
+    await db.setting.upsert({
+      where: { key: SETTING_MODE_KEY },
+      update: { value: '' },
+      create: { key: SETTING_MODE_KEY, value: '' },
     });
   } catch (err) {
     console.error('restoreDefaultProfileImageAction failed:', err);
@@ -288,14 +356,12 @@ function parsePosition(raw: FormDataEntryValue | null): string {
   return `${x}% ${y}%`;
 }
 
-/** FNV-1a 64-bit — a cheap, stable content hash for cache busting. */
-function hashBytes(bytes: Buffer): string {
-  let hash = 0xcbf29ce484222325n;
-  const prime = 0x100000001b3n;
-  const mask = 0xffffffffffffffffn;
-  for (const byte of bytes) {
-    hash ^= BigInt(byte);
-    hash = (hash * prime) & mask;
-  }
-  return hash.toString(16).padStart(16, '0');
+/**
+ * An explicit render-mode override from the admin panel. An empty
+ * value means "use the detected mode".
+ */
+function parseMode(raw: FormDataEntryValue | null): string {
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (value === 'cutout' || value === 'photo') return value;
+  return '';
 }

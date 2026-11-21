@@ -120,9 +120,10 @@ export default async function AdminPage() {
       />
 
       <ProfileImageManager
-        hasCustomImage={site.profileImage.dataUri !== null}
+        hasCustomImage={site.profileImage.hasCustomImage}
         position={site.profileImage.position}
         version={site.profileImage.version}
+        mode={site.profileImage.mode}
       />
 
       <section className="flex flex-col gap-4">

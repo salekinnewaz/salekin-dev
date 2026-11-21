@@ -2386,6 +2386,44 @@
   object-position: top center;
 }
 
+/* ─── Photo mode ────────────────────────────────────────────────────
+   An uploaded image may be an ordinary opaque photo rather than a
+   cut-out. In that case the hero fills the tilted frame with it
+   instead of letterboxing it into the middle of the stage.
+
+   Every rule below is *additive*: it is scoped to
+   `[data-mode="photo"]`, a state the default cut-out never enters.
+   The cut-out path's markup and rendering are therefore untouched —
+   the default hero renders exactly as it did before this rule
+   existed. */
+
+.hero-portrait[data-mode='photo'] img {
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* The photo is clipped to the same tilted rounded rectangle as the
+   frame, so it reads as a photo *inside* the frame rather than a
+   rectangle floating across it. The geometry mirrors
+   `.hero-portrait-frame` exactly. */
+.hero-portrait-photo-clip {
+  position: absolute;
+  inset: 12% 10% 8% 12%;
+  z-index: 1;
+  border-radius: 34px;
+  transform: rotate(9deg);
+  overflow: hidden;
+}
+.hero-portrait-photo-clip img {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 /* ─── QA Pipeline — floating over the portrait's lower right ─────── */
 
 .hero-pipeline {

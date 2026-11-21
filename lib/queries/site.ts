@@ -1,4 +1,8 @@
 import { db } from '../db';
+import {
+  DEFAULT_PROFILE_MODE,
+  type ProfileImageMode,
+} from '../constants';
 
 const SITE_SETTING_KEYS = [
   'site_title',
@@ -27,8 +31,14 @@ const SITE_SETTING_KEYS = [
   'stat_years_coding',
   'stat_sites_shipped',
   'stat_roles_held',
-  'profile_image',
+  // NOTE: 'profile_image' is deliberately absent. It holds the portrait
+  // as a multi-megabyte base64 data URI, and this query runs on every
+  // dynamic page. See getProfileImageVersion() and
+  // getProfileImageDataUri() for the two narrow reads that do need it.
   'profile_image_position',
+  'profile_image_has_alpha',
+  'profile_image_set',
+  'profile_image_mode',
 ] as const;
 
 export type SiteSettingKey = (typeof SITE_SETTING_KEYS)[number];
@@ -95,8 +105,17 @@ export type SiteTheme = {
  * so an admin can reframe a crop without re-uploading.
  */
 export type SiteProfileImage = {
-  /** The data URI of the active portrait, or null when the default is used. */
-  dataUri: string | null;
+  /**
+   * Whether a custom portrait is stored, as opposed to the default.
+   *
+   * The bytes are deliberately NOT part of this shape. `getSiteSettings()`
+   * runs on every render of a `force-dynamic` page, and the portrait is
+   * a multi-megabyte base64 data URI — selecting it there would put
+   * megabytes into every page's query path for no benefit, since the
+   * only consumer of the bytes is `/profile-image`, which reads them
+   * through `getProfileImageDataUri()` instead.
+   */
+  hasCustomImage: boolean;
   /** CSS `object-position` for the portrait, e.g. "50% 30%". */
   position: string;
   /**
@@ -105,6 +124,14 @@ export type SiteProfileImage = {
    * append it to the image URL and pick up a new file immediately.
    */
   version: string;
+  /** Whether the stored portrait carries an alpha channel. */
+  hasAlpha: boolean;
+  /**
+   * How the hero renders the portrait: `cutout` letterboxes it into the
+   * stage so the subject stands on the tilted frame, `photo` fills the
+   * tilted frame with it.
+   */
+  mode: ProfileImageMode;
 };
 
 export type SiteSettings = {
@@ -163,9 +190,10 @@ const DEFAULTS = {
 /**
  * A stored portrait is a base64 data URI. We only accept the image
  * MIME types the admin upload allows, and cap the length so a rogue row
- * cannot blow up the settings read. 5 MB of binary is ~6.7 MB of base64.
+ * cannot blow up the settings read. 3 MB of binary is ~4 MB of base64;
+ * the cap leaves headroom for that.
  */
-const MAX_DATA_URI_LENGTH = 7_000_000;
+export const MAX_DATA_URI_LENGTH = 7_000_000;
 
 const ALLOWED_IMAGE_MIME = new Set([
   'image/jpeg',
@@ -174,30 +202,56 @@ const ALLOWED_IMAGE_MIME = new Set([
 ]);
 
 /**
- * Parse the stored profile image. Returns null when nothing usable is
- * stored, which tells the caller to fall back to the default portrait.
+ * Parse the stored profile image metadata.
+ *
+ * This never touches the image bytes. "Is a custom portrait stored?" is
+ * answered by the `profile_image_set` flag the upload/restore actions
+ * maintain, so a multi-megabyte data URI is never pulled into the
+ * settings read that every page performs.
+ *
+ * `hasAlpha` decides how the hero renders the portrait. When the
+ * `profile_image_has_alpha` row is missing — an image stored before
+ * that row existed — the mode falls back to the conservative default
+ * (`cutout`), which letterboxes the portrait exactly the way the
+ * shipped cut-out already does.
+ *
+ * `mode` is the admin's explicit override when present. The upload
+ * action writes it from the *bytes* (via `hasAlphaChannel`), so it is
+ * authoritative whenever it is set.
  */
 function parseProfileImage(
-  raw: string | undefined,
+  isSet: string | undefined,
   position: string | undefined,
   version: string,
+  hasAlphaRow: string | undefined,
+  modeOverride: string | undefined,
+  legacyHasImage: boolean,
 ): SiteProfileImage {
-  const dataUri =
-    raw && raw.length <= MAX_DATA_URI_LENGTH ? raw : null;
-  if (dataUri) {
-    const match = /^data:([^;,]+);base64,/.exec(dataUri);
-    if (!match || !ALLOWED_IMAGE_MIME.has(match[1] ?? '')) {
-      return {
-        dataUri: null,
-        position: parsePosition(position),
-        version,
-      };
-    }
-  }
+  const positionValue = parsePosition(position);
+  // The flag row is authoritative when it exists. When it is missing —
+  // an image stored before the flag was introduced — fall back to the
+  // cheap "is the row non-empty" check so an existing portrait is not
+  // reported as absent.
+  const hasCustomImage =
+    isSet === undefined ? legacyHasImage : asBool(isSet, false);
+  const hasAlpha = asBool(hasAlphaRow, true);
+
+  // An explicit admin override wins over the detected mode. Without
+  // one, the alpha flag decides: a transparent PNG stands on the
+  // frame, an opaque JPEG fills it.
+  const mode: ProfileImageMode =
+    modeOverride === 'cutout' || modeOverride === 'photo'
+      ? modeOverride
+      : hasAlpha
+        ? DEFAULT_PROFILE_MODE
+        : 'photo';
+
   return {
-    dataUri,
-    position: parsePosition(position),
+    hasCustomImage,
+    position: positionValue,
     version,
+    hasAlpha,
+    mode,
   };
 }
 
@@ -274,6 +328,13 @@ function parseSkills(raw: string | undefined): SkillsByCategory {
 
 /**
  * One read for the whole site. Each consumer picks the slice it needs.
+ *
+ * The `profile_image` row is deliberately NOT part of this query. It
+ * holds the portrait as a base64 data URI — megabytes — and every
+ * dynamic page runs this function. Its `updatedAt` is read separately
+ * by `getProfileImageVersion()`, without the value; the bytes are
+ * fetched by `getProfileImageDataUri()`, used solely by the
+ * `/profile-image` route.
  */
 export async function getSiteSettings(): Promise<SiteSettings> {
   const rows = await db.setting.findMany({
@@ -281,11 +342,22 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     select: { key: true, value: true, updatedAt: true },
   });
   const map: Record<string, string> = {};
-  const updatedAt: Record<string, string> = {};
   for (const row of rows) {
     map[row.key] = row.value;
-    updatedAt[row.key] = row.updatedAt.getTime().toString(36);
   }
+
+  // The portrait's version token comes from its row's `updatedAt`. The
+  // row itself is read separately, without its value, so the
+  // multi-megabyte data URI never reaches this query.
+  const version = await getProfileImageVersion();
+
+  // Legacy fallback: an image stored before the `profile_image_set`
+  // flag existed has no flag row. Only then do we pay for a second
+  // query, and only to learn whether that row holds anything.
+  const legacyHasImage =
+    map['profile_image_set'] === undefined
+      ? await hasStoredProfileImage()
+      : false;
 
   const identity: SiteIdentity = {
     siteTitle: str(map['site_title'], DEFAULTS.site_title),
@@ -336,10 +408,71 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   };
 
   const profileImage = parseProfileImage(
-    map['profile_image'],
+    map['profile_image_set'],
     map['profile_image_position'],
-    updatedAt['profile_image'] ?? '0',
+    version,
+    map['profile_image_has_alpha'],
+    map['profile_image_mode'],
+    legacyHasImage,
   );
 
   return { identity, sections, theme, skills, stats, profileImage };
+}
+
+/**
+ * The cache-busting version token for the portrait.
+ *
+ * Derived from the `profile_image` row's `updatedAt`, so it changes
+ * whenever the portrait is replaced or restored. The row's *value* is
+ * not selected — only its timestamp — which keeps the multi-megabyte
+ * data URI out of the settings read.
+ */
+export async function getProfileImageVersion(): Promise<string> {
+  const row = await db.setting.findUnique({
+    where: { key: 'profile_image' },
+    select: { updatedAt: true },
+  });
+  return row ? row.updatedAt.getTime().toString(36) : '0';
+}
+
+/**
+ * Whether the `profile_image` row holds anything, without pulling the
+ * multi-megabyte value across the wire.
+ *
+ * This is the legacy path — it only runs when the `profile_image_set`
+ * flag row is absent, i.e. for a portrait stored before that flag
+ * existed. On every normal request the flag answers the question for
+ * free.
+ */
+async function hasStoredProfileImage(): Promise<boolean> {
+  const rows = await db.setting.findMany({
+    where: { key: 'profile_image' },
+    select: { value: true },
+  });
+  const raw = rows[0]?.value;
+  if (!raw) return false;
+  const match = /^data:([^;,]+);base64,/.exec(raw);
+  return Boolean(match && ALLOWED_IMAGE_MIME.has(match[1] ?? ''));
+}
+
+/**
+ * The stored portrait's bytes, as a base64 data URI.
+ *
+ * This is the *only* path that reads the `profile_image` value, and it
+ * exists so that the multi-megabyte value stays out of the settings
+ * read every page performs. Returns null when nothing usable is
+ * stored, which tells the caller to serve the shipped default.
+ */
+export async function getProfileImageDataUri(): Promise<string | null> {
+  const row = await db.setting.findUnique({
+    where: { key: 'profile_image' },
+    select: { value: true },
+  });
+  const raw = row?.value;
+  if (!raw || raw.length > MAX_DATA_URI_LENGTH) return null;
+
+  const match = /^data:([^;,]+);base64,/.exec(raw);
+  if (!match || !ALLOWED_IMAGE_MIME.has(match[1] ?? '')) return null;
+
+  return raw;
 }

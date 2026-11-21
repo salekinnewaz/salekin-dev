@@ -10,7 +10,7 @@ import {
   HERO_CORE_STACK,
   HERO_PIPELINE,
 } from '@/src/data/hero';
-import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
+import { DEFAULT_PROFILE_IMAGE, type ProfileImageMode } from '@/lib/constants';
 
 /**
  * Hero — the first fold.
@@ -52,12 +52,18 @@ type HeroProps = {
    * the shipped cut-out until an admin uploads a replacement.
    */
   profileImage?: {
-    /** The public URL of the active portrait. */
-    src: string;
     /** CSS `object-position` for the crop, e.g. "50% 30%". */
     position: string;
     /** Cache-busting token derived from the stored row's timestamp. */
     version: string;
+    /**
+     * How the portrait is rendered.
+     *
+     * `cutout` (the default) letterboxes the image into the stage, so
+     * a subject with an alpha channel stands on the tilted frame.
+     * `photo` fills the tilted frame with an opaque image instead.
+     */
+    mode?: ProfileImageMode;
   };
 };
 
@@ -73,6 +79,8 @@ export function Hero({
     ? `/profile-image?v=${profileImage.version}`
     : DEFAULT_PROFILE_IMAGE;
   const portraitPosition = profileImage?.position ?? '50% 30%';
+  const portraitMode: ProfileImageMode = profileImage?.mode ?? 'cutout';
+  const isPhotoMode = portraitMode === 'photo';
 
   return (
     <section
@@ -232,19 +240,41 @@ export function Hero({
                 swapping the portrait never changes the composition: the
                 frame, the card column and the QA Pipeline are all
                 sized independently of the photo.
+
+                An *opaque* upload is different: there is nothing to
+                "stand on" the frame, so it is clipped to the frame's
+                tilted rounded rectangle and fills it. That branch is
+                entirely separate markup, so the cut-out's DOM — and
+                therefore its rendering — is untouched.
               */}
-              <div className="hero-portrait">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={portraitSrc}
-                  alt={`${name} — profile portrait`}
-                  width={400}
-                  height={400}
-                  className="relative h-full w-full object-contain object-bottom"
-                  style={{ objectPosition: portraitPosition }}
-                  fetchPriority="high"
-                  decoding="async"
-                />
+              <div className="hero-portrait" data-mode={portraitMode}>
+                {isPhotoMode ? (
+                  <div className="hero-portrait-photo-clip">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={portraitSrc}
+                      alt={`${name} — profile portrait`}
+                      width={400}
+                      height={400}
+                      className="relative h-full w-full object-cover"
+                      style={{ objectPosition: portraitPosition }}
+                      fetchPriority="high"
+                      decoding="async"
+                    />
+                  </div>
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={portraitSrc}
+                    alt={`${name} — profile portrait`}
+                    width={400}
+                    height={400}
+                    className="relative h-full w-full object-contain object-bottom"
+                    style={{ objectPosition: portraitPosition }}
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                )}
               </div>
             </div>
 

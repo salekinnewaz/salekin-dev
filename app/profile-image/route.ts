@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getSiteSettings } from '@/lib/queries/site';
+import { getProfileImageDataUri } from '@/lib/queries/site';
 import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
+import { hashBytes } from '@/lib/utils/hash';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,8 +28,7 @@ export const dynamic = 'force-dynamic';
  *     appears without a hard refresh.
  */
 export async function GET() {
-  const site = await getSiteSettings();
-  const dataUri = site.profileImage.dataUri;
+  const dataUri = await getProfileImageDataUri();
 
   // No managed portrait stored — fall back to the shipped default so
   // the <img> never 404s and the hero always shows something.
@@ -77,20 +77,4 @@ function parseDataUri(dataUri: string): { bytes: Buffer; mime: string } | null {
   }
   if (bytes.byteLength === 0) return null;
   return { bytes, mime };
-}
-
-/**
- * FNV-1a 64-bit, rendered as hex. Not a security primitive — it only
- * needs to be a cheap, stable content hash for the ETag and the
- * cache-busting query string.
- */
-function hashBytes(bytes: Buffer): string {
-  let hash = 0xcbf29ce484222325n;
-  const prime = 0x100000001b3n;
-  const mask = 0xffffffffffffffffn;
-  for (const byte of bytes) {
-    hash ^= BigInt(byte);
-    hash = (hash * prime) & mask;
-  }
-  return hash.toString(16).padStart(16, '0');
 }

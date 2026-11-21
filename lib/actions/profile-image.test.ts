@@ -129,7 +129,9 @@ describe('actions/profile-image', () => {
       fileForm(PNG_BYTES, 'image/png'),
     );
     expect(r.ok).toBe(true);
-    expect(upsert).toHaveBeenCalledTimes(2);
+    // The image, the crop, the alpha flag, the "is set" flag and the
+    // render-mode override.
+    expect(upsert).toHaveBeenCalledTimes(5);
     // The image is stored as a data URI so it survives redeploys.
     const imageWrite = upsert.mock.calls.find(
       (c) => (c[0] as { where: { key: string } }).where.key === 'profile_image',
@@ -137,6 +139,65 @@ describe('actions/profile-image', () => {
     const value = (imageWrite?.[0] as { create: { value: string } }).create.value;
     expect(value.startsWith('data:image/png;base64,')).toBe(true);
     expect(revalidatePath).toHaveBeenCalledWith('/');
+  });
+
+  /** The value written for a given setting key. */
+  function writtenValue(key: string): string | undefined {
+    const write = upsert.mock.calls.find(
+      (c) => (c[0] as { where: { key: string } }).where.key === key,
+    );
+    return (write?.[0] as { create: { value: string } } | undefined)?.create
+      .value;
+  }
+
+  it('records that a PNG with an alpha channel is a cut-out', async () => {
+    await authedCookie();
+    const { saveProfileImageAction } = await load();
+    const r = await saveProfileImageAction(
+      { ok: false, error: '' },
+      fileForm(PNG_BYTES, 'image/png'),
+    );
+    expect(r.ok).toBe(true);
+    // The 1×1 test PNG is colour type 6 (truecolour + alpha).
+    expect(writtenValue('profile_image_has_alpha')).toBe('true');
+    expect(writtenValue('profile_image_set')).toBe('true');
+  });
+
+  it('records that a JPEG is an opaque photo', async () => {
+    await authedCookie();
+    const { saveProfileImageAction } = await load();
+    // A minimal JPEG header is enough for the magic-byte sniff.
+    const jpeg = Buffer.concat([
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+      Buffer.alloc(64, 0),
+    ]);
+    const r = await saveProfileImageAction(
+      { ok: false, error: '' },
+      fileForm(jpeg, 'image/jpeg', 'portrait.jpg'),
+    );
+    expect(r.ok).toBe(true);
+    expect(writtenValue('profile_image_has_alpha')).toBe('false');
+  });
+
+  it('records an explicit render-mode override', async () => {
+    await authedCookie();
+    const { saveProfileImageAction } = await load();
+    const fd = fileForm(PNG_BYTES, 'image/png');
+    fd.set('mode', 'photo');
+    const r = await saveProfileImageAction({ ok: false, error: '' }, fd);
+    expect(r.ok).toBe(true);
+    expect(writtenValue('profile_image_mode')).toBe('photo');
+  });
+
+  it('ignores an unknown render-mode override', async () => {
+    await authedCookie();
+    const { saveProfileImageAction } = await load();
+    const fd = fileForm(PNG_BYTES, 'image/png');
+    fd.set('mode', 'nonsense');
+    const r = await saveProfileImageAction({ ok: false, error: '' }, fd);
+    expect(r.ok).toBe(true);
+    // An empty override means "use the detected mode".
+    expect(writtenValue('profile_image_mode')).toBe('');
   });
 
   it('rejects a file whose bytes are not a real image', async () => {
@@ -177,13 +238,13 @@ describe('actions/profile-image', () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
-  it('rejects a file over the 5 MB limit', async () => {
+  it('rejects a file over the 3 MB limit', async () => {
     await authedCookie();
     const { saveProfileImageAction } = await load();
-    // 6 MB of PNG-signature bytes — passes the sniff, fails the size cap.
+    // 4 MB of PNG-signature bytes — passes the sniff, fails the size cap.
     const big = Buffer.concat([
       PNG_BYTES,
-      Buffer.alloc(6 * 1024 * 1024, 0),
+      Buffer.alloc(4 * 1024 * 1024, 0),
     ]);
     const r = await saveProfileImageAction(
       { ok: false, error: '' },
@@ -192,6 +253,20 @@ describe('actions/profile-image', () => {
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toMatch(/too large/i);
     expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it('accepts a file just under the 3 MB limit', async () => {
+    await authedCookie();
+    const { saveProfileImageAction } = await load();
+    const big = Buffer.concat([
+      PNG_BYTES,
+      Buffer.alloc(3 * 1024 * 1024 - PNG_BYTES.length, 0),
+    ]);
+    const r = await saveProfileImageAction(
+      { ok: false, error: '' },
+      fileForm(big, 'image/png'),
+    );
+    expect(r.ok).toBe(true);
   });
 
   it('rejects a request with no file at all', async () => {
@@ -235,5 +310,9 @@ describe('actions/profile-image', () => {
     );
     const value = (write?.[0] as { create: { value: string } }).create.value;
     expect(value).toBe('');
+    // The render mode returns to the default cut-out.
+    expect(writtenValue('profile_image_has_alpha')).toBe('true');
+    expect(writtenValue('profile_image_set')).toBe('false');
+    expect(writtenValue('profile_image_mode')).toBe('');
   });
 });

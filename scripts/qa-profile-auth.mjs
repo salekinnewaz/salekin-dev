@@ -183,7 +183,8 @@ record(
   'No image was persisted by the unauthorised request',
   tokenBefore === tokenAfter &&
     (tokenBefore === null
-      ? check.status === 302 && Boolean(loc && loc.includes('/images/profile.jpg'))
+      ? check.status === 302 &&
+        Boolean(loc && loc.includes('/images/profile-cutout.png'))
       : true),
   `token ${tokenBefore ?? 'none'} → ${tokenAfter ?? 'none'} · status=${check.status}`,
 );

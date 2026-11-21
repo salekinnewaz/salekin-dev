@@ -351,11 +351,14 @@ await p.waitForTimeout(900);
   );
 
   // The source must not contain the literal default path anywhere.
+  // The shipped default is the cut-out PNG — see DEFAULT_PROFILE_IMAGE
+  // in lib/constants.ts.
   const html = await (await fetch(BASE)).text();
   const heroSlice = html.slice(html.indexOf('id="hero"'), html.indexOf('id="services"'));
   record(
-    'No hardcoded /images/profile.jpg reference in the hero markup',
-    !heroSlice.includes('/images/profile.jpg'),
+    'No hardcoded default-portrait reference in the hero markup',
+    !heroSlice.includes('/images/profile.jpg') &&
+      !heroSlice.includes('/images/profile-cutout.png'),
   );
 }
 
@@ -369,6 +372,45 @@ await p.waitForTimeout(900);
     'The portrait has explicit width/height attributes to prevent layout shift',
     img.width === '400' && img.height === '400',
     JSON.stringify(img),
+  );
+}
+
+// ── The cut-out renders in cut-out mode ───────────────────────────
+//
+// The hero supports two render modes. The default portrait is a
+// cut-out, which is letterboxed into the stage so the subject stands
+// on the tilted frame. The photo mode — an opaque upload — fills the
+// frame instead.
+//
+// The trap this guards against: Tailwind's `object-contain` utility is
+// emitted *after* the hand-written `.hero-portrait img` rule, so the
+// utility wins and the stylesheet's own `object-fit` is dead. Any
+// change that moves the fit from the utility into the stylesheet (or
+// vice versa) silently alters the approved hero's rendering. Asserting
+// the *computed* value catches that where reading the CSS would not.
+{
+  const mode = await p
+    .locator('#hero .hero-portrait')
+    .evaluate((el) => el.getAttribute('data-mode'));
+  record(
+    'The default portrait renders in cut-out mode',
+    mode === 'cutout',
+    `data-mode=${mode}`,
+  );
+
+  const fit = await p.locator('#hero .hero-portrait img').evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { objectFit: cs.objectFit, objectPosition: cs.objectPosition };
+  });
+  record(
+    'The portrait is letterboxed into the stage (object-fit: contain)',
+    fit.objectFit === 'contain',
+    `object-fit=${fit.objectFit}`,
+  );
+  record(
+    'The portrait honours the stored crop (object-position)',
+    /^\d+(\.\d+)?% \d+(\.\d+)?%$/.test(fit.objectPosition),
+    `object-position=${fit.objectPosition}`,
   );
 }
 

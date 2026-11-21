@@ -63,9 +63,9 @@ export default async function HomePage() {
     <div className="flex flex-col">
       <Hero
         profileImage={{
-          src: site.profileImage.dataUri ? '/profile-image' : DEFAULT_PROFILE_IMAGE,
           position: site.profileImage.position,
           version: site.profileImage.version,
+          mode: site.profileImage.mode,
         }}
       />
       <ServicesSection />

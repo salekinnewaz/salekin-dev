@@ -74,6 +74,9 @@ const profileImageBase = {
   dataUri: null,
   position: '50% 30%',
   version: '0',
+  hasAlpha: true,
+  mode: 'cutout' as const,
+  hasCustomImage: false,
 };
 
 beforeEach(() => {
