@@ -23,6 +23,7 @@
     "qa:interactions": "node scripts/qa-interactions.mjs",
     "qa:hero": "node scripts/qa-hero.mjs",
     "qa:hero-layout": "node scripts/qa-hero-layout.mjs",
+    "qa:cutout": "node scripts/qa-cutout.mjs",
     "qa:profile": "node scripts/qa-profile.mjs",
     "qa:profile-auth": "node scripts/qa-profile-auth.mjs"
   },
