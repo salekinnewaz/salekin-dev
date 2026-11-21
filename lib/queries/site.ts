@@ -27,6 +27,8 @@ const SITE_SETTING_KEYS = [
   'stat_years_coding',
   'stat_sites_shipped',
   'stat_roles_held',
+  'profile_image',
+  'profile_image_position',
 ] as const;
 
 export type SiteSettingKey = (typeof SITE_SETTING_KEYS)[number];
@@ -81,12 +83,37 @@ export type SiteTheme = {
   defaultTheme: 'light' | 'dark';
 };
 
+/**
+ * The admin-managed profile portrait.
+ *
+ * `dataUri` holds the uploaded image as a base64 data URI. It lives in
+ * the same `Setting` table as every other editable value, so it persists
+ * in Turso across refreshes, redeploys and sign-in cycles without
+ * introducing a second storage system or any new credentials.
+ *
+ * `position` is the CSS `object-position` value applied to the portrait
+ * so an admin can reframe a crop without re-uploading.
+ */
+export type SiteProfileImage = {
+  /** The data URI of the active portrait, or null when the default is used. */
+  dataUri: string | null;
+  /** CSS `object-position` for the portrait, e.g. "50% 30%". */
+  position: string;
+  /**
+   * A cache-busting token derived from the row's `updatedAt`. It changes
+   * whenever the portrait is replaced or restored, so the Hero can
+   * append it to the image URL and pick up a new file immediately.
+   */
+  version: string;
+};
+
 export type SiteSettings = {
   identity: SiteIdentity;
   sections: SiteSections;
   theme: SiteTheme;
   skills: SkillsByCategory;
   stats: SiteStats;
+  profileImage: SiteProfileImage;
 };
 
 const DEFAULTS = {
@@ -128,7 +155,65 @@ const DEFAULTS = {
   stat_years_coding: '4',
   stat_sites_shipped: '24',
   stat_roles_held: '5',
+  // Empty = use the shipped default portrait at /images/profile.jpg.
+  profile_image: '',
+  profile_image_position: '50% 30%',
 } as const;
+
+/**
+ * A stored portrait is a base64 data URI. We only accept the image
+ * MIME types the admin upload allows, and cap the length so a rogue row
+ * cannot blow up the settings read. 5 MB of binary is ~6.7 MB of base64.
+ */
+const MAX_DATA_URI_LENGTH = 7_000_000;
+
+const ALLOWED_IMAGE_MIME = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
+
+/**
+ * Parse the stored profile image. Returns null when nothing usable is
+ * stored, which tells the caller to fall back to the default portrait.
+ */
+function parseProfileImage(
+  raw: string | undefined,
+  position: string | undefined,
+  version: string,
+): SiteProfileImage {
+  const dataUri =
+    raw && raw.length <= MAX_DATA_URI_LENGTH ? raw : null;
+  if (dataUri) {
+    const match = /^data:([^;,]+);base64,/.exec(dataUri);
+    if (!match || !ALLOWED_IMAGE_MIME.has(match[1] ?? '')) {
+      return {
+        dataUri: null,
+        position: parsePosition(position),
+        version,
+      };
+    }
+  }
+  return {
+    dataUri,
+    position: parsePosition(position),
+    version,
+  };
+}
+
+/**
+ * `object-position` accepts a pair of percentages or a keyword. We only
+ * accept the percentage form so the admin UI can render it back into a
+ * slider without parsing CSS.
+ */
+function parsePosition(value: string | undefined): string {
+  if (!value) return DEFAULTS.profile_image_position;
+  const match = /^(\d{1,3})%\s+(\d{1,3})%$/.exec(value.trim());
+  if (!match) return DEFAULTS.profile_image_position;
+  const x = Math.max(0, Math.min(100, Number(match[1])));
+  const y = Math.max(0, Math.min(100, Number(match[2])));
+  return `${x}% ${y}%`;
+}
 
 function str(value: string | undefined, fallback: string): string {
   if (value === undefined || value === '') return fallback;
@@ -193,10 +278,14 @@ function parseSkills(raw: string | undefined): SkillsByCategory {
 export async function getSiteSettings(): Promise<SiteSettings> {
   const rows = await db.setting.findMany({
     where: { key: { in: [...SITE_SETTING_KEYS] } },
-    select: { key: true, value: true },
+    select: { key: true, value: true, updatedAt: true },
   });
   const map: Record<string, string> = {};
-  for (const row of rows) map[row.key] = row.value;
+  const updatedAt: Record<string, string> = {};
+  for (const row of rows) {
+    map[row.key] = row.value;
+    updatedAt[row.key] = row.updatedAt.getTime().toString(36);
+  }
 
   const identity: SiteIdentity = {
     siteTitle: str(map['site_title'], DEFAULTS.site_title),
@@ -246,5 +335,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     rolesHeld: asInt(map['stat_roles_held'], Number(DEFAULTS.stat_roles_held)),
   };
 
-  return { identity, sections, theme, skills, stats };
+  const profileImage = parseProfileImage(
+    map['profile_image'],
+    map['profile_image_position'],
+    updatedAt['profile_image'] ?? '0',
+  );
+
+  return { identity, sections, theme, skills, stats, profileImage };
 }

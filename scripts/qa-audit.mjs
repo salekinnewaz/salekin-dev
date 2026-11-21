@@ -17,6 +17,9 @@ mkdirSync(OUT, { recursive: true });
 const VIEWPORTS = [
   { name: '1440', width: 1440, height: 900 },
   { name: '1280', width: 1280, height: 800 },
+  // 1024 exercises the band where the hero stacks into a single
+  // column and the portrait composition gets the full container.
+  { name: '1024', width: 1024, height: 900 },
   { name: '768', width: 768, height: 1024 },
   { name: '375', width: 375, height: 812 },
 ];
@@ -195,9 +198,41 @@ for (const vp of VIEWPORTS) {
     // ─── 7. Contrast: body text meets WCAG AA (4.5:1) ──────────────
     {
       const fails = await page.evaluate(() => {
+        // Chrome serialises `color-mix(in oklab, …)` as `oklab(L a b / α)`,
+        // and `color-mix(in srgb, …)` as `color(srgb r g b / α)`. Neither
+        // is an `rgb()` string, so a naive number-scrape reads the wrong
+        // channels. Let the browser resolve the colour for us by painting
+        // it into a canvas over an opaque white backdrop.
+        const probe = document.createElement('canvas');
+        probe.width = probe.height = 1;
+        const ctx = probe.getContext('2d', { willReadFrequently: true });
         function parse(c) {
+          if (!c) return [0, 0, 0];
+          // Foregrounds are always plain `rgb()`/`rgba()` in this codebase,
+          // so the number-scrape is exact for them.
           const m = c.match(/[\d.]+/g);
-          return m ? m.slice(0, 3).map(Number) : [0, 0, 0];
+          if (m && /^rgba?\(/i.test(c)) return m.slice(0, 3).map(Number);
+          ctx.clearRect(0, 0, 1, 1);
+          // Opaque white backdrop so a semi-transparent colour composites
+          // into a definite sRGB triple instead of staying premultiplied
+          // against transparent black.
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, 1, 1);
+          ctx.fillStyle = c;
+          ctx.fillRect(0, 0, 1, 1);
+          const d = ctx.getImageData(0, 0, 1, 1).data;
+          return [d[0], d[1], d[2]];
+        }
+        function alphaOf(c) {
+          if (!c) return 0;
+          if (c === 'transparent') return 0;
+          const m = c.match(/[\d.]+/g);
+          if (!m) return 1;
+          // `oklab(L a b / α)` and `color(srgb r g b / α)` put the alpha
+          // last; `rgb(r g b / α)` does too. For `rgba(r,g,b,a)` the
+          // alpha is the 4th number.
+          if (m.length >= 4) return Number(m[m.length - 1]);
+          return 1;
         }
         function lum([r, g, b]) {
           const f = (v) => {
@@ -210,8 +245,7 @@ for (const vp of VIEWPORTS) {
           let n = el;
           while (n && n !== document.documentElement) {
             const bg = getComputedStyle(n).backgroundColor;
-            const a = bg.match(/[\d.]+/g);
-            if (a && (a.length < 4 || Number(a[3]) > 0.85)) return parse(bg);
+            if (alphaOf(bg) > 0.85) return parse(bg);
             n = n.parentElement;
           }
           return parse(getComputedStyle(document.body).backgroundColor);

@@ -112,4 +112,84 @@ describe('queries/site', () => {
     expect(settings.stats.sitesShipped).toBeGreaterThan(0);
     expect(settings.stats.rolesHeld).toBeGreaterThan(0);
   });
+
+  // ─── Profile image ───────────────────────────────────────────────
+
+  it('returns no portrait when nothing is stored', async () => {
+    await getTestDb().setting.deleteMany({
+      where: { key: { in: ['profile_image', 'profile_image_position'] } },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.dataUri).toBeNull();
+    expect(settings.profileImage.position).toBe('50% 30%');
+  });
+
+  it('returns the stored portrait and its crop', async () => {
+    const dataUri = `data:image/png;base64,${Buffer.from('x').toString('base64')}`;
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image' },
+      update: { value: dataUri },
+      create: { key: 'profile_image', value: dataUri },
+    });
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image_position' },
+      update: { value: '25% 80%' },
+      create: { key: 'profile_image_position', value: '25% 80%' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.dataUri).toBe(dataUri);
+    expect(settings.profileImage.position).toBe('25% 80%');
+  });
+
+  it('rejects a stored portrait with an unsupported MIME type', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image' },
+      update: { value: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=' },
+      create: { key: 'profile_image', value: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.dataUri).toBeNull();
+  });
+
+  it('rejects a stored portrait that is not a data URI at all', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image' },
+      update: { value: '/etc/passwd' },
+      create: { key: 'profile_image', value: '/etc/passwd' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.dataUri).toBeNull();
+  });
+
+  it('clamps an out-of-range stored crop position', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image_position' },
+      update: { value: '400% 900%' },
+      create: { key: 'profile_image_position', value: '400% 900%' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.position).toBe('100% 100%');
+  });
+
+  it('falls back to the default crop for a malformed stored position', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image_position' },
+      update: { value: 'center top' },
+      create: { key: 'profile_image_position', value: 'center top' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.position).toBe('50% 30%');
+  });
+
+  it('exposes a version token that changes when the portrait changes', async () => {
+    const before = await getSiteSettings();
+    const v1 = before.profileImage.version;
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image' },
+      update: { value: `data:image/png;base64,${Buffer.from('y').toString('base64')}` },
+      create: { key: 'profile_image', value: `data:image/png;base64,${Buffer.from('y').toString('base64')}` },
+    });
+    const after = await getSiteSettings();
+    expect(after.profileImage.version).not.toBe(v1);
+  });
 });

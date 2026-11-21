@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import { Suspense } from 'react';
 
 vi.mock('@/lib/queries/site', () => ({
@@ -70,6 +70,12 @@ const themeBase = {
   defaultTheme: 'dark' as const,
 };
 
+const profileImageBase = {
+  dataUri: null,
+  position: '50% 30%',
+  version: '0',
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(listExperiencesOrdered).mockResolvedValue([]);
@@ -80,6 +86,7 @@ beforeEach(() => {
     theme: themeBase,
     skills: skillsBase,
     stats: statsBase,
+    profileImage: profileImageBase,
   });
 });
 
@@ -100,13 +107,15 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: /ship faster without breaking production/i,
+        name: /build, test and ship reliable software/i,
       }),
     ).toBeInTheDocument();
     expect(
       screen.getAllByText(/Senior Software QA Engineer/i).length,
     ).toBeGreaterThan(0);
-    expect(screen.getByText(/quality infrastructure/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/across the full SDLC/i).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it('renders all six numbered modules', async () => {
@@ -185,8 +194,14 @@ describe('HomePage', () => {
   it('renders the lifecycle strip, process steps and engagement models', async () => {
     const ui = await HomePage();
     await renderHomePage(ui);
+    // The hero's QA Pipeline also renders "Build", "Test" and "Release",
+    // so scope the lifecycle-strip assertions to the Services section.
+    const services = document.getElementById('services') as HTMLElement;
+    expect(services).not.toBeNull();
     for (const label of ['Build', 'Test', 'Automate', 'Release', 'Support']) {
-      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(
+        within(services).getByText(label),
+      ).toBeInTheDocument();
     }
     expect(screen.getByText('How I Work')).toBeInTheDocument();
     expect(screen.getByText('Ways to Collaborate')).toBeInTheDocument();

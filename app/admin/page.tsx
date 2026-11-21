@@ -12,6 +12,7 @@ import {
 import { env } from '@/lib/env';
 import { AdminForm } from './AdminForm';
 import { AdminMessages } from './AdminMessages';
+import { ProfileImageManager } from './ProfileImageManager';
 import { adminLogoutAction } from '@/lib/actions/admin';
 
 export const metadata: Metadata = {
@@ -116,6 +117,12 @@ export default async function AdminPage() {
           skills: site.skills,
           stats: site.stats,
         }}
+      />
+
+      <ProfileImageManager
+        hasCustomImage={site.profileImage.dataUri !== null}
+        position={site.profileImage.position}
+        version={site.profileImage.version}
       />
 
       <section className="flex flex-col gap-4">

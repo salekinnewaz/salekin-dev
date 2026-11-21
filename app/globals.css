@@ -33,6 +33,12 @@
   --color-border: rgba(15, 23, 42, 0.08);
   --color-border-strong: rgba(15, 23, 42, 0.14);
 
+  /* Destructive / error */
+  --color-danger: #B91C1C;
+
+  /* Soft accent bloom used behind the hero portrait glow. */
+  --color-accent-glow: rgba(4, 120, 87, 0.28);
+
   /* Spotlight (mouse-tracking card glow) */
   --spotlight-surface: rgba(16, 185, 129, 0.075);
   --spotlight-border: rgba(16, 185, 129, 0.35);
@@ -89,6 +95,12 @@
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.15);
 
+  /* Destructive / error */
+  --color-danger: #F87171;
+
+  /* Soft accent bloom used behind the hero portrait glow. */
+  --color-accent-glow: rgba(16, 185, 129, 0.35);
+
   /* Spotlight (mouse-tracking card glow) */
   --spotlight-surface: rgba(16, 185, 129, 0.11);
   --spotlight-border: rgba(16, 185, 129, 0.45);
@@ -131,6 +143,12 @@
   --color-muted: #94A3B8;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Destructive / error */
+  --color-danger: #F87171;
+
+  /* Soft accent bloom used behind the hero portrait glow. */
+  --color-accent-glow: rgba(16, 185, 129, 0.35);
   --spotlight-surface: rgba(16, 185, 129, 0.11);
   --spotlight-border: rgba(16, 185, 129, 0.45);
   --color-accent: #10B981;
@@ -751,6 +769,17 @@
     font-size: 0.68rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
+    /* A long label must never push past the viewport on a narrow
+       screen — it wraps instead. `min-width: 0` lets the flex item
+       shrink below its content's intrinsic width first. */
+    max-width: 100%;
+    min-width: 0;
+  }
+  @media (max-width: 400px) {
+    .mono-pill {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
   }
 
   /* Section header index — the monospace "01 // SERVICES" marker. */
@@ -2119,38 +2148,158 @@
   .motion-debug__panel { animation: none; }
 }
 
-/* ─── Hero orbit (floating info cards around the profile photo) ─── */
-/*   .hero-orbit is a square wrapper that holds the centered photo    */
-/*   plus 4 absolutely-positioned cards (tl/tr/bl/br). On < 1024px    */
-/*   the wrapper collapses to a 2×2 grid (photo on top, cards below). */
-/*   Cards bob via .float-soft (desynced via inline animation-delay). */
+/* ─── Hero layout ────────────────────────────────────────────────── */
+/*   The two-column split needs the right column to be at least 34rem
+   wide for the four capability cards to hold their titles and tool
+   lists on one line. Below 1150px the column cannot be that wide, so
+   the hero stacks into a single column and the composition — which
+   then has the full container to itself — keeps its proportions.
+
+   The doubled class name raises the specificity above Tailwind's
+   `lg:grid-cols-12` / `lg:col-span-6` utilities, which are emitted
+   after the hand-written rules in the compiled stylesheet. */
+@media (max-width: 1149px) {
+  .hero-grid.hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-grid.hero-grid > * {
+    grid-column: auto;
+  }
+}
+
+/* ─── Hero portrait stack (right column) ──────────────────────────── */
+/*   The composition mirrors the reference artwork: a circular portrait */
+/*   with a neon glow ring at the centre and four glass capability     */
+/*   cards in the four corners.                                        */
+/*                                                                     */
+/*   The composition is a single grid unit that scales with the column: */
+/*     • the portrait is centred and sized as a fraction of the orbit   */
+/*       box, so it always sits in the middle;                          */
+/*     • the four cards are absolutely positioned in the corners and    */
+/*       are sized as a fraction of the orbit box too, so the gap      */
+/*       between a card's inner edge and the portrait circle is a       */
+/*       constant proportion at every viewport.                         */
+/*                                                                     */
+/*   Below 1024px the cards fall back to a 2×2 grid underneath the      */
+/*   portrait so they never crowd it on a narrow viewport.              */
 
 .hero-orbit {
+  --hero-card-w: 31%;      /* card width as a share of the orbit box */
+  --hero-portrait: 33%;    /* portrait diameter as a share of the box */
+  --hero-card-inset: 0%;   /* outer inset of the cards in the corners */
   position: relative;
-  width: 320px;
-  height: 320px;
-  display: block;
+  width: 100%;
+  /* The composition keeps the reference artwork's proportions: wide and
+     short, so the cards in the corners overlap the portrait's upper
+     and lower bands the way they do in the reference. */
+  aspect-ratio: 1 / 0.585;
+  margin-inline: auto;
 }
-.hero-orbit__photo {
-  position: absolute;
+
+/* The glow: soft radial blooms behind the portrait plus a faint
+   conic sweep for the neon ring feel. It is painted inside the orbit
+   box — a negative inset would push the blurred layer past the
+   section and give the page a horizontal scrollbar. */
+.hero-orbit-glow {
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
+  background:
+    radial-gradient(
+      42% 42% at 50% 50%,
+      color-mix(in oklab, var(--color-accent) 30%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      34% 34% at 24% 76%,
+      color-mix(in oklab, var(--color-accent-2) 24%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      30% 30% at 78% 22%,
+      color-mix(in oklab, var(--color-accent) 18%, transparent) 0%,
+      transparent 74%
+    );
+  filter: blur(16px);
 }
-.hero-orbit__card {
+
+/* Portrait well — the circular frame the photo sits in. Centred in
+   the composition and sized as a share of the orbit box. */
+.hero-portrait {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--hero-portrait);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  isolation: isolate;
+}
+/* The frame is the neon ring that hugs the portrait in the reference:
+   an accent → accent-2 gradient stroke with a soft bloom behind it.
+   The gradient is painted as a ring only — the centre stays clear so
+   the photo shows through. */
+.hero-portrait-frame {
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--color-bg-2), var(--color-bg-2)) padding-box,
+    linear-gradient(
+      140deg,
+      var(--color-accent) 0%,
+      var(--color-accent-2) 55%,
+      var(--color-accent) 100%
+    ) border-box;
+  /* Mask the centre out so only the ring is painted and the portrait
+     shows through. `closest-side` anchors the gradient ray to the
+     box edge — without it a `circle` gradient resolves its stops
+     against the farthest corner and the hole would be far too small. */
+  -webkit-mask:
+    radial-gradient(
+      circle closest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 2px)
+    );
+  mask:
+    radial-gradient(
+      circle closest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 2px)
+    );
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--color-accent) 14%, transparent),
+    0 0 40px -4px color-mix(in oklab, var(--color-accent) 60%, transparent),
+    0 0 96px -14px color-mix(in oklab, var(--color-accent-2) 55%, transparent);
+}
+/* The photo itself sits above the frame's fill but below its ring so
+   the glow reads as an outer halo rather than a border overlay. */
+.hero-portrait img {
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--color-bg-2);
+}
+
+/* ─── Floating capability cards ──────────────────────────────────── */
+/*   Reference style: a glass tile with a neon gradient edge, an icon
+   at the top, the capability name, the tool list, and a gradient bar. */
+
+.hero-float-card {
   position: absolute;
   z-index: 3;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 0.55rem;
-  width: 12rem;              /* 192px */
-  padding: 0.6rem 0.75rem 0.7rem;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: var(--color-card);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: var(--hero-card-w);
+  padding: 0.7rem 0.8rem 0.75rem;
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 45%, transparent);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      150deg,
+      color-mix(in oklab, var(--color-card) 92%, transparent),
+      color-mix(in oklab, var(--color-bg-2) 86%, transparent)
+    );
   color: var(--color-fg);
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
@@ -2163,205 +2312,201 @@
     box-shadow 200ms ease;
   will-change: transform;
 }
-.hero-orbit__card:hover {
+.hero-float-card:hover {
   transform: translateY(-2px);
-  border-color: var(--color-accent);
+  border-color: color-mix(in oklab, var(--color-accent) 75%, transparent);
   box-shadow:
     0 22px 44px -18px color-mix(in oklab, var(--color-accent) 30%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
-/* Card positions — anchored at the four corners of the photo
-   with a small inset so each card sits visually adjacent to the
-   circle without escaping the orbit wrapper. */
-.hero-orbit__card--tl { top: -0.5rem;    left: -3rem; }
-.hero-orbit__card--tr { top: -0.5rem;    right: -3rem; }
-.hero-orbit__card--bl { bottom: 1.4rem;  left: -3rem; }
-.hero-orbit__card--br { bottom: 1.4rem;  right: -3rem; }
 
-.hero-orbit__icon {
+/* Card positions — the four corners of the composition. Each card's
+   inner edge stops short of the portrait circle: the portrait spans
+   the middle 34% of the box, so a 30%-wide card in a corner clears it
+   by (100 − 34 − 2×30) / 2 ≈ 3% of the box on each side. */
+.hero-float-top-left {
+  top: var(--hero-card-inset);
+  left: var(--hero-card-inset);
+}
+.hero-float-top-right {
+  top: var(--hero-card-inset);
+  right: var(--hero-card-inset);
+}
+.hero-float-bottom-left {
+  bottom: var(--hero-card-inset);
+  left: var(--hero-card-inset);
+}
+.hero-float-bottom-right {
+  bottom: var(--hero-card-inset);
+  right: var(--hero-card-inset);
+}
+
+.hero-float-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  color: var(--color-accent);
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-}
-/* Per-card icon tints — the brief renders each capability card
-   with its own brand-tinted icon (red Playwright mask, cyan
-   code brackets, purple sparkles, cyan cloud). The card root
-   carries a data-attribute; the descendant .hero-orbit__icon
-   picks up the colour via the cascade so we keep a single
-   <HeroOrbit> component. */
-.hero-orbit__card[data-icon='playwright'] .hero-orbit__icon {
-  color: #f43f5e; /* rose-500 — theater mask hue */
-}
-.hero-orbit__card[data-icon='api'] .hero-orbit__icon {
-  color: var(--color-accent-2);
-}
-.hero-orbit__card[data-icon='ai'] .hero-orbit__icon {
+  padding: 0.32rem;
+  border-radius: 9px;
+  border: 1px solid color-mix(in oklab, var(--color-accent) 34%, transparent);
+  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
   color: var(--color-accent);
 }
-.hero-orbit__card[data-icon='cicd'] .hero-orbit__icon {
-  color: var(--color-accent-2);
-}
-.hero-orbit__icon svg { display: block; }
+.hero-float-icon svg { display: block; }
 
-.hero-orbit__copy {
+.hero-float-text {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
   min-width: 0;
 }
-.hero-orbit__title {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--color-fg);
+.hero-float-title {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.15;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+  color: var(--color-fg);
 }
-.hero-orbit__detail {
-  margin-top: 0.15rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.02em;
+.hero-float-detail {
+  display: block;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--color-muted);
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hero-orbit__bar {
-  grid-column: 1 / -1;
-  display: block;
-  height: 3px;
-  margin-top: 0.45rem;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
-  overflow: hidden;
-}
-.hero-orbit__bar > span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
-  border-radius: inherit;
+  /* The tool list is the substance of the card, so it must stay fully
+     readable. It wraps rather than truncating when a viewport is
+     narrow enough that one line will not fit. */
+  overflow-wrap: anywhere;
 }
 
-/* Focus chip (left column, with icon). Pixel-accurate to the v3
-   brief — thin border, soft inner fill, no oversized icon plate. */
-.focus-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.55rem;
-  border: 1px solid var(--color-border);
+/* The gradient bar that closes the card, as in the reference. */
+.hero-float-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: auto;
   border-radius: 999px;
-  background: color-mix(in oklab, var(--color-card) 70%, transparent);
-  color: var(--color-fg);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  line-height: 1;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    var(--color-accent-2) 62%,
+    color-mix(in oklab, var(--color-border-strong) 90%, transparent) 62%,
+    color-mix(in oklab, var(--color-border-strong) 90%, transparent) 100%
+  );
 }
-.focus-chip__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+
+/* ─── QA Pipeline widget ─────────────────────────────────────────── */
+
+.hero-pipeline {
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--color-card) 82%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-pipeline-dot {
+  position: relative;
+  z-index: 1;
+  display: block;
   width: 18px;
   height: 18px;
-  color: var(--color-accent);
-  flex-shrink: 0;
+  border-radius: 999px;
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-card);
 }
-.focus-chip__icon svg { display: block; }
-.focus-chip__label {
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  color: var(--color-fg-2);
+.hero-pipeline-done {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow: 0 0 12px -2px var(--color-accent);
 }
-/* FOCUS row — keep the 4 chips + the FOCUS label on a single row
-   at the brief's target viewport. Each child is `shrink-0` so the
-   row never collapses; if the column is genuinely too narrow (a
-   mobile viewport) the row falls back to wrap. */
-.hero-focus { flex-wrap: nowrap; }
-@media (max-width: 1023px) {
-  .hero-focus { flex-wrap: wrap; row-gap: 0.5rem; }
+.hero-pipeline-active {
+  border-color: var(--color-accent-2);
+  background: color-mix(in oklab, var(--color-accent-2) 22%, transparent);
+  box-shadow: 0 0 12px -2px var(--color-accent-2);
+}
+.hero-pipeline-active::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 999px;
+  background: var(--color-accent-2);
+  animation: hero-pulse 1.8s ease-in-out infinite;
+}
+.hero-pipeline-pending {
+  border-style: dashed;
 }
 
+@keyframes hero-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.7); }
+}
+
+/* ─── Responsive collapse ────────────────────────────────────────── */
+/*   1024–1149px: the hero is stacked (see the layout rule above), so
+   the composition has the whole container. It is capped and centred so
+   it does not balloon to the full width. */
+@media (min-width: 1024px) and (max-width: 1149px) {
+  .hero-orbit {
+    max-width: 40rem;
+  }
+}
+
+/*   Below 1024px the four orbiting cards cannot sit beside a portrait
+   without crowding it, so they fall back to a 2×2 grid underneath. */
 @media (max-width: 1023px) {
   .hero-orbit {
-    width: 100%;
-    height: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      'photo photo'
-      'tl   tr'
-      'bl   br';
+      'portrait portrait'
+      'tl       tr'
+      'bl       br';
     gap: 0.6rem;
-    padding: 0;
+    aspect-ratio: auto;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
   }
-  .hero-orbit__photo {
-    position: static;
-    grid-area: photo;
-    justify-self: center;
-    margin-bottom: 0.5rem;
+  .hero-orbit-glow { grid-area: portrait; position: relative; inset: auto; }
+  .hero-portrait {
+    grid-area: portrait;
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 62%;
+    transform: none;
+    margin-inline: auto;
   }
-  .hero-orbit__card {
+  .hero-float-card {
     position: static;
     width: auto;
     justify-self: stretch;
   }
-  .hero-orbit__card--tl { grid-area: tl; }
-  .hero-orbit__card--tr { grid-area: tr; }
-  .hero-orbit__card--bl { grid-area: bl; }
-  .hero-orbit__card--br { grid-area: br; }
+  .hero-float-top-left     { grid-area: tl; }
+  .hero-float-top-right    { grid-area: tr; }
+  .hero-float-bottom-left  { grid-area: bl; }
+  .hero-float-bottom-right { grid-area: br; }
 }
 @media (max-width: 480px) {
   .hero-orbit { gap: 0.45rem; }
-  .hero-orbit__title { font-size: 0.74rem; }
-  .hero-orbit__detail { font-size: 0.62rem; }
+  .hero-float-card { padding: 0.5rem 0.6rem 0.55rem; }
+  .hero-float-icon { width: 26px; height: 26px; }
+  .hero-float-title { font-size: 0.74rem; }
+  .hero-float-detail { font-size: 0.55rem; }
 }
 
-/* ─── Hero static composition (right column) ────────────────────── */
-/*   Replaces the live orbit + terminal with the finished static   */
-/*   graphic (data/Neon QA Portfolio Hero Section.png). The image  */
-/*   has a 1.81:1 aspect ratio; we let it size to its column and  */
-/*   cap the height so it doesn't dominate the first viewport.    */
-
-.hero-static {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-.hero-static__frame {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  /* Cap the image so the hero never scrolls past one viewport on
-     standard 900px-tall screens. The 1.81:1 aspect ratio gives
-     ~520px tall at 620px wide, fitting comfortably under the
-     left column's content. */
-  max-height: 70vh;
-  aspect-ratio: 1688 / 932;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  background: #0a0e1a;
-  box-shadow:
-    0 24px 60px -24px rgba(0, 0, 0, 0.6),
-    0 0 32px -8px color-mix(in oklab, var(--color-accent) 25%, transparent);
-}
-.hero-static__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  user-select: none;
-  -webkit-user-drag: none;
-}
 @media (prefers-reduced-motion: reduce) {
-  .hero-orbit__card { animation: none !important; }
-  .hero-orbit__card:hover { transform: none; }
+  .hero-float-card,
+  .hero-float-card:hover {
+    animation: none !important;
+    transform: none !important;
+  }
+  .hero-pipeline-active::after { animation: none !important; }
 }

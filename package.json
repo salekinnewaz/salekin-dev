@@ -18,7 +18,13 @@
     "turso:bootstrap": "./scripts/turso-bootstrap.sh",
     "deploy": "./scripts/deploy.sh",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "qa:audit": "node scripts/qa-audit.mjs",
+    "qa:interactions": "node scripts/qa-interactions.mjs",
+    "qa:hero": "node scripts/qa-hero.mjs",
+    "qa:hero-layout": "node scripts/qa-hero-layout.mjs",
+    "qa:profile": "node scripts/qa-profile.mjs",
+    "qa:profile-auth": "node scripts/qa-profile-auth.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

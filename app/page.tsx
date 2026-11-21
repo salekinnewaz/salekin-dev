@@ -5,7 +5,18 @@ import { BlogSection } from '@/components/site/BlogSection';
 import { ExperienceSection } from '@/components/site/ExperienceSection';
 import { ReviewsSection } from '@/components/site/ReviewsSection';
 import { ContactSection } from '@/components/site/ContactSection';
+import { getSiteSettings } from '@/lib/queries/site';
 import { env } from '@/lib/env';
+
+// The home page reads the admin-managed portrait from the database on
+// every request, so it must not be statically prerendered — otherwise
+// the `version` cache-busting token would be frozen at build time and a
+// newly uploaded image would not appear until a redeploy.
+//
+// `revalidatePath('/')` in the upload action still refreshes the
+// route cache, so this stays a fast, ISR-friendly render rather than a
+// full dynamic one where possible.
+export const dynamic = 'force-dynamic';
 
 // SEO: the home page intentionally does NOT set its own `title` so the
 // root layout's strong default ("Md Salekin Newaz — Senior Software QA
@@ -15,6 +26,12 @@ import { env } from '@/lib/env';
 
 export default async function HomePage() {
   const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
+
+  // The portrait is admin-managed and persisted in the database. Read
+  // it here so the Hero renders the active image on the server — no
+  // flash of the default portrait, no hardcoded reference in the
+  // component, and no redeploy required after an upload.
+  const site = await getSiteSettings();
 
   // WebSite + WebPage JSON-LD for SEO. The Person block is emitted
   // globally in the root layout; here we just link this page into the
@@ -43,7 +60,13 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <Hero />
+      <Hero
+        profileImage={{
+          src: site.profileImage.dataUri ? '/profile-image' : '/images/profile.jpg',
+          position: site.profileImage.position,
+          version: site.profileImage.version,
+        }}
+      />
       <ServicesSection />
       <WorkSection />
       <BlogSection />
