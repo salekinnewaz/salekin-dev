@@ -237,13 +237,13 @@ export const CREDIBILITY_METRICS: readonly {
     icon: 'briefcase',
   },
   {
-    value: '4+',
+    value: '10+',
     label: 'Global Projects',
     detail: 'Norway · Canada · USA',
     icon: 'globe',
   },
   {
-    value: '3',
+    value: '100+',
     label: 'Production Releases',
     detail: 'Delivered with confidence',
     icon: 'rocket',

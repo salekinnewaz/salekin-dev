@@ -497,8 +497,8 @@ await p.waitForTimeout(900);
 {
   const values = await p.locator('#hero dl dt').allTextContents();
   record(
-    'The metric bar shows 5+, 4+, 3, 435+',
-    values.map((v) => v.trim()).join(',') === '5+,4+,3,435+',
+    'The metric bar shows 5+, 10+, 100+, 435+',
+    values.map((v) => v.trim()).join(',') === '5+,10+,100+,435+',
     values.map((v) => v.trim()).join(','),
   );
 

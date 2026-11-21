@@ -81,7 +81,7 @@ describe('Hero', () => {
     const values = [...container.querySelectorAll('dt')].map(
       (dt) => dt.textContent?.trim(),
     );
-    expect(values).toEqual(['5+', '4+', '3', '435+']);
+    expect(values).toEqual(['5+', '10+', '100+', '435+']);
   });
 
   it('links the npm metric to the published package', () => {
