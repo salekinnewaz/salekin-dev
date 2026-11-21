@@ -109,6 +109,7 @@ export default async function AdminPage() {
             socialX: site.identity.socialX ?? '',
           },
           sections: site.sections,
+          availability: site.availability,
           theme: {
             accentColor: site.theme.accentColor,
             accentColor2: site.theme.accentColor2,

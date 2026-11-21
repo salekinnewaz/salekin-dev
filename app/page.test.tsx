@@ -79,6 +79,10 @@ const profileImageBase = {
   hasCustomImage: false,
 };
 
+const availabilityBase = {
+  availableForWork: true,
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(listExperiencesOrdered).mockResolvedValue([]);
@@ -86,6 +90,7 @@ beforeEach(() => {
   vi.mocked(getSiteSettings).mockResolvedValue({
     identity: identityBase,
     sections: allSections,
+    availability: availabilityBase,
     theme: themeBase,
     skills: skillsBase,
     stats: statsBase,

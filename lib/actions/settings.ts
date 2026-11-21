@@ -33,6 +33,17 @@ const sectionsSchema = z.object({
   showContact: z.boolean(),
 });
 
+/**
+ * The availability flag behind the hero's "Available for Work" badge.
+ *
+ * It is a factual claim about the owner, so the badge has to be
+ * switchable from the admin — a badge nobody can turn off is worse
+ * than no badge at all.
+ */
+const availabilitySchema = z.object({
+  availableForWork: z.boolean(),
+});
+
 const themeSchema = z.object({
   accentColor: z.string().regex(/^#[0-9a-f]{6}$/i, 'Must be a #rrggbb hex'),
   accentColor2: z.string().regex(/^#[0-9a-f]{6}$/i, 'Must be a #rrggbb hex'),
@@ -62,6 +73,7 @@ const statsSchema = z.object({
 const fullSettingsSchema = z.object({
   identity: identitySchema,
   sections: sectionsSchema,
+  availability: availabilitySchema,
   theme: themeSchema,
   skills: skillsSchema,
   stats: statsSchema,
@@ -120,6 +132,14 @@ export async function saveSettingsAction(
     return { ok: false, error: formatIssues(sections.error) };
   }
 
+  // Parse availability
+  const availability = availabilitySchema.safeParse({
+    availableForWork: formData.get('availableForWork') === 'on',
+  });
+  if (!availability.success) {
+    return { ok: false, error: formatIssues(availability.error) };
+  }
+
   // Parse theme
   const theme = themeSchema.safeParse({
     accentColor: formData.get('accentColor'),
@@ -155,6 +175,7 @@ export async function saveSettingsAction(
   const parsed = fullSettingsSchema.safeParse({
     identity: identity.data,
     sections: sections.data,
+    availability: availability.data,
     theme: theme.data,
     skills: skills.data,
     stats: stats.data,
@@ -185,6 +206,10 @@ export async function saveSettingsAction(
       { key: 'show_skills', value: String(parsed.data.sections.showSkills) },
       { key: 'show_education', value: String(parsed.data.sections.showEducation) },
       { key: 'show_contact', value: String(parsed.data.sections.showContact) },
+      {
+        key: 'available_for_work',
+        value: String(parsed.data.availability.availableForWork),
+      },
       { key: 'accent_color', value: parsed.data.theme.accentColor },
       { key: 'accent_color_2', value: parsed.data.theme.accentColor2 },
       { key: 'default_theme', value: parsed.data.theme.defaultTheme },

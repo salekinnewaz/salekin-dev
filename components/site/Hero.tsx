@@ -2,11 +2,17 @@
 
 import { useState } from 'react';
 import { ResumeModal } from './ResumeModal';
-import { HeroIcon, MetricIconGlyph, GitHubGlyph } from './HeroIcons';
+import {
+  HeroIcon,
+  MetricIconGlyph,
+  CapabilityTagGlyph,
+  GitHubGlyph,
+} from './HeroIcons';
 import { StackTechIcon } from './StackIcons';
 import { CREDIBILITY_METRICS } from '@/src/data/experience';
 import {
   HERO_CAPABILITY_CARDS,
+  HERO_CAPABILITY_TAGS,
   HERO_CORE_STACK,
   HERO_PIPELINE,
 } from '@/src/data/hero';
@@ -65,6 +71,13 @@ type HeroProps = {
      */
     mode?: ProfileImageMode;
   };
+  /**
+   * Whether the "Available for Work" badge is shown.
+   *
+   * The badge is a claim about the owner, so it is admin-managed
+   * rather than hard-coded — see the `available_for_work` setting.
+   */
+  availableForWork?: boolean;
 };
 
 export function Hero({
@@ -72,6 +85,7 @@ export function Hero({
   role = 'Senior Software QA Engineer',
   location = 'Dhaka, Bangladesh',
   profileImage,
+  availableForWork = false,
 }: HeroProps) {
   const [showResume, setShowResume] = useState(false);
 
@@ -91,14 +105,36 @@ export function Hero({
       <div className="hero-grid grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-6">
         {/* ─── Left column ─── */}
         <div className="flex flex-col gap-5 lg:col-span-5">
-          {/* Certification badge */}
-          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-[0.72rem] font-medium text-[var(--color-fg-2)]">
-            <span aria-hidden="true" className="relative inline-flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-accent)] opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+          {/*
+            The badge row. Two badges sit side by side: the ISTQB
+            certification, and — when the admin has left it on — the
+            "Available for Work" badge.
+
+            The availability badge is deliberately *not* hard-coded. It
+            states a fact about the owner, so it is a managed setting
+            that can be switched off from the admin panel the moment it
+            stops being true.
+          */}
+          <div className="hero-badge-row flex flex-wrap items-center gap-2">
+            {/* Certification badge */}
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-[0.72rem] font-medium text-[var(--color-fg-2)]">
+              <span aria-hidden="true" className="relative inline-flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-accent)] opacity-60" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+              </span>
+              ISTQB® Certified · QA, Development &amp; Delivery
             </span>
-            ISTQB® Certified · QA, Development &amp; Delivery
-          </span>
+
+            {availableForWork ? (
+              <span className="hero-available-badge inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/10 px-3 py-1.5 text-[0.72rem] font-semibold text-[var(--color-accent)]">
+                <span aria-hidden="true" className="relative inline-flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-accent)] opacity-70" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+                </span>
+                Available for Work
+              </span>
+            ) : null}
+          </div>
 
           {/* Display heading */}
           {/*
@@ -155,6 +191,26 @@ export function Hero({
             the full SDLC — from development and testing to release and
             ongoing support.
           </p>
+
+          {/*
+            The capability tags — the short row of pills naming the
+            practice areas, sitting between the positioning copy and
+            the CTAs. They are deliberately *areas* (QA Engineering,
+            Test Automation, Development, Open Source), while the four
+            cards on the right of the stage name the *tools* used in
+            each of them. The two sets therefore say different things
+            rather than repeating each other.
+          */}
+          <ul className="hero-cap-tags flex flex-wrap items-center gap-2">
+            {HERO_CAPABILITY_TAGS.map((tag) => (
+              <li key={tag.id} className="hero-cap-tag">
+                <span className="hero-cap-tag-icon">
+                  <CapabilityTagGlyph name={tag.icon} />
+                </span>
+                {tag.label}
+              </li>
+            ))}
+          </ul>
 
           {/*
             CTAs — all three in a single row on desktop.
@@ -367,27 +423,32 @@ export function Hero({
       </div>
 
       {/* ─── Credibility metric bar ─── */}
-      <div className="mt-10">
-        <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+      {/*
+        The four credibility metrics. The container is a single premium
+        glass panel rather than four separate tiles, so the row reads
+        as one achievement summary rather than four floating boxes.
+      */}
+      <div className="hero-metrics mt-10">
+        <div className="hero-metrics-panel overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)]">
           <dl className="grid grid-cols-2 divide-x divide-y divide-[var(--color-border)] sm:grid-cols-4 sm:divide-y-0">
             {CREDIBILITY_METRICS.map((metric) => (
               <div
                 key={metric.label}
-                className="flex items-start gap-3 px-4 py-4 sm:px-5"
+                className="hero-metric flex items-start gap-3.5 px-4 py-5 sm:px-5"
               >
                 <span className="hero-metric-icon">
                   <MetricIconGlyph name={metric.icon} />
                 </span>
                 <div className="flex min-w-0 flex-col gap-1">
-                  <dt className="font-mono text-2xl font-bold leading-none text-[var(--color-fg)]">
+                  <dt className="hero-metric-value font-mono font-bold leading-none text-[var(--color-fg)]">
                     {metric.value}
                   </dt>
                   <dd className="flex flex-col gap-0.5">
-                    <span className="text-[0.78rem] font-medium leading-tight text-[var(--color-fg-2)]">
+                    <span className="hero-metric-label leading-tight text-[var(--color-fg-2)]">
                       {metric.label}
                     </span>
                     {metric.detail ? (
-                      <span className="text-[0.68rem] leading-tight text-[var(--color-muted)]">
+                      <span className="hero-metric-detail leading-tight text-[var(--color-muted)]">
                         {metric.detail}
                       </span>
                     ) : null}
@@ -410,7 +471,7 @@ export function Hero({
                         href={metric.link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hero-metric-link group inline-flex min-w-0 max-w-full items-start gap-1 text-[0.68rem] leading-tight text-[var(--color-muted)] underline decoration-[var(--color-border)] underline-offset-2 transition-colors hover:text-[var(--color-fg-2)] hover:decoration-[var(--color-accent)]"
+                        className="hero-metric-link group inline-flex min-w-0 max-w-full items-start gap-1 underline decoration-[var(--color-border)] underline-offset-2 transition-colors hover:text-[var(--color-fg-2)] hover:decoration-[var(--color-accent)]"
                       >
                         <span className="min-w-0 break-all">{metric.link.text}</span>
                         <svg
@@ -423,7 +484,7 @@ export function Hero({
                           strokeLinejoin="round"
                           aria-hidden="true"
                           focusable="false"
-                          className="mt-[0.1rem] h-[0.62rem] w-[0.62rem] flex-shrink-0 opacity-70 transition-opacity group-hover:opacity-100"
+                          className="hero-metric-link-icon mt-[0.1rem] flex-shrink-0 opacity-70 transition-opacity group-hover:opacity-100"
                         >
                           <path d="M14 4h6v6" />
                           <path d="M20 4 10 14" />
@@ -432,7 +493,7 @@ export function Hero({
                       </a>
                     ) : null}
                     {metric.supporting ? (
-                      <span className="inline-flex min-w-0 max-w-full items-start gap-1.5 text-[0.68rem] leading-tight text-[var(--color-muted)]">
+                      <span className="hero-metric-supporting inline-flex min-w-0 max-w-full items-start gap-1.5 leading-tight text-[var(--color-muted)]">
                         <span className="hero-metric-supporting-icon mt-[0.12rem]">
                           <GitHubGlyph />
                         </span>
@@ -455,13 +516,13 @@ export function Hero({
         trailing it.
       */}
       <div className="hero-core-stack mt-6 flex flex-wrap items-center justify-center gap-3">
-        <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em]">
+        <span className="hero-core-stack-label font-mono uppercase tracking-[0.2em]">
           Core Stack
         </span>
-        <ul className="flex flex-wrap items-center justify-center gap-2">
+        <ul className="flex flex-wrap items-center justify-center gap-2.5">
           {HERO_CORE_STACK.map((tech) => (
             <li key={tech.name}>
-              <span className="hero-stack-badge inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-2)] py-1.5 pl-2 pr-3 font-mono text-[0.74rem] leading-none text-[var(--color-fg-2)]">
+              <span className="hero-stack-badge inline-flex items-center gap-2.5 rounded-2xl border border-[var(--color-border)] py-2 pl-2.5 pr-3.5 font-mono leading-none text-[var(--color-fg-2)]">
                 <span className="hero-stack-icon">
                   <StackTechIcon name={tech.icon} />
                 </span>

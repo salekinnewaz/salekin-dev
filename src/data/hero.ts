@@ -53,6 +53,42 @@ export const HERO_CAPABILITY_CARDS: readonly HeroCapabilityCard[] = [
   },
 ] as const;
 
+/** Icon key for a capability tag. */
+export type CapabilityTagIcon =
+  | 'shield-check'
+  | 'automation'
+  | 'code'
+  | 'open-source';
+
+/**
+ * One capability tag in the hero's left column — the short row of
+ * pills that sits between the positioning copy and the CTA buttons.
+ *
+ * These are the *areas* the owner works in, which is a different
+ * statement from the four capability cards on the right (those name
+ * the tools used for each area).
+ */
+export type CapabilityTag = {
+  /** Stable key — React key and icon lookup. */
+  id: string;
+  /** The tag's label. */
+  label: string;
+  /** Which glyph to render. */
+  icon: CapabilityTagIcon;
+};
+
+/**
+ * The four capability tags, in the order they read. They sit between
+ * the positioning copy and the CTA row, summarising the practice
+ * areas rather than the tools.
+ */
+export const HERO_CAPABILITY_TAGS: readonly CapabilityTag[] = [
+  { id: 'qa-engineering', label: 'QA Engineering', icon: 'shield-check' },
+  { id: 'test-automation', label: 'Test Automation', icon: 'automation' },
+  { id: 'development', label: 'Development', icon: 'code' },
+  { id: 'open-source', label: 'Open Source', icon: 'open-source' },
+] as const;
+
 /** One stage in the QA Pipeline widget. */
 export type PipelineStage = {
   /** Stable key. */

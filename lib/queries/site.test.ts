@@ -79,6 +79,21 @@ describe('queries/site', () => {
     expect(settings.sections.showContact).toBe(true);
   });
 
+  it('reports availability as on by default', async () => {
+    const settings = await getSiteSettings();
+    expect(settings.availability.availableForWork).toBe(true);
+  });
+
+  it('reads the availability flag from its own setting row', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'available_for_work' },
+      update: { value: 'false' },
+      create: { key: 'available_for_work', value: 'false' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.availability.availableForWork).toBe(false);
+  });
+
   it('exposes theme with default accent and dark default', async () => {
     const settings = await getSiteSettings();
     expect(settings.theme.accentColor).toMatch(/^#[0-9a-f]{6}$/i);

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { HeroCardIcon } from '@/src/data/hero';
+import type { HeroCardIcon, CapabilityTagIcon } from '@/src/data/hero';
 
 /**
  * Hero capability-card icons.
@@ -141,6 +141,76 @@ export function MetricIconGlyph({
       height="100%"
     >
       {METRIC_PATHS[name]}
+    </svg>
+  );
+}
+
+/**
+ * Capability-tag glyphs — the short row of pills between the
+ * positioning copy and the CTA buttons.
+ *
+ * These are *outline* marks on the same 24×24 grid as the capability
+ * cards, but drawn thinner: a tag is a small label, so the glyph
+ * beside it must not compete with the label's own weight.
+ */
+const TAG_PATHS: Record<CapabilityTagIcon, ReactNode> = {
+  // Shield-check — QA engineering.
+  'shield-check': (
+    <>
+      <path d="M12 3 5 6v5.2c0 4.3 2.9 8.2 7 9.3 4.1-1.1 7-5 7-9.3V6l-7-3Z" />
+      <path d="m9 12 2.1 2.1L15.4 9.8" />
+    </>
+  ),
+  // Automation — a gear with a play triangle in its centre.
+  automation: (
+    <>
+      <path d="M12 3.4v2.1M12 18.5v2.1M4.8 7.8l1.8 1M17.4 15.2l1.8 1M4.8 16.2l1.8-1M17.4 8.8l1.8-1" />
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M10.8 10.4 13.4 12l-2.6 1.6v-3.2Z" />
+    </>
+  ),
+  // Code — the angle-bracket mark.
+  code: (
+    <>
+      <path d="M8.6 7 3.6 12l5 5" />
+      <path d="M15.4 7l5 5-5 5" />
+    </>
+  ),
+  // Open Source — the branch-and-merge mark.
+  'open-source': (
+    <>
+      <circle cx="6.5" cy="5.5" r="2.2" />
+      <circle cx="6.5" cy="18.5" r="2.2" />
+      <circle cx="17" cy="9" r="2.2" />
+      <path d="M6.5 7.7v8.6" />
+      <path d="M17 11.2v1.3a3.5 3.5 0 0 1-3.5 3.5H8.7" />
+    </>
+  ),
+};
+
+export function CapabilityTagGlyph({
+  name,
+  className = '',
+}: {
+  name: CapabilityTagIcon;
+  className?: string;
+}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+      width="100%"
+      height="100%"
+    >
+      {TAG_PATHS[name]}
     </svg>
   );
 }

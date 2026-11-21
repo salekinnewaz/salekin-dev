@@ -62,6 +62,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       <Hero
+        availableForWork={site.availability.availableForWork}
         profileImage={{
           position: site.profileImage.position,
           version: site.profileImage.version,

@@ -239,6 +239,93 @@ await p.waitForTimeout(900);
   );
 }
 
+// ── Hero left column — availability badge ─────────────────────────
+//   The badge is a claim about the owner, so it is an admin-managed
+//   setting rather than a hard-coded string. The QA run asserts it is
+//   *present and correct*; whether it is switched on is an admin
+//   decision, so the assertion is that the badge renders in the
+//   default state and sits beside the certification badge.
+{
+  const badges = await p.locator('#hero .hero-badge-row').count();
+  record('The hero has a badge row', badges === 1, `rows=${badges}`);
+
+  const available = await p.locator('#hero .hero-available-badge').count();
+  record(
+    'The availability badge is rendered beside the ISTQB badge',
+    available === 1,
+    `count=${available}`,
+  );
+
+  const badgeText = available
+    ? await p.locator('#hero .hero-available-badge').innerText()
+    : '';
+  record(
+    'The availability badge reads "Available for Work"',
+    badgeText.trim() === 'Available for Work',
+    badgeText.trim(),
+  );
+
+  const rowText = await p.locator('#hero .hero-badge-row').innerText();
+  record(
+    'The ISTQB certification badge stays in the same row',
+    /ISTQB® Certified/.test(rowText),
+    rowText.replace(/\n/g, ' | '),
+  );
+}
+
+// ── Hero left column — capability tags ────────────────────────────
+//   The four area tags sit between the positioning copy and the CTA
+//   row. Their position matters: a tag above the copy reads as a
+//   heading, and a tag below the buttons reads as a footnote.
+{
+  const tags = await p.locator('#hero .hero-cap-tag').count();
+  record('There are exactly four capability tags', tags === 4, `tags=${tags}`);
+
+  const labels = await p
+    .locator('#hero .hero-cap-tag')
+    .allTextContents();
+  record(
+    'The tags are QA Engineering, Test Automation, Development, Open Source',
+    labels.map((l) => l.trim()).join(',') ===
+      'QA Engineering,Test Automation,Development,Open Source',
+    labels.map((l) => l.trim()).join(','),
+  );
+
+  const tagIcons = await p.locator('#hero .hero-cap-tag-icon svg').count();
+  record(
+    'Every capability tag carries an icon',
+    tagIcons === 4,
+    `icons=${tagIcons}`,
+  );
+
+  // The tags must sit between the description and the CTA row.
+  const order = await p.evaluate(() => {
+    const desc = [...document.querySelectorAll('#hero p')].find((el) =>
+      /Senior Software QA Engineer with development experience/.test(
+        el.textContent ?? '',
+      ),
+    );
+    const tags = document.querySelector('#hero .hero-cap-tags');
+    const ctas = document.querySelector('#hero .hero-cta-row');
+    if (!desc || !tags || !ctas) return null;
+    const d = desc.getBoundingClientRect();
+    const t = tags.getBoundingClientRect();
+    const c = ctas.getBoundingClientRect();
+    return {
+      afterDescription: t.top >= d.bottom - 2,
+      beforeCtas: t.bottom <= c.top + 2,
+      tagsTop: Math.round(t.top),
+      descBottom: Math.round(d.bottom),
+      ctaTop: Math.round(c.top),
+    };
+  });
+  record(
+    'The capability tags sit between the description and the CTA buttons',
+    !!order && order.afterDescription && order.beforeCtas,
+    JSON.stringify(order),
+  );
+}
+
 // ── Hero right column — capability cards ──────────────────────────
 {
   const cards = await p.locator('#hero .hero-cap-card').count();
@@ -328,6 +415,33 @@ await p.waitForTimeout(900);
     'The portrait is large and prominent (at least 300px wide)',
     layout.portraitWidth >= 300,
     `${layout.portraitWidth}x${layout.portraitHeight}`,
+  );
+
+  //   The cards' icons are the card's lead element, so they must be
+  //   visibly larger than the metric-bar icons and large enough to
+  //   hold their shape at the size they are drawn.
+  const icons = await p.evaluate(() => {
+    const els = [...document.querySelectorAll('#hero .hero-cap-icon')];
+    const boxes = els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return { w: Math.round(r.width), h: Math.round(r.height) };
+    });
+    return {
+      count: boxes.length,
+      min: Math.min(...boxes.map((b) => Math.min(b.w, b.h))),
+      uniform: new Set(boxes.map((b) => b.w)).size === 1,
+      boxes,
+    };
+  });
+  record(
+    'Every capability card has a large icon (at least 34px)',
+    icons.count === 4 && icons.min >= 34,
+    JSON.stringify(icons.boxes),
+  );
+  record(
+    'The capability card icons are all the same size',
+    icons.uniform,
+    JSON.stringify(icons.boxes),
   );
 }
 
@@ -438,6 +552,48 @@ await p.waitForTimeout(900);
     cols.count === 4 && cols.sameRow,
     JSON.stringify(cols),
   );
+
+  //   The metrics are the page's proof points, so they are set larger
+  //   than the surrounding copy, each with an icon in its own accent
+  //   chip. The fourth metric's icon is the npm package mark.
+  const premium = await p.evaluate(() => {
+    const panel = document.querySelector('#hero .hero-metrics-panel');
+    const values = [...document.querySelectorAll('#hero .hero-metric-value')];
+    const icons = [...document.querySelectorAll('#hero .hero-metric-icon')];
+    const iconBoxes = icons.map((e) => {
+      const r = e.getBoundingClientRect();
+      return { w: Math.round(r.width), h: Math.round(r.height) };
+    });
+    return {
+      panel: !!panel,
+      valueSizes: values.map((v) =>
+        Math.round(parseFloat(getComputedStyle(v).fontSize)),
+      ),
+      iconBoxes,
+      fourthIcon: icons[3]?.innerHTML.includes('path') ?? false,
+    };
+  });
+  record(
+    'The metrics sit in a single premium panel',
+    premium.panel,
+  );
+  record(
+    'Every metric number is set large (at least 24px)',
+    premium.valueSizes.length === 4 &&
+      Math.min(...premium.valueSizes) >= 24,
+    JSON.stringify(premium.valueSizes),
+  );
+  record(
+    'Every metric carries an icon in a chip of the same size',
+    premium.iconBoxes.length === 4 &&
+      premium.iconBoxes.every((b) => b.w >= 36 && b.h >= 36) &&
+      new Set(premium.iconBoxes.map((b) => b.w)).size === 1,
+    JSON.stringify(premium.iconBoxes),
+  );
+  record(
+    'The fourth metric uses the npm package icon',
+    premium.fourthIcon,
+  );
 }
 
 // ── Core Stack ────────────────────────────────────────────────────
@@ -491,13 +647,13 @@ await p.waitForTimeout(900);
     };
   });
   record(
-    'The Core Stack icons are at least 20px square',
-    sizing.count === 8 && sizing.minIcon >= 20,
+    'The Core Stack icons are at least 24px square',
+    sizing.count === 8 && sizing.minIcon >= 24,
     JSON.stringify(sizing),
   );
   record(
-    'The Core Stack badges are at least 32px tall and uniform in height',
-    sizing.minBadge >= 32 && sizing.uniform,
+    'The Core Stack badges are at least 40px tall and uniform in height',
+    sizing.minBadge >= 40 && sizing.uniform,
     JSON.stringify(sizing),
   );
   record(

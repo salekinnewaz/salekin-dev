@@ -2292,10 +2292,19 @@
    rotated edge grows with the stage, so a fixed offset that lands
    correctly on a wide screen drives the cards into the frame on a
    narrower one. Scaling with the column keeps the gap constant
-   across the desktop range. */
+   across the desktop range.
+
+   The percentage is capped with `clamp()` because the column's width
+   and the *cards'* width are not the same quantity. The cards hug
+   their content, and the widest card ("Frontend Development") is
+   wider than the column's own track in the 1320–1440px band, where
+   the stage is still narrow. An uncapped percentage therefore pushes
+   the widest card's right edge past the portrait's left edge exactly
+   where the column is tightest. Capping the shift against the
+   column's width keeps the worst case inside the available gutter. */
 @media (min-width: 1320px) {
   .hero-cap-stack {
-    transform: translateX(34%);
+    transform: translateX(clamp(0px, 26%, 5.5rem));
   }
 }
 
@@ -2387,15 +2396,15 @@
 .hero-cap-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1.05rem;
+  gap: 0.85rem;
+  padding: 0.7rem 1.15rem 0.7rem 0.75rem;
   border: 1px solid
-    color-mix(in oklab, var(--color-accent) 40%, transparent);
+    color-mix(in oklab, var(--color-accent) 42%, transparent);
   border-radius: 999px;
   background: linear-gradient(
     150deg,
-    color-mix(in oklab, var(--color-accent) 12%, var(--color-card)),
-    color-mix(in oklab, var(--color-accent-2) 8%, var(--color-bg-2))
+    color-mix(in oklab, var(--color-accent) 13%, var(--color-card)),
+    color-mix(in oklab, var(--color-accent-2) 9%, var(--color-bg-2))
   );
   color: var(--color-fg);
   backdrop-filter: blur(14px) saturate(170%);
@@ -2418,16 +2427,20 @@
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
 
+/*   The glyph is the card's lead element, so it is drawn larger than
+   the metric-bar icons beside it — 38px against 30px — and carried on
+   the accent's cool end so it reads against the dark glass without
+   needing a chip of its own. */
 .hero-cap-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
   color: var(--color-accent-2);
   filter: drop-shadow(
-    0 0 10px color-mix(in oklab, var(--color-accent-2) 60%, transparent)
+    0 0 12px color-mix(in oklab, var(--color-accent-2) 70%, transparent)
   );
 }
 
@@ -2436,28 +2449,28 @@
 .hero-cap-text {
   display: flex;
   flex-direction: column;
-  gap: 0.12rem;
+  gap: 0.18rem;
   min-width: 0;
 }
 .hero-cap-title {
   display: block;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.15;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: var(--color-fg);
 }
 .hero-cap-detail {
   display: block;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.62rem;
-  line-height: 1.25;
+  font-size: 0.66rem;
+  line-height: 1.3;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   /* The tool list is set in the bright foreground tone rather than the
      muted one — in the approved design it reads as a second line of
      the card, not as a caption. */
-  color: color-mix(in oklab, var(--color-fg) 82%, transparent);
+  color: color-mix(in oklab, var(--color-fg) 84%, transparent);
   /* The tool list is the substance of the card, so it must stay fully
      readable. It wraps rather than truncating when a viewport is
      narrow enough that one line will not fit. */
@@ -2690,19 +2703,158 @@
   overflow: visible;
 }
 
-/* ─── Metric bar icons ───────────────────────────────────────────── */
+/* ─── Hero badge row ─────────────────────────────────────────────── */
+/*   The ISTQB certification badge and the "Available for Work" badge
+   sit side by side in one row. The row wraps below the tablet
+   breakpoint so the two never overlap. */
 
+.hero-badge-row {
+  /* The row must be able to shrink below the sum of its badges on a
+     narrow viewport, otherwise the second badge overflows the
+     column. */
+  min-width: 0;
+}
+
+/*   The availability badge is the one affirmative statement on the
+   page, so it is set in the accent tone on a soft accent wash, with a
+   matching hairline border. The pulsing dot mirrors the certification
+   badge's dot, so the two read as one family. */
+.hero-available-badge {
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    0 0 22px -12px color-mix(in oklab, var(--color-accent) 90%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 8%, transparent);
+}
+
+/* ─── Hero capability tags ───────────────────────────────────────── */
+/*   The row of area pills between the positioning copy and the CTAs.
+   Each pill pairs a small outline glyph with its label.
+
+   The tags are deliberately quieter than the four capability cards on
+   the right of the stage: they are a summary line, not the headline
+   detail. The glyph sits in the accent tone without its own chip, and
+   the pill itself carries only a hairline border and a faint wash. */
+
+.hero-cap-tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.hero-cap-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.34rem 0.7rem 0.34rem 0.55rem;
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-accent) 7%, transparent);
+  color: var(--color-fg-2);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 5%, transparent);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.hero-cap-tag:hover {
+  border-color: color-mix(in oklab, var(--color-accent) 62%, transparent);
+  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+  color: var(--color-fg);
+}
+
+.hero-cap-tag-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.hero-cap-tag-icon svg { display: block; }
+
+/* ─── Credibility metric bar ─────────────────────────────────────── */
+/*   One premium glass panel holding all four metrics, rather than
+   four separate tiles. The panel carries the emerald hairline and a
+   soft bloom, so the row reads as a single achievement summary. */
+
+.hero-metrics-panel {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-card) 92%, transparent),
+      color-mix(in oklab, var(--color-bg-2) 88%, transparent)
+    );
+  border-color: color-mix(in oklab, var(--color-accent) 22%, var(--color-border));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    0 24px 52px -32px color-mix(in oklab, #000 80%, transparent),
+    0 0 44px -26px color-mix(in oklab, var(--color-accent) 80%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
+}
+
+/*   Each metric is a cell in the panel's grid. The icon sits in a
+   rounded accent wash rather than bare on the panel, so the four
+   cells read as four equal units. */
 .hero-metric-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
+  border: 1px solid color-mix(in oklab, var(--color-accent) 32%, transparent);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--color-accent) 11%, transparent);
   color: var(--color-accent);
+  box-shadow: 0 0 20px -12px color-mix(in oklab, var(--color-accent) 85%, transparent);
 }
 .hero-metric-icon svg { display: block; }
+
+/*   The headline number. It is the largest type in the panel — the
+   metrics are the page's proof points, so they are set a size above
+   the surrounding copy. */
+.hero-metric-value {
+  font-size: clamp(1.6rem, 2.3vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.hero-metric-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.hero-metric-detail {
+  font-size: 0.7rem;
+}
+
+.hero-metric-link {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+
+.hero-metric-link-icon {
+  width: 0.66rem;
+  height: 0.66rem;
+}
+
+.hero-metric-supporting {
+  font-size: 0.7rem;
+}
 
 /* The GitHub mark beside the "Open Source Contributor" line. It is
    filled rather than stroked, so it needs no extra weight to stay
@@ -2711,8 +2863,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
   color: var(--color-muted);
 }
@@ -2724,35 +2876,54 @@
    reserves a square so every label in the row starts at the same x.
 
    The row is meant to read as a strip of tools, so the badges are
-   generously sized: a 22px mark inside a 34px-tall pill, with the
+   generously sized: a 26px mark inside a 42px-tall pill, with the
    label vertically centred against it. Every badge in the row has the
    same height because the icon box and the label both sit on the
-   badge's centre line. */
+   badge's centre line.
+
+   The badge sits on a glass surface with a soft drop shadow and a
+   hairline top highlight, so it reads as a physical chip rather than
+   a flat outline. */
 
 .hero-stack-badge {
   align-items: center;
-  min-height: 34px;
-  background: color-mix(in oklab, var(--color-card) 72%, transparent);
-  backdrop-filter: blur(10px) saturate(150%);
-  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  min-height: 42px;
+  font-size: 0.8rem;
+  letter-spacing: -0.005em;
+  border-color: color-mix(in oklab, var(--color-accent) 18%, var(--color-border));
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--color-card) 88%, transparent),
+    color-mix(in oklab, var(--color-bg-2) 84%, transparent)
+  );
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   box-shadow:
-    0 8px 20px -16px color-mix(in oklab, #000 70%, transparent),
-    inset 0 1px 0 color-mix(in oklab, #fff 4%, transparent);
+    0 10px 24px -18px color-mix(in oklab, #000 78%, transparent),
+    0 0 22px -16px color-mix(in oklab, var(--color-accent) 80%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 7%, transparent);
   transition:
     border-color 200ms ease,
-    background-color 200ms ease;
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
   white-space: nowrap;
 }
 .hero-stack-badge:hover {
-  border-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
+  border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 30px -18px color-mix(in oklab, #000 78%, transparent),
+    0 0 28px -14px color-mix(in oklab, var(--color-accent) 90%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 9%, transparent);
 }
 
 .hero-stack-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
 }
 .hero-stack-icon svg { display: block; }
@@ -2768,13 +2939,14 @@
 .hero-core-stack {
   justify-content: center;
 }
-.hero-core-stack > span {
+.hero-core-stack-label {
   flex-shrink: 0;
+  font-size: 0.7rem;
   color: var(--color-accent);
   font-weight: 600;
 }
 @media (min-width: 1024px) {
-  .hero-core-stack > span {
+  .hero-core-stack-label {
     padding-right: 0.9rem;
     border-right: 1px solid var(--color-border);
   }
@@ -2871,10 +3043,11 @@
 }
 
 @media (max-width: 480px) {
-  .hero-cap-card { padding: 0.6rem 0.7rem; }
-  .hero-cap-icon { width: 28px; height: 28px; }
-  .hero-cap-title { font-size: 0.76rem; }
-  .hero-cap-detail { font-size: 0.55rem; }
+  .hero-cap-card { padding: 0.6rem 0.75rem; gap: 0.6rem; }
+  .hero-cap-icon { width: 32px; height: 32px; }
+  .hero-cap-title { font-size: 0.82rem; }
+  .hero-cap-detail { font-size: 0.56rem; }
+  .hero-cap-tag { font-size: 0.7rem; padding: 0.3rem 0.6rem 0.3rem 0.48rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

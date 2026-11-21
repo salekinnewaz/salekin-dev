@@ -33,6 +33,9 @@ type AdminFormProps = {
       showEducation: boolean;
       showContact: boolean;
     };
+    availability: {
+      availableForWork: boolean;
+    };
     theme: {
       accentColor: string;
       accentColor2: string;
@@ -158,8 +161,27 @@ export function AdminForm({ defaults }: AdminFormProps) {
         </div>
       </Section>
 
+      {/* Availability */}
+      <Section title="Availability" eyebrow="05">
+        <p className="text-xs text-muted">
+          The hero shows an &ldquo;Available for Work&rdquo; badge. It is a
+          claim about you, so switch it off as soon as it stops being
+          true — the badge disappears from the hero immediately, with no
+          code change and no redeploy.
+        </p>
+        <label className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:border-accent">
+          <input
+            type="checkbox"
+            name="availableForWork"
+            defaultChecked={defaults.availability.availableForWork}
+            className="h-4 w-4 accent-[color:var(--color-accent)]"
+          />
+          <span>Show the &ldquo;Available for Work&rdquo; badge in the hero</span>
+        </label>
+      </Section>
+
       {/* Theme */}
-      <Section title="Theme" eyebrow="05">
+      <Section title="Theme" eyebrow="06">
         <div className="flex flex-wrap gap-2">
           {SWATCH_PRESETS.map((p) => {
             const active = p.a.toLowerCase() === accentA.toLowerCase();
@@ -213,7 +235,7 @@ export function AdminForm({ defaults }: AdminFormProps) {
       </Section>
 
       {/* Skills */}
-      <Section title="Skills" eyebrow="06">
+      <Section title="Skills" eyebrow="07">
         <p className="text-xs text-muted">
           Comma-separated lists. Each category shows up as its own card on the
           home page.
@@ -226,7 +248,7 @@ export function AdminForm({ defaults }: AdminFormProps) {
       </Section>
 
       {/* About-section stat counters */}
-      <Section title="About stats" eyebrow="07">
+      <Section title="About stats" eyebrow="08">
         <p className="text-xs text-muted">
           Three counters in the About section. The site renders the real value
           immediately (no zero flicker) and animates the count-up on the

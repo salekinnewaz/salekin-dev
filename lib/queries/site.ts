@@ -24,6 +24,7 @@ const SITE_SETTING_KEYS = [
   'show_skills',
   'show_education',
   'show_contact',
+  'available_for_work',
   'accent_color',
   'accent_color_2',
   'default_theme',
@@ -87,6 +88,22 @@ export type SiteSections = {
   showContact: boolean;
 };
 
+/**
+ * The owner's current availability.
+ *
+ * The hero's "Available for Work" badge is driven by this flag rather
+ * than being hard-coded, because a badge that claims availability is
+ * a factual claim about the owner. The admin can turn it off the
+ * moment it stops being true, without a code change or a redeploy.
+ *
+ * It lives outside `SiteSections` because it is a statement about the
+ * person, not a toggle for one of the page's sections.
+ */
+export type SiteAvailability = {
+  /** Whether the "Available for Work" badge is shown. */
+  availableForWork: boolean;
+};
+
 export type SiteTheme = {
   accentColor: string;
   accentColor2: string;
@@ -137,6 +154,7 @@ export type SiteProfileImage = {
 export type SiteSettings = {
   identity: SiteIdentity;
   sections: SiteSections;
+  availability: SiteAvailability;
   theme: SiteTheme;
   skills: SkillsByCategory;
   stats: SiteStats;
@@ -165,6 +183,7 @@ const DEFAULTS = {
   show_skills: 'true',
   show_education: 'true',
   show_contact: 'true',
+  available_for_work: 'true',
   accent_color: '#a78bfa',
   accent_color_2: '#22d3ee',
   default_theme: 'dark',
@@ -389,6 +408,10 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     showContact: asBool(map['show_contact'], true),
   };
 
+  const availability: SiteAvailability = {
+    availableForWork: asBool(map['available_for_work'], true),
+  };
+
   const theme: SiteTheme = {
     accentColor: accentIsValid(map['accent_color'])
       ? (map['accent_color'] as string)
@@ -416,7 +439,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     legacyHasImage,
   );
 
-  return { identity, sections, theme, skills, stats, profileImage };
+  return { identity, sections, availability, theme, skills, stats, profileImage };
 }
 
 /**
