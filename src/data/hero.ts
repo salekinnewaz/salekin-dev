@@ -9,11 +9,7 @@
  */
 
 /** Icon key for a capability card. */
-export type HeroCardIcon =
-  | 'playwright'
-  | 'layers'
-  | 'sparkles'
-  | 'git-branch';
+export type HeroCardIcon = 'code' | 'layers' | 'sparkles' | 'git-branch';
 
 export type HeroCapabilityCard = {
   /** Stable key — React key and icon lookup. */
@@ -35,7 +31,7 @@ export const HERO_CAPABILITY_CARDS: readonly HeroCapabilityCard[] = [
     id: 'frontend-development',
     title: 'Frontend Development',
     detail: 'Angular · TypeScript',
-    icon: 'playwright',
+    icon: 'code',
   },
   {
     id: 'test-automation',

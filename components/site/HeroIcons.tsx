@@ -5,21 +5,25 @@ import type { HeroCardIcon } from '@/src/data/hero';
  * Hero capability-card icons.
  *
  * A tiny hand-authored SVG set — same visual language as
- * `ServicesIcons.tsx` (24×24 grid, 1.75 stroke, `currentColor`) so the
- * hero cards and the Services capability cards read as one family.
+ * `ServicesIcons.tsx` (24×24 grid, `currentColor`) so the hero cards
+ * and the Services capability cards read as one family.
+ *
+ * The glyphs are drawn at a heavier stroke than the rest of the icon
+ * set because in the approved design these sit on the card's own
+ * glass fill, with no chip or panel of their own to carry them. At
+ * that size a 1.6px stroke reads as a hairline and disappears against
+ * the dark glass, so they are stroked at 2px to hold their shape.
  *
  * No icon library: these four glyphs are all the hero needs, and
  * inlining them keeps the bundle free of an extra dependency.
  */
 
 const PATHS: Record<HeroCardIcon, ReactNode> = {
-  // Playwright — the two theatre masks.
-  playwright: (
+  // Code — the angle-bracket mark for frontend work.
+  code: (
     <>
-      <path d="M3.5 4.2h7.2v6.4a3.6 3.6 0 0 1-7.2 0V4.2Z" />
-      <path d="M5.4 6.9h1.3M7.9 6.9h1.3M5.9 9.2c1.1.8 2.4.8 3.5 0" />
-      <path d="M13.3 4.2h7.2v6.4a3.6 3.6 0 0 1-7.2 0V4.2Z" />
-      <path d="M15.2 6.9h1.3M17.7 6.9h1.3M15.7 9.2c1.1.8 2.4.8 3.5 0" />
+      <path d="M8.6 7 3.6 12l5 5" />
+      <path d="M15.4 7l5 5-5 5" />
     </>
   ),
   // Layers — three stacked plates.
@@ -61,7 +65,7 @@ export function HeroIcon({
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.6}
+      strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

@@ -274,14 +274,21 @@ await p.waitForTimeout(900);
     const tops = cards.map((c) => Math.round(c.top));
     const lefts = cards.map((c) => Math.round(c.left));
     const widths = cards.map((c) => Math.round(c.width));
+    const heights = cards.map((c) => Math.round(c.height));
     return {
       count: cards.length,
       // One column means every card starts at the same x.
       oneColumn: new Set(lefts).size === 1,
       // One column means every card has a distinct y.
       distinctRows: new Set(tops).size === cards.length,
-      // Consistent dimensions.
-      consistentWidth: Math.max(...widths) - Math.min(...widths) <= 2,
+      // The cards hug their own content, so their widths differ by
+      // design — the title length varies. Their *heights* must still
+      // match, or the column reads as ragged.
+      consistentHeight: Math.max(...heights) - Math.min(...heights) <= 1,
+      heights,
+      // Every card must be wide enough to hold its own title without
+      // wrapping onto a third line.
+      widths,
       // The column must sit to the left of the portrait.
       leftOfPortrait: pr ? Math.max(...lefts) + widths[0] <= pr.left + 8 : false,
       overlap: pr
@@ -303,8 +310,8 @@ await p.waitForTimeout(900);
     JSON.stringify(layout),
   );
   record(
-    'The capability cards have consistent dimensions',
-    layout.consistentWidth,
+    'The capability cards have a consistent height',
+    layout.consistentHeight,
     JSON.stringify(layout),
   );
   record(
@@ -545,6 +552,13 @@ await p.waitForTimeout(900);
   // of the portrait. Two properties matter: they must not overlap the
   // portrait's frame, and they must be lifted to the top of the frame's
   // band rather than floating at its midpoint.
+  //
+  // The frame is *rotated* 9°, so its axis-aligned bounding box is
+  // wider than the tilted pane it actually draws. Testing against the
+  // bounding box would report a collision where there is none — and
+  // would miss a real one where the pane's true edge crosses a card.
+  // The clearance is therefore measured against the frame's rotated
+  // left edge, reconstructed from its own transform matrix.
   const cards = await p.evaluate(() => {
     const list = [...document.querySelectorAll('#hero .hero-cap-card')];
     const frame = document.querySelector('#hero .hero-portrait-frame');
@@ -553,8 +567,29 @@ await p.waitForTimeout(900);
     const rects = list.map((el) => el.getBoundingClientRect());
     const left = Math.min(...rects.map((r) => r.left));
     const right = Math.max(...rects.map((r) => r.right));
-    // The column must clear the frame's left edge.
-    const clearance = Math.round(f.left - right);
+
+    // Rebuild the rotated frame's corners from its transform matrix.
+    const m = new DOMMatrix(getComputedStyle(frame).transform);
+    const cx = f.left + f.width / 2;
+    const cy = f.top + f.height / 2;
+    const rot = [
+      [-f.width / 2, -f.height / 2],
+      [f.width / 2, -f.height / 2],
+      [f.width / 2, f.height / 2],
+      [-f.width / 2, f.height / 2],
+    ].map(([x, y]) => [cx + m.a * x + m.c * y, cy + m.b * x + m.d * y]);
+    // The left edge runs from the top-left corner to the bottom-left.
+    const [x0, y0] = rot[0];
+    const [x3, y3] = rot[3];
+    const frameLeftAt = (y) =>
+      x0 + (x3 - x0) * ((y - y0) / (y3 - y0 || 1));
+
+    // The worst case is the card that reaches furthest right at the
+    // height where the frame's edge is furthest left.
+    const clearances = rects.map((r) =>
+      Math.round(frameLeftAt(r.top) - r.right),
+    );
+
     return {
       count: rects.length,
       top: Math.round(rects[0].top),
@@ -563,7 +598,9 @@ await p.waitForTimeout(900);
       frameBottom: Math.round(f.bottom),
       left: Math.round(left),
       right: Math.round(right),
-      clearance,
+      // The smallest clearance across the four cards.
+      clearance: Math.min(...clearances),
+      clearances,
       // Every card must sit on the same vertical line.
       oneColumn:
         Math.max(...rects.map((r) => Math.round(r.left))) -
@@ -580,7 +617,7 @@ await p.waitForTimeout(900);
     JSON.stringify(cards),
   );
   record(
-    'The capability cards clear the portrait frame',
+    'The capability cards clear the tilted portrait frame',
     cards !== null && cards.clearance > 0,
     JSON.stringify(cards),
   );

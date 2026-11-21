@@ -216,6 +216,11 @@ export function Hero({
               portrait. They are a sibling of the portrait stage rather
               than children of it, so the portrait can be sized and
               positioned independently of the card column.
+
+              Each card is a glass pill: a bare glyph in the accent's
+              cool tone on the left, then the title over the tool
+              list. The glyph has no chip or border of its own — it
+              sits directly on the card's fill.
             */}
             <ul className="hero-cap-stack">
               {HERO_CAPABILITY_CARDS.map((card) => (
