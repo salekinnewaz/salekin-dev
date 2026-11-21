@@ -498,6 +498,97 @@ await p.waitForTimeout(900);
     sizing.centred,
     JSON.stringify(sizing),
   );
+
+  // The Core Stack group — the "Core Stack" label plus the badge row —
+  // must be centred in the hero, not left-aligned. The label is much
+  // lighter than the dense badge row, so an off-centre group reads as
+  // visibly lopsided even when the numbers are only a few pixels out.
+  const centring = await p.evaluate(() => {
+    const group = document.querySelector('#hero .hero-core-stack');
+    if (!group) return null;
+    const label = group.querySelector(':scope > span');
+    const list = group.querySelector(':scope > ul');
+    if (!label || !list) return null;
+    const container = group.parentElement;
+    const g = group.getBoundingClientRect();
+    const l = label.getBoundingClientRect();
+    const li = list.getBoundingClientRect();
+    const c = container.getBoundingClientRect();
+    const groupLeft = Math.min(l.left, li.left);
+    const groupRight = Math.max(l.right, li.right);
+    const leftGap = groupLeft - c.left;
+    const rightGap = c.right - groupRight;
+    return {
+      leftGap: Math.round(leftGap),
+      rightGap: Math.round(rightGap),
+      // The group must be centred on its container's own centre line.
+      centreOffset: Math.round(
+        groupLeft + (groupRight - groupLeft) / 2 - (c.left + c.width / 2),
+      ),
+      // The flex container must actually be centring its children.
+      justify: getComputedStyle(group).justifyContent,
+    };
+  });
+  record(
+    'The Core Stack group is centred on the hero centre line',
+    centring !== null &&
+      centring.justify === 'center' &&
+      Math.abs(centring.centreOffset) <= 2 &&
+      Math.abs(centring.leftGap - centring.rightGap) <= 2,
+    JSON.stringify(centring),
+  );
+}
+
+// ── Capability card column ────────────────────────────────────────
+{
+  // The four cards are a single vertical column that sits to the left
+  // of the portrait. Two properties matter: they must not overlap the
+  // portrait's frame, and they must be lifted to the top of the frame's
+  // band rather than floating at its midpoint.
+  const cards = await p.evaluate(() => {
+    const list = [...document.querySelectorAll('#hero .hero-cap-card')];
+    const frame = document.querySelector('#hero .hero-portrait-frame');
+    if (list.length !== 4 || !frame) return null;
+    const f = frame.getBoundingClientRect();
+    const rects = list.map((el) => el.getBoundingClientRect());
+    const left = Math.min(...rects.map((r) => r.left));
+    const right = Math.max(...rects.map((r) => r.right));
+    // The column must clear the frame's left edge.
+    const clearance = Math.round(f.left - right);
+    return {
+      count: rects.length,
+      top: Math.round(rects[0].top),
+      bottom: Math.round(rects[rects.length - 1].bottom),
+      frameTop: Math.round(f.top),
+      frameBottom: Math.round(f.bottom),
+      left: Math.round(left),
+      right: Math.round(right),
+      clearance,
+      // Every card must sit on the same vertical line.
+      oneColumn:
+        Math.max(...rects.map((r) => Math.round(r.left))) -
+          Math.min(...rects.map((r) => Math.round(r.left))) <= 1,
+      // The cards must start near the frame's top, not at its midpoint.
+      topAligned: Math.abs(rects[0].top - f.top) <= 60,
+      // The stack must stay inside the frame's vertical band.
+      withinBand: rects[0].top >= f.top - 4 && rects[rects.length - 1].bottom <= f.bottom + 4,
+    };
+  });
+  record(
+    'The four capability cards form one vertical column',
+    cards !== null && cards.oneColumn && cards.count === 4,
+    JSON.stringify(cards),
+  );
+  record(
+    'The capability cards clear the portrait frame',
+    cards !== null && cards.clearance > 0,
+    JSON.stringify(cards),
+  );
+  record(
+    'The capability cards sit at the top of the portrait band',
+    cards !== null && cards.topAligned && cards.withinBand,
+    JSON.stringify(cards),
+  );
 }
 
 // ── No hardcoded portrait ─────────────────────────────────────────

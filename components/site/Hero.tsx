@@ -443,11 +443,17 @@ export function Hero({
       </div>
 
       {/* ─── Core Stack ─── */}
-      <div className="hero-core-stack mt-6 flex flex-wrap items-center gap-3">
-        <span className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-[var(--color-muted)]">
+      {/*
+        The group is centred as a whole — the "Core Stack" title sits
+        with the badge row rather than off to one side, so the block
+        reads as a titled section instead of a caption with a list
+        trailing it.
+      */}
+      <div className="hero-core-stack mt-6 flex flex-wrap items-center justify-center gap-3">
+        <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em]">
           Core Stack
         </span>
-        <ul className="flex flex-wrap items-center gap-2">
+        <ul className="flex flex-wrap items-center justify-center gap-2">
           {HERO_CORE_STACK.map((tech) => (
             <li key={tech.name}>
               <span className="hero-stack-badge inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-2)] py-1.5 pl-2 pr-3 font-mono text-[0.74rem] leading-none text-[var(--color-fg-2)]">

@@ -2272,6 +2272,23 @@
   padding-bottom: 1.5rem;
 }
 
+/*   The card column is nudged towards the portrait so the two halves
+   read as one composition instead of two blocks separated by a dead
+   gutter. The shift is a `transform`, not a margin: the column is a
+   grid item, so a margin would shrink the element inside a fixed
+   track and eat the space from the *right* instead of moving the
+   column. A transform moves the painted box without touching the
+   track, so the portrait keeps its size and its position.
+
+   `translateX` is animated alongside the card hover state, which
+   also uses a transform, so the two are composed rather than
+   conflicting. */
+@media (min-width: 1320px) {
+  .hero-cap-stack {
+    transform: translateX(1.5rem);
+  }
+}
+
 /* The ambient green illumination behind the whole stage. */
 .hero-stage-glow {
   background:
@@ -2304,17 +2321,27 @@
 
    The offset is applied as a padding pair on the column, and the
    column's own height is stretched to match the portrait stage so the
-   cards distribute evenly across the frame's height. */
+   cards distribute evenly across the frame's height.
+
+   `justify-content: flex-start` with a small top padding pulls the
+   stack up against the top of the frame's band. Centring it (the
+   previous behaviour) left the first card floating level with the
+   frame's vertical midpoint, which read as a gap between the cards
+   and the portrait's crown.
+
+   The stack is *not* pinned flush to the top of the stage — a small
+   proportional inset keeps the cards reading as a deliberate band
+   rather than butting against the frame's edge. */
 
 .hero-cap-stack {
   position: relative;
   z-index: 3;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.75rem;
+  justify-content: flex-start;
+  gap: 0.7rem;
   margin: 0;
-  padding: 12% 0 8%;
+  padding: 9% 0 0;
   list-style: none;
   height: 100%;
 }
@@ -2337,11 +2364,11 @@
 .hero-cap-card {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 0.85rem;
+  gap: 0.62rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid
     color-mix(in oklab, var(--color-accent) 55%, transparent);
-  border-radius: 14px;
+  border-radius: 13px;
   background: linear-gradient(
     150deg,
     color-mix(in oklab, var(--color-card) 92%, transparent),
@@ -2372,11 +2399,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-  padding: 0.34rem;
-  border-radius: 10px;
+  padding: 0.3rem;
+  border-radius: 9px;
   border: 1px solid color-mix(in oklab, var(--color-accent) 34%, transparent);
   background: color-mix(in oklab, var(--color-accent) 12%, transparent);
   color: var(--color-accent);
@@ -2386,12 +2413,12 @@
 .hero-cap-text {
   display: flex;
   flex-direction: column;
-  gap: 0.12rem;
+  gap: 0.1rem;
   min-width: 0;
 }
 .hero-cap-title {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -2400,7 +2427,7 @@
 .hero-cap-detail {
   display: block;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.58rem;
+  font-size: 0.55rem;
   line-height: 1.25;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -2706,9 +2733,19 @@
 
 /* The "Core Stack" label stays visually distinct from the badges it
    introduces — it is tracked-out monospace in the muted tone, with a
-   hairline rule leading into the row. */
+   hairline rule leading into the row.
+
+   The whole group (label + badges) is centred in the hero rather than
+   left-aligned. The label is set in the accent tone and given a touch
+   more weight so it reads as the section's title instead of a caption
+   hanging off the badge row. */
+.hero-core-stack {
+  justify-content: center;
+}
 .hero-core-stack > span {
   flex-shrink: 0;
+  color: var(--color-accent);
+  font-weight: 600;
 }
 @media (min-width: 1024px) {
   .hero-core-stack > span {
