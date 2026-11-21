@@ -2182,6 +2182,73 @@
   }
 }
 
+/* ─── Hero CTA row ───────────────────────────────────────────────── */
+/*   The three CTAs are a single horizontal row on desktop. Their
+   combined width (≈529px) is wider than the text column they sit in
+   at the narrowest desktop widths, so the row is allowed to run to
+   its natural width and extend into the grid gutter.
+
+   The row never wraps on desktop (`flex-wrap: nowrap`), each button
+   refuses to shrink (`flex-shrink: 0`) and its label never breaks
+   (`white-space: nowrap`) — so the three buttons always read as one
+   line rather than the third dropping below the first two.
+
+   The row is allowed to extend past the text column it sits in, into
+   the grid gutter and the empty space in front of the stage. Where
+   that space is too narrow, the stage shifts right (see below) so the
+   capability cards always stay clear of the buttons. */
+@media (min-width: 1024px) {
+  .hero-cta-row {
+    flex-wrap: nowrap;
+    /* The row is sized by its content, so it can extend past the text
+       column it sits in. The stage shifts right (below) to keep the
+       capability cards clear of it. */
+    width: max-content;
+    max-width: none;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero-cta-row {
+    /* Below `lg` the buttons stack rather than squeeze. */
+    flex-wrap: wrap;
+  }
+  .hero-cta-row > * {
+    white-space: normal;
+  }
+}
+
+/* ─── Hero top spacing (clear of the floating navbar) ────────────── */
+/*   The navbar is `position: fixed`, so it floats *over* the document
+   rather than occupying flow space. The hero is the first thing in
+   the document, which means its own top padding is measured from a
+   position that is already underneath the navbar — leaving only the
+   difference between the padding and the navbar's height as visible
+   clearance.
+
+   `--nav-height` is the navbar's real measured height (bar + its top
+   offset). Adding it to the hero's padding puts the first row of hero
+   content below the navbar with a consistent gap, whatever the navbar
+   does to its own height at a given breakpoint.
+
+   This is additive padding, never a negative margin: the hero still
+   begins at the top of the document, and the page still starts at
+   scroll position 0. */
+:root {
+  --nav-height: 75px;
+}
+
+.hero-section {
+  padding-top: calc(var(--nav-height) + 2.5rem);
+}
+
+@media (min-width: 640px) {
+  .hero-section {
+    padding-top: calc(var(--nav-height) + 3rem);
+  }
+}
+
 /* ─── Hero portrait stage ────────────────────────────────────────── */
 /*   The right column is a single stage:
      • a large portrait on the right, standing on a tilted rounded
@@ -2198,8 +2265,8 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
-  align-items: center;
-  gap: 0.5rem;
+  align-items: stretch;
+  gap: 0.75rem;
   width: 100%;
   min-height: 31rem;
   padding-bottom: 1.5rem;
@@ -2227,16 +2294,44 @@
 }
 
 /* ─── Capability card column (left of the portrait) ──────────────── */
+/*   The four cards stack vertically in a single column beside the
+   portrait. The column is *not* centred against the raw portrait box:
+   the portrait image is letterboxed into the stage, while the visible
+   subject sits inside the tilted frame. Aligning the cards against
+   the frame's own vertical band (the same 12% / 8% insets the frame
+   uses) keeps the card stack reading as level with the framed
+   portrait rather than floating high against the image's top edge.
+
+   The offset is applied as a padding pair on the column, and the
+   column's own height is stretched to match the portrait stage so the
+   cards distribute evenly across the frame's height. */
 
 .hero-cap-stack {
   position: relative;
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  justify-content: center;
+  gap: 0.75rem;
   margin: 0;
-  padding: 0;
+  padding: 12% 0 8%;
   list-style: none;
+  height: 100%;
+}
+
+/*   Between 1024px and 1319px the text column is narrower than the CTA
+   row, so the row reaches into the gutter and the capability cards
+   shift right to keep clear of it. The shift is applied as a margin
+   on the card column rather than as padding on the stage, so the
+   stage keeps its full width and the portrait does not shrink — the
+   card column absorbs the shift instead.
+
+   The rule is placed after the base declaration above because that
+   declaration's `margin: 0` shorthand would otherwise reset it. */
+@media (min-width: 1024px) and (max-width: 1319px) {
+  .hero-cap-stack {
+    margin-left: 4.5rem;
+  }
 }
 
 .hero-cap-card {
@@ -2425,11 +2520,15 @@
 }
 
 /* ─── QA Pipeline — floating over the portrait's lower right ─────── */
+/*   The pipeline card overlaps the portrait's lower-right corner. It
+   is anchored to the stage's right edge and sits in the lower half of
+   the frame's vertical band, so it overlaps the subject's lower torso
+   rather than floating clear of it or dropping below the portrait. */
 
 .hero-pipeline {
   position: absolute;
   right: 0;
-  bottom: 1%;
+  bottom: 4%;
   z-index: 4;
   width: min(20.5rem, 92%);
   padding: 0.85rem 0.95rem 0.95rem;
@@ -2565,19 +2664,58 @@
   color: var(--color-muted);
 }
 
-/* ─── Core Stack technology icons ────────────────────────────────── */
+/* ─── Core Stack technology badges ──────────────────────────────── */
+/*   Each badge pairs a recognisable official brand mark with the
+   technology's name. The marks are *filled* and carry their own
+   colours, so the badge does not tint them — the icon wrapper only
+   reserves a square so every label in the row starts at the same x.
+
+   The row is meant to read as a strip of tools, so the badges are
+   generously sized: a 22px mark inside a 34px-tall pill, with the
+   label vertically centred against it. Every badge in the row has the
+   same height because the icon box and the label both sit on the
+   badge's centre line. */
+
+.hero-stack-badge {
+  align-items: center;
+  min-height: 34px;
+  background: color-mix(in oklab, var(--color-card) 72%, transparent);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    0 8px 20px -16px color-mix(in oklab, #000 70%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 4%, transparent);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+  white-space: nowrap;
+}
+.hero-stack-badge:hover {
+  border-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
+}
 
 .hero-stack-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
-  color: var(--color-accent);
-  opacity: 0.85;
 }
 .hero-stack-icon svg { display: block; }
+
+/* The "Core Stack" label stays visually distinct from the badges it
+   introduces — it is tracked-out monospace in the muted tone, with a
+   hairline rule leading into the row. */
+.hero-core-stack > span {
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .hero-core-stack > span {
+    padding-right: 0.9rem;
+    border-right: 1px solid var(--color-border);
+  }
+}
 
 /* ─── Responsive collapse ────────────────────────────────────────── */
 /*   1024–1149px: the hero is stacked (see the layout rule above), so
@@ -2613,6 +2751,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.6rem;
+    /* The desktop column's frame-aligned padding does not apply once
+       the cards become a grid beneath the portrait. */
+    height: auto;
+    padding: 0;
+    justify-content: initial;
   }
   .hero-portrait-stage {
     grid-area: portrait;

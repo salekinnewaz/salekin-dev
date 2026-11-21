@@ -17,9 +17,9 @@ export default function NotFound() {
         <Link href="/" className="btn-primary">
           ← cd ~
         </Link>
-        <a href="/#contact" className="btn-outline">
+        <Link href="/#contact" className="btn-outline">
           $ POST /contact
-        </a>
+        </Link>
       </div>
     </section>
   );

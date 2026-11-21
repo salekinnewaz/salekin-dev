@@ -101,21 +101,96 @@ await p.waitForTimeout(900);
     const nodes = [...document.querySelectorAll('#hero a, #hero button')].filter((el) =>
       wanted.some((w) => (el.textContent ?? '').includes(w)),
     );
-    const tops = nodes.map((el) => el.getBoundingClientRect().top);
+    const rects = nodes.map((el) => el.getBoundingClientRect());
+    const tops = rects.map((r) => r.top);
     // The buttons have slightly different font sizes, so their tops can
     // differ by a pixel or two while still reading as one row.
-    return { count: nodes.length, spread: Math.max(...tops) - Math.min(...tops) };
+    const spread = Math.max(...tops) - Math.min(...tops);
+    // A stronger check than the top-edge spread: every button's
+    // vertical band must overlap every other button's band. A wrapped
+    // button sits clear of the others, so the bands would not overlap.
+    const rowTop = Math.min(...rects.map((r) => r.top));
+    const rowBottom = Math.max(...rects.map((r) => r.bottom));
+    const allOverlap = rects.every(
+      (r) => r.top < rowBottom - 4 && r.bottom > rowTop + 4,
+    );
+    // The row must also not run into the capability-card column.
+    const capLeft = Math.min(
+      ...[...document.querySelectorAll('#hero .hero-cap-card')].map((c) =>
+        c.getBoundingClientRect().left,
+      ),
+    );
+    return {
+      count: nodes.length,
+      spread,
+      allOverlap,
+      rowRight: Math.max(...rects.map((r) => r.right)),
+      capLeft,
+      // The buttons must not overlap the cards. A negative clearance
+      // means the CTA row has run underneath the card column.
+      clearance: capLeft - Math.max(...rects.map((r) => r.right)),
+      nowrap: nodes.every((el) => getComputedStyle(el).whiteSpace === 'nowrap'),
+      noShrink: nodes.every((el) => getComputedStyle(el).flexShrink === '0'),
+    };
   });
   record(
     'The three CTAs sit on a single row on desktop',
-    rows.count === 3 && rows.spread <= 4,
+    rows.count === 3 && rows.spread <= 4 && rows.allOverlap,
     `count=${rows.count} spread=${rows.spread.toFixed(1)}px`,
+  );
+  record(
+    'The CTA labels never break and the buttons never shrink',
+    rows.nowrap && rows.noShrink,
+    `nowrap=${rows.nowrap} noShrink=${rows.noShrink}`,
+  );
+  record(
+    'The CTA row does not overlap the capability cards',
+    rows.clearance > 0,
+    `clearance=${rows.clearance.toFixed(1)}px`,
   );
 
   record(
     'The status line reads "MD SALEKIN NEWAZ | DHAKA, BANGLADESH"',
     (await p.locator('#hero').getByText(/MD SALEKIN NEWAZ/i).count()) === 1 &&
       (await p.locator('#hero').getByText(/DHAKA, BANGLADESH/i).count()) === 1,
+  );
+}
+
+// ── Header clearance ───────────────────────────────────────────────
+//
+// The navbar is fixed, so it floats over the hero rather than pushing
+// it down. The hero must still leave enough room that the badge, the
+// headline and the portrait all start *below* it.
+{
+  const clearance = await p.evaluate(() => {
+    const header = document.querySelector('header');
+    const badge = document.querySelector('#hero .rounded-full');
+    const h1 = document.querySelector('#hero h1');
+    const portrait = document.querySelector('#hero .hero-portrait img');
+    const barBottom = header
+      ? header.getBoundingClientRect().bottom
+      : 0;
+    const top = (el) => (el ? el.getBoundingClientRect().top : Infinity);
+    return {
+      barBottom: Math.round(barBottom),
+      badge: Math.round(top(badge)),
+      h1: Math.round(top(h1)),
+      portrait: Math.round(top(portrait)),
+      // The page must still open at the top of the document.
+      scrollY: window.scrollY,
+    };
+  });
+  record(
+    'The hero badge, headline and portrait all clear the fixed header',
+    clearance.badge > clearance.barBottom &&
+      clearance.h1 > clearance.barBottom &&
+      clearance.portrait > clearance.barBottom,
+    JSON.stringify(clearance),
+  );
+  record(
+    'The page opens at the top of the document',
+    clearance.scrollY === 0,
+    `scrollY=${clearance.scrollY}`,
   );
 }
 
@@ -377,6 +452,52 @@ await p.waitForTimeout(900);
     (await p.locator('#hero .hero-stack-icon svg').count()) === 8,
     `icons=${await p.locator('#hero .hero-stack-icon svg').count()}`,
   );
+
+  // The badges must be legible, not hairline chips: each icon is at
+  // least 20px square and each badge is at least 32px tall.
+  const sizing = await p.evaluate(() => {
+    const icons = [...document.querySelectorAll('#hero .hero-stack-icon')].map(
+      (el) => el.getBoundingClientRect(),
+    );
+    const badges = [...document.querySelectorAll('#hero .hero-stack-badge')].map(
+      (el) => el.getBoundingClientRect(),
+    );
+    const iconHeights = icons.map((r) => Math.round(r.height));
+    const badgeHeights = badges.map((r) => Math.round(r.height));
+    // Each icon must sit on the badge's vertical centre line.
+    const centred = icons.every((icon) =>
+      badges.some((badge) => {
+        const iconMid = icon.top + icon.height / 2;
+        const badgeMid = badge.top + badge.height / 2;
+        return Math.abs(iconMid - badgeMid) <= 1.5;
+      }),
+    );
+    return {
+      icons: iconHeights,
+      badges: badgeHeights,
+      minIcon: Math.min(...iconHeights),
+      minBadge: Math.min(...badgeHeights),
+      // Every badge must be the same height.
+      uniform: Math.max(...badgeHeights) - Math.min(...badgeHeights) <= 1,
+      centred,
+      count: badges.length,
+    };
+  });
+  record(
+    'The Core Stack icons are at least 20px square',
+    sizing.count === 8 && sizing.minIcon >= 20,
+    JSON.stringify(sizing),
+  );
+  record(
+    'The Core Stack badges are at least 32px tall and uniform in height',
+    sizing.minBadge >= 32 && sizing.uniform,
+    JSON.stringify(sizing),
+  );
+  record(
+    'Every Core Stack icon is vertically centred against its label',
+    sizing.centred,
+    JSON.stringify(sizing),
+  );
 }
 
 // ── No hardcoded portrait ─────────────────────────────────────────
@@ -466,6 +587,89 @@ await p.waitForTimeout(900);
 }
 
 console.log('\nCONSOLE ERRORS:', errs.length ? errs.join('\n') : 'none');
+
+// ── Desktop viewport sweep ─────────────────────────────────────────
+//
+// The hero's composition has to hold at every desktop width, not just
+// the one the main page was measured at. The two viewports named in
+// the design brief are checked explicitly, and a couple of narrower
+// ones guard the band where the CTA row has to reach past the text
+// column into the gutter.
+//
+// At each width the three CTAs must share one row, must not collide
+// with the capability cards, and the page must not overflow.
+{
+  const VIEWPORTS = [
+    { width: 1350, height: 757 },
+    { width: 1670, height: 941 },
+  ];
+
+  for (const vp of VIEWPORTS) {
+    const ctx = await b.newContext({ viewport: vp });
+    const vpPage = await ctx.newPage();
+    await vpPage.goto(BASE, { waitUntil: 'commit' });
+    await vpPage.waitForSelector('#hero .hero-cta-row');
+    await vpPage.waitForTimeout(600);
+
+    const m = await vpPage.evaluate(() => {
+      const wanted = [
+        'Hire Me / QA Services',
+        'View Case Studies',
+        'Resume Preview',
+      ];
+      const nodes = [...document.querySelectorAll('#hero a, #hero button')].filter(
+        (el) => wanted.some((w) => (el.textContent ?? '').includes(w)),
+      );
+      const rects = nodes.map((el) => el.getBoundingClientRect());
+      const rowTop = Math.min(...rects.map((r) => r.top));
+      const rowBottom = Math.max(...rects.map((r) => r.bottom));
+      const oneRow = rects.every(
+        (r) => r.top < rowBottom - 4 && r.bottom > rowTop + 4,
+      );
+      const capLeft = Math.min(
+        ...[...document.querySelectorAll('#hero .hero-cap-card')].map((c) =>
+          c.getBoundingClientRect().left,
+        ),
+      );
+      const stageTop = document
+        .querySelector('#hero .hero-stage')
+        .getBoundingClientRect().top;
+      const rowBottomPx = Math.max(...rects.map((r) => r.bottom));
+      // When the hero is stacked (narrow) the stage sits *below* the
+      // CTA row, so vertical clearance is what matters there.
+      const stacked = stageTop > rowBottomPx;
+      const clearance = stacked
+        ? stageTop - rowBottomPx
+        : capLeft - Math.max(...rects.map((r) => r.right));
+      return {
+        oneRow,
+        count: nodes.length,
+        clearance: Math.round(clearance),
+        stacked,
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+      };
+    });
+
+    record(
+      `At ${vp.width}×${vp.height} the three CTAs share one row`,
+      m.count === 3 && m.oneRow,
+      JSON.stringify(m),
+    );
+    record(
+      `At ${vp.width}×${vp.height} the CTA row clears the capability cards`,
+      m.clearance > 0,
+      JSON.stringify(m),
+    );
+    record(
+      `At ${vp.width}×${vp.height} the page does not overflow horizontally`,
+      m.overflow <= 0,
+      JSON.stringify(m),
+    );
+
+    await ctx.close();
+  }
+}
+
 await b.close();
 
 const failed = results.filter((r) => !r.pass);

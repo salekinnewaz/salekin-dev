@@ -86,7 +86,7 @@ export function Hero({
     <section
       id="hero"
       tabIndex={-1}
-      className="section-anchor relative overflow-x-clip pb-12 pt-24 lg:pt-28"
+      className="hero-section section-anchor relative overflow-x-clip pb-12"
     >
       <div className="hero-grid grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-6">
         {/* ─── Left column ─── */}
@@ -156,24 +156,36 @@ export function Hero({
             ongoing support.
           </p>
 
-          {/* CTAs — all three in a single row on desktop */}
-          <div className="flex flex-wrap items-center gap-2.5 pt-1">
+          {/*
+            CTAs — all three in a single row on desktop.
+
+            The row is `flex-nowrap` and each button is `shrink-0` with
+            `whitespace-nowrap`, so the three always sit side by side on
+            a desktop viewport rather than the last one wrapping onto a
+            second line. Below `lg` the row switches to wrapping, so
+            the buttons stack on narrow screens.
+
+            The buttons keep their full size — the row is given room
+            rather than the buttons being shrunk, because a truncated
+            "Resume Preview" reads worse than a slightly larger gap.
+          */}
+          <div className="hero-cta-row flex flex-wrap items-center gap-2 pt-1 lg:flex-nowrap lg:gap-1.5">
             <a
               href="#services"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-4 py-2.5 text-[0.85rem] font-semibold text-white shadow-[0_10px_30px_-12px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-3.5 py-2.5 text-[0.85rem] font-semibold text-white shadow-[0_10px_30px_-12px_var(--color-accent)] transition-[filter,transform] hover:brightness-110 active:translate-y-px"
             >
               Hire Me / QA Services <span aria-hidden="true">→</span>
             </a>
             <a
               href="#work"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border-strong)] px-4 py-2.5 text-[0.85rem] font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--color-border-strong)] px-3.5 py-2.5 text-[0.85rem] font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             >
               View Case Studies
             </a>
             <button
               type="button"
               onClick={() => setShowResume(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-4 py-2.5 text-[0.85rem] font-medium text-[var(--color-fg-2)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--color-border)] px-3.5 py-2.5 text-[0.85rem] font-medium text-[var(--color-fg-2)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             >
               <span aria-hidden="true">▤</span>
               Resume Preview
@@ -431,14 +443,14 @@ export function Hero({
       </div>
 
       {/* ─── Core Stack ─── */}
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <span className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+      <div className="hero-core-stack mt-6 flex flex-wrap items-center gap-3">
+        <span className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-[var(--color-muted)]">
           Core Stack
         </span>
-        <ul className="flex flex-wrap items-center gap-1.5">
+        <ul className="flex flex-wrap items-center gap-2">
           {HERO_CORE_STACK.map((tech) => (
             <li key={tech.name}>
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-2)] py-1 pl-1.5 pr-2.5 font-mono text-[0.68rem] text-[var(--color-fg-2)]">
+              <span className="hero-stack-badge inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-2)] py-1.5 pl-2 pr-3 font-mono text-[0.74rem] leading-none text-[var(--color-fg-2)]">
                 <span className="hero-stack-icon">
                   <StackTechIcon name={tech.icon} />
                 </span>

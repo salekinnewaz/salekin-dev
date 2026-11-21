@@ -38,7 +38,7 @@ export function SectionHeader({
     <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
         <span className="section-index block">
-          {index} <span className="text-[var(--color-muted)]">//</span> {name}
+          {index} <span className="text-[var(--color-muted)]">{'//'}</span> {name}
         </span>
         <Heading className="mt-2 text-3xl font-bold leading-[1.1] tracking-tight text-[var(--color-fg)] sm:text-4xl">
           {title}

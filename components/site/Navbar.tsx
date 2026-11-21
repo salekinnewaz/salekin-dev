@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   NAV_SECTIONS,
   setActiveSection,
@@ -34,6 +34,45 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  /*
+    The navbar is fixed, so it floats over the document. The hero is the
+    first thing in the document and needs to know how much room the
+    navbar occupies, or its first row of content slides underneath.
+
+    Rather than hard-coding a height that would drift the moment the
+    navbar's padding or breakpoint behaviour changed, the bar measures
+    itself and publishes the result to `--nav-height`. The hero reads
+    that variable for its top padding, so the two can never disagree.
+
+    A `ResizeObserver` covers breakpoint changes (the bar's height
+    differs between the mobile and desktop layouts); the scroll
+    listener only re-runs it because the bar's own padding changes
+    once it gains its scrolled state.
+  */
+  const barRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+
+    const publish = () => {
+      const height = Math.ceil(bar.getBoundingClientRect().height);
+      // The bar's own offset from the top of the viewport is part of
+      // the space it occupies.
+      const top = Math.ceil(bar.getBoundingClientRect().top + window.scrollY);
+      const total = height + (top || 0);
+      document.documentElement.style.setProperty(
+        '--nav-height',
+        `${total}px`,
+      );
+    };
+
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -64,6 +103,7 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-5 sm:pt-4">
       <div
+        ref={barRef}
         className={`mx-auto flex max-w-[1480px] items-center justify-between gap-3 rounded-2xl border px-3 py-2 transition-[background-color,border-color,box-shadow] duration-200 sm:px-4 ${
           scrolled
             ? 'border-[var(--color-border-strong)] bg-[color-mix(in_oklab,var(--color-card)_78%,transparent)] shadow-[0_12px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl'

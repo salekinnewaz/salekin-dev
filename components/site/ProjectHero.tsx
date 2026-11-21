@@ -52,7 +52,7 @@ export function ProjectHero({
       </div>
 
       <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-muted">
-        <span className="text-accent-2">//</span>
+        <span className="text-accent-2">{'//'}</span>
         <span className="text-accent">{slug}</span>
         <span aria-hidden="true">·</span>
         <span>case study</span>
