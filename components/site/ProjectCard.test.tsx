@@ -95,6 +95,9 @@ describe('ProjectCard', () => {
     const img = container.querySelector('img');
     expect(img).not.toBeNull();
     expect(img?.getAttribute('src')).toBe('/cover.png');
+    // Bing flags images whose alt attribute is empty. The cover is
+    // content, not decoration, so it needs descriptive alt text.
+    expect(img?.getAttribute('alt')).toBe('specsmd — project cover');
   });
 
   it('falls back to the gradient SVG cover when no imageUrl', () => {

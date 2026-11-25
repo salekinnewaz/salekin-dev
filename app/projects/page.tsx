@@ -7,7 +7,7 @@ import { ProjectCard } from '@/components/site/ProjectCard';
 export const metadata: Metadata = {
   title: 'Projects',
   description:
-    'Case studies of full-stack apps, internal tools, and freelance work I have built and shipped.',
+    'Case studies of QA work I have shipped — Playwright automation, API testing, performance engineering and CI/CD integration for real clients.',
 };
 
 /**

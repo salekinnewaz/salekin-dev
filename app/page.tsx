@@ -44,7 +44,7 @@ export default async function HomePage() {
     name: 'salekin.dev',
     url: siteUrl,
     description:
-      'Md Salekin Newaz — Senior Software QA Engineer. Portfolio, projects, and case studies.',
+      'Md Salekin Newaz — Senior Software QA Engineer. Portfolio, projects, case studies, and QA automation work for real clients.',
   };
   const webPageJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',

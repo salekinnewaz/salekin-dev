@@ -61,6 +61,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
 }
 
 function ProjectCover({
+  project,
   imageUrl,
   index,
 }: {
@@ -76,7 +77,7 @@ function ProjectCover({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
-          alt=""
+          alt={`${project.title} — project cover`}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />

@@ -18,14 +18,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = env.SITE_URL ?? 'https://salekin-dev.vercel.app';
   return {
     title: `About ${identity.siteTitle} — Senior Software QA Engineer`,
-    description: `Learn about ${identity.siteTitle} — ISTQB® Certified Senior Software QA Engineer at Brain Station 23, specializing in Playwright automation, AI-driven QA, and CI/CD integration.`,
+    description: `Learn about ${identity.siteTitle} — ISTQB® Certified Senior Software QA Engineer at Brain Station 23, specializing in Playwright automation and AI-driven QA.`,
     alternates: {
       canonical: `${siteUrl}/about`,
     },
     openGraph: {
       type: 'profile',
       title: `About ${identity.siteTitle}`,
-      description: `Learn about ${identity.siteTitle} — ISTQB® Certified Senior Software QA Engineer at Brain Station 23.`,
+      description: `Learn about ${identity.siteTitle} — ISTQB® Certified Senior Software QA Engineer at Brain Station 23, specializing in Playwright automation and AI-driven QA.`,
       url: `${siteUrl}/about`,
       images: [
         {

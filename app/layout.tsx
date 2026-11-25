@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     template: '%s · Md Salekin Newaz',
   },
   description:
-    'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
+    'Senior Software QA Engineer and ISTQB® Certified QA professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing.',
   applicationName: 'Md Salekin Newaz',
   authors: [{ name: 'Md Salekin Newaz' }],
   keywords: [
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     siteName: 'Md Salekin Newaz',
     title: 'Md Salekin Newaz — Senior Software QA Engineer',
     description:
-      'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
+      'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing.',
     images: [
       {
         url: '/opengraph-image',
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Md Salekin Newaz — Senior Software QA Engineer',
     description:
-      'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing, CI/CD integration.',
+      'Senior Software QA Engineer and ISTQB® Certified professional at Brain Station 23. Playwright automation, AI-driven QA, API and performance testing.',
     images: ['/opengraph-image'],
   },
   robots: {
@@ -189,7 +189,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     name: 'salekin.dev',
     url: siteUrl,
     description:
-      'Md Salekin Newaz — Senior Software QA Engineer. Portfolio, projects, and case studies.',
+      'Md Salekin Newaz — Senior Software QA Engineer. Portfolio, projects, case studies, and QA automation work for real clients.',
     inLanguage: 'en',
     publisher: { '@id': `${siteUrl}/#person` },
   };

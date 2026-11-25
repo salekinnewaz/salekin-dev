@@ -10,6 +10,7 @@ import { ProjectHero } from '@/components/site/ProjectHero';
 import { ProjectMarkdown } from '@/components/site/ProjectMarkdown';
 import { ProjectToc } from '@/components/site/ProjectToc';
 import { env } from '@/lib/env';
+import { normalizeMetaDescription } from '@/lib/seo/description';
 
 type Params = { slug: string };
 
@@ -23,19 +24,22 @@ export async function generateMetadata({
   if (!project) {
     return { title: 'Project not found' };
   }
+  // The description is admin-editable copy, so it is clamped into
+  // Bing's accepted length window rather than trusted verbatim.
+  const description = normalizeMetaDescription(project.description);
   return {
     title: project.title,
-    description: project.description,
+    description,
     openGraph: {
       type: 'article',
       title: project.title,
-      description: project.description,
+      description,
       ...(project.imageUrl ? { images: [{ url: project.imageUrl }] } : {}),
     },
     twitter: {
       card: 'summary_large_image',
       title: project.title,
-      description: project.description,
+      description,
       ...(project.imageUrl ? { images: [project.imageUrl] } : {}),
     },
   };
@@ -106,7 +110,7 @@ export default async function ProjectSlugPage({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={project.imageUrl}
-            alt=""
+            alt={`${project.title} — project cover`}
             className="h-full w-full object-cover"
             loading="lazy"
             decoding="async"
