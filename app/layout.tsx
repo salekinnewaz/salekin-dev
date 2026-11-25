@@ -267,6 +267,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             content={env.GOOGLE_SITE_VERIFICATION}
           />
         ) : null}
+        {/* Bing Webmaster Tools ownership verification. The value comes from
+            the Bing Webmaster Tools "Copy" button in the site's "Verify
+            Ownership" step. Kept as a literal (not an env var) because the
+            key is a public site-ownership token, not a secret — and Bing
+            requires it to be present on every page of the domain. */}
+        <meta name="msvalidate.01" content="76D9D3629655F7BA6E9CBCAAA65CDE73" />
         {identity.socialGithub ? (
           <link rel="me" href={identity.socialGithub} />
         ) : null}
