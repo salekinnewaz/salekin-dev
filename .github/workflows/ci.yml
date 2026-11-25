@@ -62,7 +62,7 @@ jobs:
         # must exist before the build runs.
         run: pnpm db:push && pnpm db:seed
         env:
-          DATABASE_URL: file:./test.db
+          DATABASE_URL: file:/tmp/salekin-dev-test.db
           NODE_ENV: test
 
       - name: Typecheck
@@ -71,13 +71,13 @@ jobs:
       - name: Unit tests
         run: pnpm test
         env:
-          DATABASE_URL: file:./test.db
+          DATABASE_URL: file:/tmp/salekin-dev-test.db
           NODE_ENV: test
 
       - name: Build
         run: pnpm build
         env:
-          DATABASE_URL: file:./test.db
+          DATABASE_URL: file:/tmp/salekin-dev-test.db
           NODE_ENV: test
           ADMIN_PASSWORD: test-admin-pass-1234
           ADMIN_SESSION_SECRET: ci-build-session-secret-at-least-32-chars
