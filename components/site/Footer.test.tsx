@@ -3,68 +3,46 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Footer } from './Footer';
 
-const baseIdentity = {
-  siteTitle: 'Salekin Newaz',
-  siteTagline: 'tag',
-  siteSubtitle: '',
-  siteInitials: 'SN',
-  aboutBio: '',
-  contactEmail: null,
-  contactPhone: null,
-  contactLocation: null,
-  cvUrl: '/cv.pdf',
-  socialGithub: null,
-  socialLinkedin: null,
-  socialFacebook: null,
-  socialX: null,
-};
-
 describe('Footer', () => {
   it('renders the current year as a 4-digit number', () => {
-    render(<Footer identity={baseIdentity} />);
+    render(<Footer />);
     const year = new Date().getFullYear();
     expect(screen.getByText(new RegExp(`© ${year}`))).toBeInTheDocument();
   });
 
-  it('renders the contact email as a mailto link when present', () => {
-    render(
-      <Footer
-        identity={{ ...baseIdentity, contactEmail: 'hello@example.com' }}
-      />,
-    );
-    const link = screen.getByRole('link', { name: 'hello@example.com' });
-    expect(link).toBeInTheDocument();
-    expect(link.getAttribute('href')).toBe('mailto:hello@example.com');
+  it('renders the owner name next to the copyright', () => {
+    render(<Footer />);
+    expect(screen.getByText('Md Salekin Newaz')).toBeInTheDocument();
   });
 
-  it('omits the email block when contact_email is null', () => {
-    render(<Footer identity={baseIdentity} />);
-    expect(screen.queryByRole('link', { name: /@/ })).toBeNull();
+  it('renders the verified contact email as a mailto link', () => {
+    render(<Footer />);
+    const link = screen.getByRole('link', { name: 'salekinnewaz0@gmail.com' });
+    expect(link.getAttribute('href')).toBe('mailto:salekinnewaz0@gmail.com');
   });
 
-  it('renders social links when provided', () => {
-    render(
-      <Footer
-        identity={{
-          ...baseIdentity,
-          socialGithub: 'https://github.com/x',
-          socialLinkedin: 'https://linkedin.com/in/x',
-        }}
-      />,
-    );
-    expect(screen.getByText('GitHub')).toBeInTheDocument();
-    expect(screen.getByText('LinkedIn')).toBeInTheDocument();
+  it('renders the verified phone number as a tel link', () => {
+    render(<Footer />);
+    const link = screen.getByRole('link', { name: '+880 1640-8369595' });
+    expect(link.getAttribute('href')).toBe('tel:+88016408369595');
   });
 
-  it('omits social links that are null', () => {
-    render(
-      <Footer
-        identity={{ ...baseIdentity, socialGithub: 'https://github.com/x' }}
-      />,
+  it('renders the verified LinkedIn and GitHub profile links', () => {
+    render(<Footer />);
+    const linkedin = screen.getByRole('link', { name: 'LinkedIn' });
+    expect(linkedin.getAttribute('href')).toBe(
+      'https://www.linkedin.com/in/md-salekin-newaz',
     );
-    expect(screen.getByText('GitHub')).toBeInTheDocument();
-    expect(screen.queryByText('LinkedIn')).toBeNull();
-    expect(screen.queryByText('Facebook')).toBeNull();
-    expect(screen.queryByText('X')).toBeNull();
+    const github = screen.getByRole('link', { name: 'GitHub' });
+    expect(github.getAttribute('href')).toBe(
+      'https://github.com/salekin-newaz',
+    );
+  });
+
+  it('exposes a resume button that opens the printable resume modal', () => {
+    render(<Footer />);
+    const button = screen.getByRole('button', { name: 'Resume' });
+    expect(button).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

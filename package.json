@@ -19,15 +19,13 @@
     "deploy": "./scripts/deploy.sh",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report",
-    "test:e2e:allure": "playwright test && pnpm tsx scripts/generate-allure-report.ts",
-    "test:e2e:allure:open": "allure open ./allure-report",
-    "test:e2e:allure:serve": "allure serve ./allure-results",
-    "test:e2e:allure:clean": "rm -rf ./allure-results ./allure-report"
+    "qa:audit": "node scripts/qa-audit.mjs",
+    "qa:interactions": "node scripts/qa-interactions.mjs",
+    "qa:hero": "node scripts/qa-hero.mjs",
+    "qa:hero-layout": "node scripts/qa-hero-layout.mjs",
+    "qa:cutout": "node scripts/qa-cutout.mjs",
+    "qa:profile": "node scripts/qa-profile.mjs",
+    "qa:profile-auth": "node scripts/qa-profile-auth.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -44,8 +42,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.0",
-    "@playwright/test": "^1.63.0",
+    "@eslint/eslintrc": "^3.3.7",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.5.0",
@@ -53,12 +50,11 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitest/coverage-v8": "^2.1.8",
-    "allure-commandline": "^2.46.1",
-    "allure-js-commons": "^3.13.0",
-    "allure-playwright": "^3.13.0",
     "autoprefixer": "^10.6.1",
-    "axe-core": "^4.10.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "15.5.27",
     "jsdom": "^25.0.1",
+    "playwright": "^1.63.0",
     "postcss": "^8.5.29",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.19",

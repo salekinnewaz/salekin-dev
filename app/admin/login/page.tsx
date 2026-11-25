@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { isAdminConfigured } from '@/lib/security/admin-session';
 import { LoginForm } from './LoginForm';
 
@@ -35,9 +36,9 @@ export default function AdminLoginPage() {
         </div>
       )}
 
-      <a href="/" className="btn-outline self-start">
+      <Link href="/" className="btn-outline self-start">
         ← back to site
-      </a>
+      </Link>
     </div>
   );
 }

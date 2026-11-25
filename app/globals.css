@@ -5,51 +5,139 @@
 /*
  * Visual system — salekin.dev
  *
- * Design tokens. Two accent colors (gradient mesh + glow effects).
- * Light + dark themes; dark is the default.
+ * Design tokens follow the refactor spec's Section 02 "Color & Surface
+ * Token Matrix" exactly. Dark is the default; Light is the alternate.
+ * The accent ramp is Emerald → Cyan → Indigo.
+ *
+ * Token names are deliberately mapped onto the existing Tailwind color
+ * scale (bg, bg-2, fg, fg-2, muted, card, border, ...) so every
+ * existing utility class keeps working while the palette moves to the
+ * spec's values.
  */
 
 :root,
 [data-theme='light'] {
-  --color-bg: #fafaf7;
-  --color-bg-2: #f0eee6;
-  --color-fg: #1a1a1a;
-  --color-fg-2: #4b4b46;
-  --color-muted: #6b6b66;
-  --color-card: rgba(255, 255, 255, 0.65);
-  --color-card-hover: rgba(255, 255, 255, 0.85);
-  --color-border: rgba(15, 15, 15, 0.10);
-  --color-border-strong: rgba(15, 15, 15, 0.18);
+  /* Surfaces */
+  --color-bg: #F8FAFC;        /* canvas */
+  --color-bg-2: #F1F5F9;      /* surface-subtle */
+  --color-card: #FFFFFF;      /* surface */
+  --color-card-hover: #FFFFFF;
+  --color-fg: #0B1220;
+  --color-fg-2: #334155;
+  /* Light-mode muted is slate-600 rather than slate-500. Slate-500 only
+     reaches 4.34:1 against --color-bg-2, which is below the 4.5:1
+     WCAG AA floor for the 12–13px metadata text that uses it. */
+  --color-muted: #556275;
 
-  --color-accent: #6d28d9;     /* violet-700 (overridable via settings) */
-  --color-accent-2: #06b6d4;   /* cyan-500  */
-  --color-accent-soft: rgba(109, 40, 217, 0.12);
+  /* Hairlines */
+  --color-border: rgba(15, 23, 42, 0.08);
+  --color-border-strong: rgba(15, 23, 42, 0.14);
 
-  --grid-line: rgba(15, 15, 15, 0.05);
-  --noise-opacity: 0.03;
+  /* Destructive / error */
+  --color-danger: #B91C1C;
 
-  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Soft accent bloom used behind the hero portrait glow. */
+  --color-accent-glow: rgba(4, 120, 87, 0.28);
+
+  /* Spotlight (mouse-tracking card glow) */
+  --spotlight-surface: rgba(16, 185, 129, 0.075);
+  --spotlight-border: rgba(16, 185, 129, 0.35);
+
+  /* Brand accents */
+  /* Light-mode accent is emerald-700 rather than emerald-600.
+     Emerald-600 only reaches 3.60:1 against the light canvas, which
+     fails WCAG AA for the small accent text (section indexes, mono
+     labels, inline links). Emerald-700 clears 5:1 on every light
+     surface. */
+  --color-accent: #047857;    /* emerald-700 */
+  --color-accent-2: #0891B2;  /* cyan-600   */
+  --color-accent-3: #4F46E5;  /* indigo-600 */
+  --color-accent-soft: rgba(4, 120, 87, 0.10);
+
+  /* Text painted ON a solid --color-accent fill (the hero's "Passed"
+     pill, the QA Pipeline check discs). Light-mode emerald-700 is
+     dark enough that white text clears 5.4:1, whereas near-black text
+     would only reach 3.1:1 and fail WCAG AA. */
+  --color-on-accent: #FFFFFF;
+
+  /* Per-card accent families (Services capability cards).
+     Light-mode values are darkened one step so the accent text and
+     icon glyphs clear WCAG AA (4.5:1) against the near-white card
+     surface; the dark-mode values below sit a step brighter. */
+  --svc-emerald: #047857;
+  --svc-cyan: #0E7490;
+  --svc-violet: #6D28D9;
+  --svc-blue: #1D4ED8;
+  --svc-amber: #B45309;
+  --svc-purple: #7E22CE;
+  --svc-emerald-soft: rgba(4, 120, 87, 0.10);
+  --svc-cyan-soft: rgba(14, 116, 144, 0.10);
+  --svc-violet-soft: rgba(109, 40, 217, 0.10);
+  --svc-blue-soft: rgba(29, 78, 216, 0.10);
+  --svc-amber-soft: rgba(180, 83, 9, 0.10);
+  --svc-purple-soft: rgba(126, 34, 206, 0.10);
+
+  --grid-line: rgba(15, 23, 42, 0.05);
+  --noise-opacity: 0.02;
+
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   color-scheme: light;
 }
 
 [data-theme='dark'] {
-  --color-bg: #080B14;        /* bg-primary   */
-  --color-bg-2: #0D1220;      /* bg-elevated */
-  --color-fg: #F8FAFC;        /* text-primary */
-  --color-fg-2: #CBD5E1;      /* text-secondary */
-  --color-muted: #94A3B8;     /* text-muted */
-  --color-card: #111827;      /* bg-card */
-  --color-card-hover: #172033;
-  --color-border: #263244;    /* border-color */
-  --color-border-strong: #1f2a3d;
+  /* Surfaces */
+  --color-bg: #05070C;        /* canvas */
+  --color-bg-2: #0F1524;      /* surface-subtle */
+  --color-card: #0B0F19;      /* surface */
+  --color-card-hover: #111827;
+  --color-fg: #F8FAFC;
+  --color-fg-2: #CBD5E1;
+  --color-muted: #94A3B8;
 
-  --color-accent: #8B5CF6;    /* violet-500 (accent-purple) */
-  --color-accent-2: #22D3EE;  /* cyan-400   (accent-cyan)  */
-  --color-accent-soft: rgba(139, 92, 246, 0.14);
+  /* Hairlines */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
 
-  --grid-line: rgba(139, 92, 246, 0.05);
+  /* Destructive / error */
+  --color-danger: #F87171;
+
+  /* Soft accent bloom used behind the hero portrait glow. */
+  --color-accent-glow: rgba(16, 185, 129, 0.35);
+
+  /* Spotlight (mouse-tracking card glow) */
+  --spotlight-surface: rgba(16, 185, 129, 0.11);
+  --spotlight-border: rgba(16, 185, 129, 0.45);
+
+  /* Brand accents */
+  --color-accent: #10B981;    /* emerald-500 */
+  --color-accent-2: #06B6D4;  /* cyan-500    */
+  --color-accent-3: #6366F1;  /* indigo-500  */
+  --color-accent-soft: rgba(16, 185, 129, 0.14);
+
+  /* Dark-mode emerald-500 is bright, so the text painted on top of a
+     solid accent fill has to be near-black — white would only reach
+     2.5:1 and fail WCAG AA. */
+  --color-on-accent: #04211A;
+
+  /* Per-card accent families — one step brighter than the light-mode
+     set so they read as luminous on the near-black canvas. */
+  --svc-emerald: #10B981;
+  --svc-cyan: #22D3EE;
+  --svc-violet: #A78BFA;
+  --svc-blue: #60A5FA;
+  --svc-amber: #FBBF24;
+  --svc-purple: #C084FC;
+  --svc-emerald-soft: rgba(16, 185, 129, 0.14);
+  --svc-cyan-soft: rgba(34, 211, 238, 0.14);
+  --svc-violet-soft: rgba(167, 139, 250, 0.14);
+  --svc-blue-soft: rgba(96, 165, 250, 0.14);
+  --svc-amber-soft: rgba(251, 191, 36, 0.14);
+  --svc-purple-soft: rgba(192, 132, 252, 0.14);
+
+  --grid-line: rgba(255, 255, 255, 0.04);
   --noise-opacity: 0;
 
   color-scheme: dark;
@@ -57,28 +145,72 @@
 
 /* Default = dark when no theme preference is set */
 :root:not([data-theme]) {
-  --color-bg: #080B14;
-  --color-bg-2: #0D1220;
+  --color-bg: #05070C;
+  --color-bg-2: #0F1524;
+  --color-card: #0B0F19;
+  --color-card-hover: #111827;
   --color-fg: #F8FAFC;
   --color-fg-2: #CBD5E1;
   --color-muted: #94A3B8;
-  --color-card: #111827;
-  --color-card-hover: #172033;
-  --color-border: #263244;
-  --color-border-strong: #1f2a3d;
-  --color-accent: #8B5CF6;
-  --color-accent-2: #22D3EE;
-  --color-accent-soft: rgba(139, 92, 246, 0.14);
-  --grid-line: rgba(139, 92, 246, 0.05);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Destructive / error */
+  --color-danger: #F87171;
+
+  /* Soft accent bloom used behind the hero portrait glow. */
+  --color-accent-glow: rgba(16, 185, 129, 0.35);
+  --spotlight-surface: rgba(16, 185, 129, 0.11);
+  --spotlight-border: rgba(16, 185, 129, 0.45);
+  --color-accent: #10B981;
+  --color-accent-2: #06B6D4;
+  --color-accent-3: #6366F1;
+  --color-accent-soft: rgba(16, 185, 129, 0.14);
+  --color-on-accent: #04211A;
+  --svc-emerald: #10B981;
+  --svc-cyan: #22D3EE;
+  --svc-violet: #A78BFA;
+  --svc-blue: #60A5FA;
+  --svc-amber: #FBBF24;
+  --svc-purple: #C084FC;
+  --svc-emerald-soft: rgba(16, 185, 129, 0.14);
+  --svc-cyan-soft: rgba(34, 211, 238, 0.14);
+  --svc-violet-soft: rgba(167, 139, 250, 0.14);
+  --svc-blue-soft: rgba(96, 165, 250, 0.14);
+  --svc-amber-soft: rgba(251, 191, 36, 0.14);
+  --svc-purple-soft: rgba(192, 132, 252, 0.14);
+  --grid-line: rgba(255, 255, 255, 0.04);
   --noise-opacity: 0;
   color-scheme: dark;
 }
 
-/* Runtime accent override (set by inline <style> in layout from settings) */
+/* Runtime accent override (set by inline <style> in layout from settings).
+ *
+ * In dark mode the configured accent is used verbatim — it was chosen
+ * against the dark canvas. In light mode the accent is darkened by 22%
+ * before use, because an admin-selected brand colour that clears 4.5:1
+ * against a near-black canvas often falls below 4.5:1 against a
+ * near-white one. The darkening keeps the brand hue recognisable while
+ * guaranteeing the small accent text (section indexes, mono labels,
+ * inline links) stays legible. */
 :root[style*='--runtime-accent'] {
   --color-accent: var(--runtime-accent);
   --color-accent-2: var(--runtime-accent-2);
   --color-accent-soft: var(--runtime-accent-soft);
+}
+
+[data-theme='light'][style*='--runtime-accent'] {
+  --color-accent: color-mix(in oklab, var(--runtime-accent), #000000 22%);
+  --color-accent-2: color-mix(in oklab, var(--runtime-accent-2), #000000 14%);
+  --color-accent-soft: color-mix(
+    in oklab,
+    var(--runtime-accent),
+    transparent 90%
+  );
+  /* A runtime accent that is light enough to need near-black text would
+     break the light-mode "white on accent" rule, so keep the light
+     theme's on-accent colour aligned with the darkened accent. */
+  --color-on-accent: #FFFFFF;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────── */
@@ -90,12 +222,20 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
+    /* The floating navbar is ~68px tall plus the top offset. Reserve
+       that much space so a hash jump never parks a heading underneath
+       the navbar. */
+    scroll-padding-top: 84px;
   }
   body {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     background-color: var(--color-bg);
     color: var(--color-fg);
     overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
   }
   ::selection {
     background-color: var(--color-accent-soft);
@@ -141,35 +281,53 @@
 
 /* ─── Background layer (fixed, behind everything) ──────────────── */
 
-.bg-mesh {
+/*
+ * Architectural dot-matrix backdrop. A fine grid of dots rather than
+ * lines — it reads as engineering graph paper and stays quiet behind
+ * dense content. The radial mask fades it out toward the edges so the
+ * pattern never competes with the text.
+ */
+.bg-dot-matrix {
   position: fixed;
   inset: 0;
   z-index: -10;
   pointer-events: none;
-  background:
-    radial-gradient(800px 600px at 20% 10%, color-mix(in oklab, var(--color-accent) 30%, transparent), transparent 60%),
-    radial-gradient(700px 600px at 80% 30%, color-mix(in oklab, var(--color-accent-2) 22%, transparent), transparent 60%),
-    radial-gradient(900px 700px at 60% 80%, color-mix(in oklab, var(--color-accent) 20%, transparent), transparent 60%),
-    radial-gradient(600px 500px at 10% 90%, color-mix(in oklab, var(--color-accent-2) 18%, transparent), transparent 60%);
-  filter: blur(60px) saturate(120%);
-  opacity: 0.55;
-  animation: mesh-drift 30s ease-in-out infinite alternate;
+  background-image: radial-gradient(
+    circle at center,
+    var(--grid-line) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 78%);
 }
 
-[data-theme='light'] .bg-mesh { opacity: 0.45; }
-
-.bg-grid {
+/*
+ * Restrained top aurora glow — a single wide band of brand colour
+ * fading downward from the very top of the viewport. It gives the
+ * page a sense of light source without the busy multi-blob mesh the
+ * previous design used.
+ */
+.bg-aurora {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto 0;
+  height: 420px;
   z-index: -9;
   pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 25%, #000 0%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 25%, #000 0%, transparent 100%);
+  background:
+    radial-gradient(
+      900px 320px at 50% -8%,
+      color-mix(in oklab, var(--color-accent) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      600px 240px at 78% -4%,
+      color-mix(in oklab, var(--color-accent-2) 12%, transparent),
+      transparent 70%
+    );
 }
+
+[data-theme='light'] .bg-aurora { opacity: 0.7; }
 
 .bg-noise {
   position: fixed;
@@ -179,12 +337,6 @@
   opacity: var(--noise-opacity);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
-}
-
-@keyframes mesh-drift {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(-3%, 2%, 0) scale(1.05); }
-  100% { transform: translate3d(2%, -2%, 0) scale(1.02); }
 }
 
 /* ─── Components ───────────────────────────────────────────────── */
@@ -264,182 +416,6 @@
   .eyebrow__index {
     color: var(--color-muted);
     font-feature-settings: 'tnum';
-  }
-
-  /* ─ Availability badge (hero) ──────────────────────────────────
-     A highlighted pill that types "Interesting Work" one character
-     at a time, with each character entering in a small flying
-     motion (translate + fade + scale). The badge itself replaces
-     the old static "ISTQB® Certified · Open to Interesting Work"
-     eyebrow so the availability message reads as a CTA rather
-     than supporting copy.
-
-     • `.availability-badge-wrap` is a flex row that holds the
-       existing `ISTQB® Certified` eyebrow + the new pill side by
-       side, both inheriting the hero-stagger fade-in.
-     • `.availability-badge` is the pill itself: green-tinted
-       surface, leading pulsing dot, static `OPEN TO` label, then
-       the typed phrase, then a blinking caret.
-     • Each `.availability-badge__char` runs
-       `@keyframes availability-fly` on a 7.4s cycle. The animation
-       is invisible most of the cycle (opacity 0 + offset), and
-       only becomes visible briefly — but the per-char stagger via
-       inline `animationDelay` means the chars appear sequentially
-       near the start of the cycle, sit visible for ~2.5s, then
-       disappear sequentially near the end. Visually: type, hold,
-       erase, repeat.
-     • prefers-reduced-motion: badge is shown statically with all
-       characters visible and the caret hidden. */
-  .availability-badge-wrap {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  .availability-badge__cert {
-    /* Keep the small accent line + label from the eyebrow pattern
-       so the two chips read as a matched pair. */
-  }
-  .availability-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.42rem 0.85rem 0.42rem 0.7rem;
-    border-radius: 999px;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    line-height: 1;
-    color: var(--color-fg);
-    background: color-mix(
-      in oklab,
-      var(--color-accent) 14%,
-      var(--color-card)
-    );
-    border: 1px solid
-      color-mix(in oklab, var(--color-accent) 45%, var(--color-border));
-    box-shadow:
-      0 0 0 1px
-        color-mix(in oklab, var(--color-accent) 10%, transparent)
-        inset,
-      0 6px 18px -10px
-        color-mix(in oklab, var(--color-accent) 70%, transparent);
-    transition:
-      transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      box-shadow 220ms ease,
-      border-color 220ms ease;
-  }
-  .availability-badge:hover {
-    transform: translateY(-1px);
-    border-color: color-mix(
-      in oklab,
-      var(--color-accent) 70%,
-      var(--color-border)
-    );
-    box-shadow:
-      0 0 0 1px
-        color-mix(in oklab, var(--color-accent) 18%, transparent)
-        inset,
-      0 10px 24px -12px
-        color-mix(in oklab, var(--color-accent) 80%, transparent);
-  }
-  .availability-badge__dot {
-    position: relative;
-    display: inline-flex;
-    width: 8px;
-    height: 8px;
-    flex-shrink: 0;
-  }
-  .availability-badge__dot-ping,
-  .availability-badge__dot-core {
-    position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    background: #22c55e;
-  }
-  .availability-badge__dot-ping {
-    background: #22c55e;
-    animation: availability-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-    opacity: 0.6;
-  }
-  .availability-badge__dot-core {
-    background: #22c55e;
-    box-shadow: 0 0 6px color-mix(in oklab, #22c55e 70%, transparent);
-  }
-  @keyframes availability-ping {
-    0%   { transform: scale(1);   opacity: 0.55; }
-    75%  { transform: scale(2.2); opacity: 0; }
-    100% { transform: scale(2.2); opacity: 0; }
-  }
-  .availability-badge__label {
-    color: var(--color-fg-2);
-    /* Static, never animates. Acts as the "prompt" before the
-       typed message. */
-  }
-  .availability-badge__type {
-    display: inline-flex;
-    align-items: baseline;
-    color: var(--color-fg);
-    /* Reserve enough width for the longest "Interesting Work" run
-       so the layout doesn't jump as chars appear. */
-    min-width: 9.5ch;
-  }
-  .availability-badge__char {
-    display: inline-block;
-    opacity: 0;
-    transform: translateX(10px) scale(0.9);
-    /* The full cycle is 7.4s. Per-character delays (0..16 × 90ms
-       = 0..1.44s) create the visible "type" cascade at the start
-       of the cycle and the "erase" cascade at the end. Between
-       the cascades every char is fully visible. See
-       `@keyframes availability-fly`. */
-    animation: availability-fly 7.4s cubic-bezier(0.2, 0.8, 0.2, 1)
-      infinite both;
-    will-change: transform, opacity;
-  }
-  @keyframes availability-fly {
-    /* Hidden before the char's turn arrives. */
-    0%   { opacity: 0; transform: translateX(10px) scale(0.9); }
-    /* Quickly fly in. */
-    3%   { opacity: 1; transform: translateX(0)    scale(1); }
-    /* Stay visible while the rest of the phrase types and the
-       viewer reads it. */
-    60%  { opacity: 1; transform: translateX(0)    scale(1); }
-    /* Quickly fly out (erase). */
-    64%  { opacity: 0; transform: translateX(10px) scale(0.9); }
-    /* Stay hidden until the next cycle. */
-    100% { opacity: 0; transform: translateX(10px) scale(0.9); }
-  }
-  .availability-badge__caret {
-    display: inline-block;
-    width: 1px;
-    height: 0.95em;
-    margin-left: 2px;
-    background: var(--color-accent);
-    /* Reuse the existing terminal caret-blink timing so the badge
-       caret feels native to the rest of the site. */
-    animation: caret-blink 1.05s steps(2) infinite;
-    transform: translateY(1px);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .availability-badge__char {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-    .availability-badge__caret {
-      /* No blinking caret when motion is reduced — the phrase is
-         already fully visible so a caret would just look like a
-         stray pixel. */
-      display: none;
-    }
-    .availability-badge__dot-ping {
-      animation: none;
-      opacity: 0.7;
-      transform: scale(1.4);
-    }
   }
 
   /* ─ Section divider: `// ── name ───────────────` ─
@@ -634,6 +610,458 @@
     background-color: var(--color-accent-soft);
   }
 
+  /* ═══ Design system primitives (Phase 1) ═══════════════════════ */
+
+  /*
+   * SpotlightCard — the mouse-tracking surface used by every card in
+   * a bento grid. The `SpotlightCard` component writes `--mouse-x` /
+   * `--mouse-y` as the pointer moves; these rules turn them into a
+   * radial surface glow plus a 1px border glow. The lift is a
+   * deliberate -2px, not more — the card should feel responsive, not
+   * float away from the grid.
+   */
+  .spotlight-card {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    transition:
+      border-color 200ms ease,
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 200ms ease;
+  }
+  /* Radial surface wash that follows the cursor. */
+  .spotlight-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      320px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      var(--spotlight-surface),
+      transparent 72%
+    );
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  /* 1px border glow that follows the cursor. */
+  .spotlight-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+      280px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      var(--spotlight-border),
+      transparent 65%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  .spotlight-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-border-strong);
+    box-shadow: 0 12px 32px -20px rgba(0, 0, 0, 0.5);
+  }
+  .spotlight-card:hover::before,
+  .spotlight-card:hover::after {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spotlight-card,
+    .spotlight-card:hover {
+      transition: border-color 200ms ease;
+      transform: none;
+    }
+  }
+
+  /*
+   * Section divider — a single 1px horizontal gradient rule that
+   * separates two sections. There is exactly one between modules so
+   * the page rhythm reads as a continuous column, never as a stack of
+   * floating boxes with dead space between them.
+   */
+  .section-rule {
+    height: 1px;
+    width: 100%;
+    border: 0;
+    margin: 0;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--color-border-strong) 18%,
+      var(--color-border-strong) 82%,
+      transparent 100%
+    );
+  }
+
+  /*
+   * Bento footer — the pinned bottom bar of a card. Equal-height cards
+   * in a grid align their footers because the footer is pushed to the
+   * bottom with `margin-top: auto` and separated by a hairline.
+   */
+  .bento-footer {
+    margin-top: auto;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /*
+   * Graduated 1px border used by the hero terminal, the OSS spotlight
+   * and the contact hub. The gradient runs emerald → cyan → indigo
+   * around the perimeter.
+   */
+  .gradient-border {
+    position: relative;
+    border-radius: 16px;
+    background:
+      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+      linear-gradient(
+        135deg,
+        var(--color-accent),
+        var(--color-accent-2),
+        var(--color-accent-3)
+      ) border-box;
+    border: 1px solid transparent;
+  }
+
+  /* Filter / category pill — the shared control style for the Work
+     filter row, the Blog category tabs and the Contact service
+     selector. */
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background-color: transparent;
+    color: var(--color-fg-2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+  .filter-pill:hover {
+    color: var(--color-fg);
+    border-color: var(--color-border-strong);
+  }
+  .filter-pill[data-active='true'] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+  }
+
+  /* Monospace metadata pill used for badges, cadence and stack tags. */
+  .mono-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-2);
+    color: var(--color-fg-2);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    /* A long label must never push past the viewport on a narrow
+       screen — it wraps instead. `min-width: 0` lets the flex item
+       shrink below its content's intrinsic width first. */
+    max-width: 100%;
+    min-width: 0;
+  }
+  @media (max-width: 400px) {
+    .mono-pill {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  /* Section header index — the monospace "01 // SERVICES" marker. */
+  .section-index {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  /* ─── Services module (module 01) ──────────────────────────────── */
+
+  /*
+   * Per-card accent theming.
+   *
+   * Each capability card sets `data-accent` to one of the six families
+   * (emerald, cyan, violet, blue, amber, purple). The rules below
+   * remap the card's local `--svc` variables onto the theme-specific
+   * values declared in the token blocks, so the same markup renders
+   * correctly in dark and light without an inline style or a
+   * dark-mode variant class on every element.
+   */
+  [data-accent='emerald'] {
+    --svc-accent: var(--svc-emerald);
+    --svc-accent-soft: var(--svc-emerald-soft);
+  }
+  [data-accent='cyan'] {
+    --svc-accent: var(--svc-cyan);
+    --svc-accent-soft: var(--svc-cyan-soft);
+  }
+  [data-accent='violet'] {
+    --svc-accent: var(--svc-violet);
+    --svc-accent-soft: var(--svc-violet-soft);
+  }
+  [data-accent='blue'] {
+    --svc-accent: var(--svc-blue);
+    --svc-accent-soft: var(--svc-blue-soft);
+  }
+  [data-accent='amber'] {
+    --svc-accent: var(--svc-amber);
+    --svc-accent-soft: var(--svc-amber-soft);
+  }
+  [data-accent='purple'] {
+    --svc-accent: var(--svc-purple);
+    --svc-accent-soft: var(--svc-purple-soft);
+  }
+
+  /*
+   * Capability card — the six-card grid at the top of the Services
+   * module. The accent wash is a soft radial bloom in the top-left
+   * corner, which is where the icon tile sits.
+   */
+  .svc-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background-color: var(--color-card);
+    transition:
+      border-color 200ms ease,
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 200ms ease;
+  }
+  /* Accent bloom behind the icon tile. */
+  .svc-card::before {
+    content: '';
+    position: absolute;
+    top: -6rem;
+    left: -5rem;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle,
+      var(--svc-accent-soft) 0%,
+      transparent 68%
+    );
+    opacity: 0;
+    transition: opacity 260ms ease;
+    pointer-events: none;
+  }
+  .svc-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--svc-accent);
+    box-shadow: 0 18px 44px -26px var(--svc-accent);
+  }
+  .svc-card:hover::before {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .svc-card,
+    .svc-card:hover {
+      transition: border-color 200ms ease;
+      transform: none;
+    }
+  }
+
+  /*
+   * Icon tile — the rounded square at the top-left of a capability
+   * card. Holds the glyph in the card's own accent colour.
+   */
+  .svc-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex-shrink: 0;
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: 1px solid var(--svc-accent);
+    background-color: var(--svc-accent-soft);
+    color: var(--svc-accent);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .svc-card:hover .svc-icon {
+    box-shadow: 0 0 0 3px var(--svc-accent-soft);
+  }
+
+  /*
+   * Lifecycle pill — the Build / Test / Automate / Release / Support
+   * strip under the Services header.
+   */
+  .svc-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    color: var(--color-fg-2);
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    /* The pill itself must never break, but the row must be allowed to
+       wrap — otherwise five pills overflow a 375px viewport. */
+    max-width: 100%;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+  .svc-stage:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+  }
+  .svc-stage > span[aria-hidden='true'] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-accent);
+  }
+
+  /*
+   * Process step — one of the four "How I Work" cards.
+   */
+  .svc-process {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    transition:
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  .svc-process:hover {
+    border-color: var(--color-border-strong);
+    background-color: var(--color-card-hover);
+  }
+  .svc-process > span[aria-hidden='true'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    padding: 0.7rem;
+    border-radius: 10px;
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+
+  /*
+   * Engagement model — one of the four "Ways to Collaborate" cards.
+   */
+  .svc-model {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    transition:
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  .svc-model:hover {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+  }
+  .svc-model > span[aria-hidden='true'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    padding: 0.7rem;
+    border-radius: 10px;
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+
+  /*
+   * CTA banner — the gradient strip that closes the Services module.
+   * The wash runs emerald → cyan → indigo behind the copy, with a
+   * hairline border in the same ramp.
+   */
+  .svc-cta {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid var(--color-accent);
+    background:
+      linear-gradient(
+        100deg,
+        color-mix(in oklab, var(--color-accent) 26%, transparent) 0%,
+        color-mix(in oklab, var(--color-accent-2) 20%, transparent) 55%,
+        transparent 100%
+      ),
+      var(--color-card);
+  }
+  /* Diagonal sheen that keeps the banner from reading as flat fill. */
+  .svc-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 38%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent) 50%,
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+  .svc-cta > * {
+    position: relative;
+    z-index: 1;
+  }
+
   /* ─ Form input ─ */
   .field-input {
     width: 100%;
@@ -673,15 +1101,13 @@
   animation-delay: 0ms;
 }
 @keyframes hero-stagger-in {
-  /* Opacity-only fade-in. The previous translateY(8px) was dropped
-     because the hero block is a normal in-flow element — animating
-     it shorter and then taller was pushing the entire page below
-     the hero down by 8px when the cascade finished. */
   from {
     opacity: 0;
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 /* Reduced motion: snap to visible. The global reduced-motion block
@@ -1738,481 +2164,897 @@
   .motion-debug__panel { animation: none; }
 }
 
-/* ─── Hero orbit (floating info cards around the profile photo) ─── */
-/*   The right column of the hero is a stacked composition:        */
-/*                                                                     */
-/*     .hero-orbit-wrap                                                */
-/*       ├── .hero-orbit-stage                                        */
-/*       │     ├── .hero-orbit-orbs   (decorative floating orbs)      */
-/*       │     ├── .hero-orbit-rings  (4 concentric orbit rings)      */
-/*       │     └── .hero-orbit        (centered photo + 4 overlapping */
-/*       │                            corner capability cards)        */
-/*       └── .hero-orbit-terminal  (real <HeroTerminal /> below)        */
-/*                                                                     */
-/*   The .hero-orbit-stage is the positioning context for the orbit   */
-/*   rings + orbs (so they only cover the photo+cards area, not the   */
-/*   terminal below). On < 1024px the photo + cards collapse to a 2×2 */
-/*   grid (photo on top, cards below) and the orbit rings + orbs      */
-/*   hide. Cards bob via .float-soft (desynced via inline             */
-/*   animation-delay).                                                */
+/* ─── Hero layout ────────────────────────────────────────────────── */
+/*   The hero is a two-column split. The right column carries the
+   portrait stage; below 1150px the columns cannot both hold their
+   content, so the hero stacks into a single column and the stage takes
+   the full container width.
 
-.hero-orbit-wrap {
-  --orbit-rings-opacity: 0.55;
-  --orbit-orbs-opacity: 0.85;
+   The doubled class name raises the specificity above Tailwind's
+   `lg:grid-cols-12` / `lg:col-span-6` utilities, which are emitted
+   after the hand-written rules in the compiled stylesheet. */
+@media (max-width: 1149px) {
+  .hero-grid.hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-grid.hero-grid > * {
+    grid-column: auto;
+  }
+}
+
+/* ─── Hero CTA row ───────────────────────────────────────────────── */
+/*   The three CTAs are a single horizontal row on desktop. Their
+   combined width (≈529px) is wider than the text column they sit in
+   at the narrowest desktop widths, so the row is allowed to run to
+   its natural width and extend into the grid gutter.
+
+   The row never wraps on desktop (`flex-wrap: nowrap`), each button
+   refuses to shrink (`flex-shrink: 0`) and its label never breaks
+   (`white-space: nowrap`) — so the three buttons always read as one
+   line rather than the third dropping below the first two.
+
+   The row is allowed to extend past the text column it sits in, into
+   the grid gutter and the empty space in front of the stage. Where
+   that space is too narrow, the stage shifts right (see below) so the
+   capability cards always stay clear of the buttons. */
+@media (min-width: 1024px) {
+  .hero-cta-row {
+    flex-wrap: nowrap;
+    /* The row is sized by its content, so it can extend past the text
+       column it sits in. The stage shifts right (below) to keep the
+       capability cards clear of it. */
+    width: max-content;
+    max-width: none;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero-cta-row {
+    /* Below `lg` the buttons stack rather than squeeze. */
+    flex-wrap: wrap;
+  }
+  .hero-cta-row > * {
+    white-space: normal;
+  }
+}
+
+/* ─── Hero top spacing (clear of the floating navbar) ────────────── */
+/*   The navbar is `position: fixed`, so it floats *over* the document
+   rather than occupying flow space. The hero is the first thing in
+   the document, which means its own top padding is measured from a
+   position that is already underneath the navbar — leaving only the
+   difference between the padding and the navbar's height as visible
+   clearance.
+
+   `--nav-height` is the navbar's real measured height (bar + its top
+   offset). Adding it to the hero's padding puts the first row of hero
+   content below the navbar with a consistent gap, whatever the navbar
+   does to its own height at a given breakpoint.
+
+   This is additive padding, never a negative margin: the hero still
+   begins at the top of the document, and the page still starts at
+   scroll position 0. */
+:root {
+  --nav-height: 75px;
+}
+
+.hero-section {
+  padding-top: calc(var(--nav-height) + 2.5rem);
+}
+
+@media (min-width: 640px) {
+  .hero-section {
+    padding-top: calc(var(--nav-height) + 3rem);
+  }
+}
+
+/* ─── Hero portrait stage ────────────────────────────────────────── */
+/*   The right column is a single stage:
+     • a large portrait on the right, standing on a tilted rounded
+       rectangle filled with an emerald→teal gradient;
+     • four capability cards stacked vertically to the portrait's left;
+     • the QA Pipeline card floating over the portrait's lower right.
+
+   The stage is a grid so the two halves size against each other: the
+   card column takes a fixed share, the portrait takes the rest. Both
+   halves are `position: relative` so their absolutely-positioned
+   children can anchor to them. */
+
+.hero-stage {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 31rem;
+  padding-bottom: 1.5rem;
+}
+
+/*   The card column is nudged towards the portrait so the two halves
+   read as one composition instead of two blocks separated by a dead
+   gutter. The shift is a `transform`, not a margin: the column is a
+   grid item, so a margin would shrink the element inside a fixed
+   track and eat the space from the *right* instead of moving the
+   column. A transform moves the painted box without touching the
+   track, so the portrait keeps its size and its position.
+
+   The frame is tilted 9°, so its *visible* left edge at the height of
+   the cards sits well to the left of the frame's axis-aligned
+   bounding box. The offset is measured against that rotated edge, so
+   the cards come to rest against the glowing outline the way they do
+   in the approved design, rather than floating in the gutter beside
+   the tilted pane.
+
+   The shift is a *percentage of the column's own width*, not a fixed
+   number of pixels. The distance from the column to the frame's
+   rotated edge grows with the stage, so a fixed offset that lands
+   correctly on a wide screen drives the cards into the frame on a
+   narrower one. Scaling with the column keeps the gap constant
+   across the desktop range.
+
+   The percentage is capped with `clamp()` because the column's width
+   and the *cards'* width are not the same quantity. The cards hug
+   their content, and the widest card ("Frontend Development") is
+   wider than the column's own track in the 1320–1440px band, where
+   the stage is still narrow. An uncapped percentage therefore pushes
+   the widest card's right edge past the portrait's left edge exactly
+   where the column is tightest. Capping the shift against the
+   column's width keeps the worst case inside the available gutter. */
+@media (min-width: 1320px) {
+  .hero-cap-stack {
+    transform: translateX(clamp(0px, 26%, 5.5rem));
+  }
+}
+
+/* The ambient green illumination behind the whole stage. */
+.hero-stage-glow {
+  background:
+    radial-gradient(
+      46% 46% at 72% 42%,
+      color-mix(in oklab, var(--color-accent) 26%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      36% 36% at 88% 68%,
+      color-mix(in oklab, var(--color-accent-2) 22%, transparent) 0%,
+      transparent 74%
+    ),
+    radial-gradient(
+      32% 32% at 30% 60%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent) 0%,
+      transparent 76%
+    );
+  filter: blur(22px);
+}
+
+/* ─── Capability card column (left of the portrait) ──────────────── */
+/*   The four cards stack vertically in a single column beside the
+   portrait. The column is *not* centred against the raw portrait box:
+   the portrait image is letterboxed into the stage, while the visible
+   subject sits inside the tilted frame. Aligning the cards against
+   the frame's own vertical band (the same 12% / 8% insets the frame
+   uses) keeps the card stack reading as level with the framed
+   portrait rather than floating high against the image's top edge.
+
+   The offset is applied as a padding pair on the column, and the
+   column's own height is stretched to match the portrait stage so the
+   cards distribute evenly across the frame's height.
+
+   `justify-content: flex-start` with a small top padding pulls the
+   stack up against the top of the frame's band. Centring it (the
+   previous behaviour) left the first card floating level with the
+   frame's vertical midpoint, which read as a gap between the cards
+   and the portrait's crown.
+
+   The stack is *not* pinned flush to the top of the stage — a small
+   proportional inset keeps the cards reading as a deliberate band
+   rather than butting against the frame's edge. */
+
+.hero-cap-stack {
+  position: relative;
+  z-index: 3;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 36rem;
-  margin: 0 auto;
-  padding-top: 0.5rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 9% 0 0;
+  list-style: none;
+  height: 100%;
 }
 
-/* The .hero-orbit-stage is the positioning context for the orbit
-   rings + orbs. It's `position: relative`, full width, and hugs the
-   height of the photo+cards composition so the absolutely-positioned
-   decorative chrome covers only the photo area (not the terminal
-   below). */
-.hero-orbit-stage {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Allow the rings + orbs to extend slightly outside the photo on
-     all four sides (the largest ring is 560px in diameter — centred
-     on the photo, so it bleeds ~150px past the photo's edge). The
-     stage's overflow is visible by default; the wrap provides
-     vertical padding via its gap. */
+/*   Between 1024px and 1319px the text column is narrower than the CTA
+   row, so the row reaches into the gutter and the capability cards
+   shift right to keep clear of it. The shift is applied as a margin
+   on the card column rather than as padding on the stage, so the
+   stage keeps its full width and the portrait does not shrink — the
+   card column absorbs the shift instead.
+
+   The rule is placed after the base declaration above because that
+   declaration's `margin: 0` shorthand would otherwise reset it. */
+@media (min-width: 1024px) and (max-width: 1319px) {
+  .hero-cap-stack {
+    margin-left: 4.5rem;
+  }
 }
 
-/* The .hero-orbit is a centered photo+cards box. The four capability
-   cards overlap the photo's outer edge (the photo is sized in JS to
-   ~260px; the cards sit *behind* the photo's z-stack in the middle
-   but their inner corners land on the photo's outer rim). The box
-   is sized by its contents (the photo + the overlapping cards' reach)
-   so the layout breathes naturally without an aspect-ratio lock. */
-.hero-orbit {
-  position: relative;
-  width: 100%;
-  margin: 0 auto;
-  display: block;
-  /* Vertical room for the four overlapping cards (they sit at
-     -2.75rem / +2.75rem from the photo's edge). The exact height is
-     fluid; we just guarantee the cards never get clipped at the top
-     or bottom of the wrapper. */
-  padding: 3.25rem 0.5rem;
-}
-.hero-orbit__photo {
-  position: relative;
-  z-index: 2;
+/* ─── Capability card (glass pill) ──────────────────────────────── */
+/*   Each card is a wide glass pill: a bare glyph in the accent's cool
+   tone on the left, then the title over the tool list.
+
+   The glyph carries no chip, no fill and no border of its own — it
+   sits directly on the card's fill, in the cyan end of the palette,
+   with a soft bloom so it reads against the dark glass.
+
+   The card's fill is tinted towards the accent rather than being a
+   neutral panel, which is what gives the pill its emerald cast over
+   the dark hero. */
+
+.hero-cap-card {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-.hero-orbit__card {
-  position: absolute;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 0.55rem;
-  /* Cards overlap the photo's outer corners — they live partly on
-     the photo and partly off it. We size them with a clamp so they
-     stay legible from ~280px to ~520px orbit widths. */
-  width: clamp(9.5rem, 44%, 12rem);
-  padding: 0.55rem 0.7rem 0.6rem;
-  /* Hairline gradient border via layered backgrounds: the outer
-     layer is the purple→cyan gradient ring, the inner layer is the
-     actual card surface that sits on top of it. Keeps the
-     `border-radius` consistent with the original card without
-     resorting to `border-image` (which has rough corners). */
-  border: 1px solid transparent;
-  border-radius: 14px;
-  background:
-    linear-gradient(var(--color-card), var(--color-card)) padding-box,
-    linear-gradient(
-      135deg,
-      color-mix(in oklab, var(--color-accent) 65%, transparent) 0%,
-      color-mix(in oklab, var(--color-accent-2) 65%, transparent) 100%
-    ) border-box;
+  gap: 0.85rem;
+  padding: 0.7rem 1.15rem 0.7rem 0.75rem;
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 42%, transparent);
+  border-radius: 999px;
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-accent) 13%, var(--color-card)),
+    color-mix(in oklab, var(--color-accent-2) 9%, var(--color-bg-2))
+  );
   color: var(--color-fg);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
   box-shadow:
-    0 14px 32px -20px color-mix(in oklab, #000 70%, transparent),
+    0 12px 28px -20px color-mix(in oklab, #000 70%, transparent),
+    0 0 26px -14px color-mix(in oklab, var(--color-accent) 75%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 4%, transparent);
   transition:
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 200ms ease,
-    background-color 200ms ease;
-  will-change: transform;
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
-.hero-orbit__card:hover {
-  transform: translateY(-2px);
+.hero-cap-card:hover {
+  transform: translateX(3px);
+  border-color: color-mix(in oklab, var(--color-accent) 72%, transparent);
   box-shadow:
-    0 22px 44px -18px color-mix(in oklab, var(--color-accent) 40%, transparent),
+    0 18px 38px -20px color-mix(in oklab, var(--color-accent) 34%, transparent),
+    0 0 30px -12px color-mix(in oklab, var(--color-accent) 70%, transparent),
     inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
 }
-/* Card positions — overlap the photo's outer corners. The negative
-   insets pull each card in by ~50% of the card's width so its inner
-   edge sits over the photo's rim. The photo is z-index 2, the cards
-   z-index 3, so the cards paint above the photo's halo and read as
-   attached "markings" on the photo's outer edge. */
-.hero-orbit__card--tl { top:    1.1rem; left:   -1.6rem; }
-.hero-orbit__card--tr { top:    1.1rem; right:  -1.6rem; }
-.hero-orbit__card--bl { bottom: 1.1rem; left:   -1.6rem; }
-.hero-orbit__card--br { bottom: 1.1rem; right:  -1.6rem; }
 
-.hero-orbit__icon {
+/*   The glyph is the card's lead element, so it is drawn larger than
+   the metric-bar icons beside it — 38px against 30px — and carried on
+   the accent's cool end so it reads against the dark glass without
+   needing a chip of its own. */
+.hero-cap-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  color: var(--color-accent-2);
+  filter: drop-shadow(
+    0 0 12px color-mix(in oklab, var(--color-accent-2) 70%, transparent)
+  );
+}
+
+.hero-cap-icon svg { display: block; }
+
+.hero-cap-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  min-width: 0;
+}
+.hero-cap-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--color-fg);
+}
+.hero-cap-detail {
+  display: block;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  /* The tool list is set in the bright foreground tone rather than the
+     muted one — in the approved design it reads as a second line of
+     the card, not as a caption. */
+  color: color-mix(in oklab, var(--color-fg) 84%, transparent);
+  /* The tool list is the substance of the card, so it must stay fully
+     readable. It wraps rather than truncating when a viewport is
+     narrow enough that one line will not fit. */
+  overflow-wrap: anywhere;
+}
+
+/* ─── Portrait stage ─────────────────────────────────────────────── */
+
+.hero-portrait-stage {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  min-height: 31rem;
+}
+
+/* The tilted rounded rectangle behind the portrait. In the reference it
+   is a *thin, bright emerald outline* around a dark translucent pane,
+   with a soft green bloom — not a filled emerald slab. The portrait
+   stands in front of it, so the pane reads as a glowing frame the
+   subject is standing inside. */
+.hero-portrait-frame {
+  inset: 12% 10% 8% 12%;
+  border-radius: 34px;
+  transform: rotate(9deg);
+  /* A thin emerald ring — the reference's outline is a bright hairline,
+     not a heavy band. */
+  border: 3px solid #22e59a;
+  /* The pane itself is nearly transparent — just a faint emerald wash
+     so the outline reads as a frame rather than a hole. */
+  background:
+    linear-gradient(
+      148deg,
+      color-mix(in oklab, var(--color-accent) 14%, transparent) 0%,
+      color-mix(in oklab, var(--color-accent-2) 11%, transparent) 52%,
+      color-mix(in oklab, var(--color-accent) 6%, transparent) 100%
+    );
+  /* The green bloom: a tight halo on the edge plus two wide washes
+     that light the space around the pane. */
+  box-shadow:
+    0 0 14px -2px color-mix(in oklab, var(--color-accent) 85%, transparent),
+    0 0 48px -6px color-mix(in oklab, var(--color-accent) 60%, transparent),
+    0 0 130px -16px color-mix(in oklab, var(--color-accent-2) 50%, transparent),
+    inset 0 0 34px -16px
+      color-mix(in oklab, var(--color-accent) 65%, transparent);
+}
+
+/* The photo. It is a cut-out with a real alpha channel, so it reads as
+   a cut-out standing on the tilted frame, the way the reference does.
+   The face keeps its natural proportions — no circular crop, no
+   distortion. */
+.hero-portrait {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: visible;
+  /* The subject is cut out of the square asset, so the image is sized
+     to the stage height and the head lands near the top — the way the
+     reference shows it. */
+  padding: 0 8% 0 8%;
+}
+/* The cut-out is square, so at a fixed height it is as wide as it is
+   tall. The reference shows the figure occupying most of the frame's
+   height with the body running off the bottom, so the width is capped
+   to keep the figure from overwhelming the composition. */
+.hero-portrait img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: min(23rem, 92%);
+  object-fit: contain;
+  object-position: top center;
+}
+
+/* ─── Photo mode ────────────────────────────────────────────────────
+   An uploaded image may be an ordinary opaque photo rather than a
+   cut-out. In that case the hero fills the tilted frame with it
+   instead of letterboxing it into the middle of the stage.
+
+   Every rule below is *additive*: it is scoped to
+   `[data-mode="photo"]`, a state the default cut-out never enters.
+   The cut-out path's markup and rendering are therefore untouched —
+   the default hero renders exactly as it did before this rule
+   existed. */
+
+.hero-portrait[data-mode='photo'] img {
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* The photo is clipped to the same tilted rounded rectangle as the
+   frame, so it reads as a photo *inside* the frame rather than a
+   rectangle floating across it. The geometry mirrors
+   `.hero-portrait-frame` exactly. */
+.hero-portrait-photo-clip {
+  position: absolute;
+  inset: 12% 10% 8% 12%;
+  z-index: 1;
+  border-radius: 34px;
+  transform: rotate(9deg);
+  overflow: hidden;
+}
+.hero-portrait-photo-clip img {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ─── QA Pipeline — floating over the portrait's lower right ─────── */
+/*   The pipeline card overlaps the portrait's lower-right corner. It
+   is anchored to the stage's right edge and sits in the lower half of
+   the frame's vertical band, so it overlaps the subject's lower torso
+   rather than floating clear of it or dropping below the portrait. */
+
+.hero-pipeline {
+  position: absolute;
+  right: 0;
+  bottom: 4%;
+  z-index: 4;
+  width: min(20.5rem, 92%);
+  padding: 0.85rem 0.95rem 0.95rem;
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 62%, transparent);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--color-card) 92%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    0 20px 44px -20px color-mix(in oklab, #000 75%, transparent),
+    0 0 34px -14px color-mix(in oklab, var(--color-accent) 70%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
+}
+
+.hero-pipeline-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The green progress line running behind the four check marks. */
+.hero-pipeline-line {
+  background: var(--color-accent);
+  box-shadow: 0 0 10px -2px color-mix(in oklab, var(--color-accent) 85%, transparent);
+}
+
+/* The four green check marks, joined by the progress line. In the
+   reference these are solid emerald discs with a dark check glyph, not
+   outlined rings. */
+.hero-pipeline-check {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  padding: 3px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 14px -3px var(--color-accent);
+}
+
+/* The browser chrome across the top of the QA Pipeline card. */
+.hero-pipeline-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: -0.85rem -0.95rem 0.9rem;
+  padding: 0.6rem 0.95rem;
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--color-accent) 24%, transparent);
+  background: color-mix(in oklab, var(--color-bg-2) 55%, transparent);
+}
+
+.hero-pipeline-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+.hero-pipeline-dots i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+.hero-pipeline-dot-red { background: #ff5f57; }
+.hero-pipeline-dot-yellow { background: #febc2e; }
+.hero-pipeline-dot-green { background: #28c840; }
+
+@keyframes hero-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.7); }
+}
+
+/* ─── Headline lines ─────────────────────────────────────────────── */
+/*   The reference stacks the headline as two lines: "Build, Test and
+   Ship" over "Reliable Software.". Each line is its own block so the
+   break is exact. Below 900px the first line no longer fits on its own,
+   so the lines go back to inline and reflow naturally. */
+.hero-line {
+  display: block;
+}
+@media (max-width: 899px) {
+  .hero-line {
+    display: inline;
+  }
+}
+
+/* ─── Headline underline swoosh ──────────────────────────────────── */
+/*   The hand-drawn marker stroke beneath the headline in the reference.
+   It sits on its own line between the H1 and the role label. */
+.hero-headline-underline {
+  display: block;
+  width: min(19rem, 58%);
+  height: 1.1rem;
+  margin-top: -0.55rem;
+  margin-left: 0.1rem;
+  overflow: visible;
+}
+
+/* ─── Hero badge row ─────────────────────────────────────────────── */
+/*   The ISTQB certification badge and the "Available for Work" badge
+   sit side by side in one row. The row wraps below the tablet
+   breakpoint so the two never overlap. */
+
+.hero-badge-row {
+  /* The row must be able to shrink below the sum of its badges on a
+     narrow viewport, otherwise the second badge overflows the
+     column. */
+  min-width: 0;
+}
+
+/*   The availability badge is the one affirmative statement on the
+   page, so it is set in the accent tone on a soft accent wash, with a
+   matching hairline border. The pulsing dot mirrors the certification
+   badge's dot, so the two read as one family. */
+.hero-available-badge {
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    0 0 22px -12px color-mix(in oklab, var(--color-accent) 90%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 8%, transparent);
+}
+
+/* ─── Hero capability tags ───────────────────────────────────────── */
+/*   The row of area pills between the positioning copy and the CTAs.
+   Each pill pairs a small outline glyph with its label.
+
+   The tags are deliberately quieter than the four capability cards on
+   the right of the stage: they are a summary line, not the headline
+   detail. The glyph sits in the accent tone without its own chip, and
+   the pill itself carries only a hairline border and a faint wash. */
+
+.hero-cap-tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.hero-cap-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.34rem 0.7rem 0.34rem 0.55rem;
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-accent) 7%, transparent);
+  color: var(--color-fg-2);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 5%, transparent);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.hero-cap-tag:hover {
+  border-color: color-mix(in oklab, var(--color-accent) 62%, transparent);
+  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+  color: var(--color-fg);
+}
+
+.hero-cap-tag-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.hero-cap-tag-icon svg { display: block; }
+
+/* ─── Credibility metric bar ─────────────────────────────────────── */
+/*   One premium glass panel holding all four metrics, rather than
+   four separate tiles. The panel carries the emerald hairline and a
+   soft bloom, so the row reads as a single achievement summary. */
+
+.hero-metrics-panel {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-card) 92%, transparent),
+      color-mix(in oklab, var(--color-bg-2) 88%, transparent)
+    );
+  border-color: color-mix(in oklab, var(--color-accent) 22%, var(--color-border));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    0 24px 52px -32px color-mix(in oklab, #000 80%, transparent),
+    0 0 44px -26px color-mix(in oklab, var(--color-accent) 80%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
+}
+
+/*   Each metric is a cell in the panel's grid. The icon sits in a
+   rounded accent wash rather than bare on the panel, so the four
+   cells read as four equal units. */
+.hero-metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  border: 1px solid color-mix(in oklab, var(--color-accent) 32%, transparent);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--color-accent) 11%, transparent);
+  color: var(--color-accent);
+  box-shadow: 0 0 20px -12px color-mix(in oklab, var(--color-accent) 85%, transparent);
+}
+.hero-metric-icon svg { display: block; }
+
+/*   The headline number. It is the largest type in the panel — the
+   metrics are the page's proof points, so they are set a size above
+   the surrounding copy. */
+.hero-metric-value {
+  font-size: clamp(1.6rem, 2.3vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.hero-metric-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.hero-metric-detail {
+  font-size: 0.7rem;
+}
+
+.hero-metric-link {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+
+.hero-metric-link-icon {
+  width: 0.66rem;
+  height: 0.66rem;
+}
+
+.hero-metric-supporting {
+  font-size: 0.7rem;
+}
+
+/* The GitHub mark beside the "Open Source Contributor" line. It is
+   filled rather than stroked, so it needs no extra weight to stay
+   legible at 11px — matching the muted detail text around it. */
+.hero-metric-supporting-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+/* ─── Core Stack technology badges ──────────────────────────────── */
+/*   Each badge pairs a recognisable official brand mark with the
+   technology's name. The marks are *filled* and carry their own
+   colours, so the badge does not tint them — the icon wrapper only
+   reserves a square so every label in the row starts at the same x.
+
+   The row is meant to read as a strip of tools, so the badges are
+   generously sized: a 26px mark inside a 42px-tall pill, with the
+   label vertically centred against it. Every badge in the row has the
+   same height because the icon box and the label both sit on the
+   badge's centre line.
+
+   The badge sits on a glass surface with a soft drop shadow and a
+   hairline top highlight, so it reads as a physical chip rather than
+   a flat outline. */
+
+.hero-stack-badge {
+  align-items: center;
+  min-height: 42px;
+  font-size: 0.8rem;
+  letter-spacing: -0.005em;
+  border-color: color-mix(in oklab, var(--color-accent) 18%, var(--color-border));
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--color-card) 88%, transparent),
+    color-mix(in oklab, var(--color-bg-2) 84%, transparent)
+  );
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow:
+    0 10px 24px -18px color-mix(in oklab, #000 78%, transparent),
+    0 0 22px -16px color-mix(in oklab, var(--color-accent) 80%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 7%, transparent);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+  white-space: nowrap;
+}
+.hero-stack-badge:hover {
+  border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 30px -18px color-mix(in oklab, #000 78%, transparent),
+    0 0 28px -14px color-mix(in oklab, var(--color-accent) 90%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 9%, transparent);
+}
+
+.hero-stack-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 26px;
   height: 26px;
-  color: var(--color-accent);
   flex-shrink: 0;
 }
-/* Per-card icon tints — the brief renders each capability card
-   with its own brand-tinted icon (red Playwright mask, cyan
-   code brackets, purple sparkles, cyan cloud). The card root
-   carries a data-attribute; the descendant .hero-orbit__icon
-   picks up the colour via the cascade so we keep a single
-   <HeroOrbit> component. */
-.hero-orbit__card[data-icon='playwright'] .hero-orbit__icon {
-  color: #f43f5e; /* rose-500 — theater mask hue */
-}
-.hero-orbit__card[data-icon='api'] .hero-orbit__icon {
-  color: var(--color-accent-2);
-}
-.hero-orbit__card[data-icon='ai'] .hero-orbit__icon {
-  color: var(--color-accent);
-}
-.hero-orbit__card[data-icon='cicd'] .hero-orbit__icon {
-  color: var(--color-accent-2);
-}
-.hero-orbit__icon svg { display: block; }
+.hero-stack-icon svg { display: block; }
 
-.hero-orbit__copy {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+/* The "Core Stack" label stays visually distinct from the badges it
+   introduces — it is tracked-out monospace in the muted tone, with a
+   hairline rule leading into the row.
+
+   The whole group (label + badges) is centred in the hero rather than
+   left-aligned. The label is set in the accent tone and given a touch
+   more weight so it reads as the section's title instead of a caption
+   hanging off the badge row. */
+.hero-core-stack {
+  justify-content: center;
 }
-.hero-orbit__title {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--color-fg);
-  line-height: 1.15;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hero-orbit__detail {
-  margin-top: 0.15rem;
+.hero-core-stack-label {
+  flex-shrink: 0;
   font-size: 0.7rem;
-  letter-spacing: 0.02em;
-  color: var(--color-muted);
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hero-orbit__bar {
-  grid-column: 1 / -1;
-  display: block;
-  height: 3px;
-  margin-top: 0.45rem;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
-  overflow: hidden;
-}
-.hero-orbit__bar > span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
-  border-radius: inherit;
-}
-
-/* ─── Hero orbit — decorative concentric rings ─────────────────── */
-/*   Four thin conic-gradient rings sit behind the photo and the
-     overlapping cards, each one slightly larger and offset. The
-     innermost is roughly the photo's diameter; each ring is just a
-     hairline stroke rendered via a mask-radial gradient so only the
-     edge shows. They're decorative only — `pointer-events: none`,
-     `aria-hidden`, and they sit at z-index 0 (behind everything). */
-
-.hero-orbit-rings {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: var(--orbit-rings-opacity);
-}
-.hero-orbit-rings__ring {
-  position: absolute;
-  /* Centre the ring on the stage regardless of the stage's size.
-     `inset: 0; margin: auto` is the well-known trick to centre an
-     absolutely-positioned child when its size is smaller than the
-     containing block. */
-  inset: 0;
-  margin: auto;
-  border-radius: 999px;
-  /* The mask renders just a 1.5px ring on the outside of each
-     element. The `background` is a conic-gradient using the
-     theme accent tokens so the ring carries a purple→cyan
-     gradient sweep instead of being a flat single colour. */
-  background: conic-gradient(
-    from 0deg,
-    color-mix(in oklab, var(--color-accent) 80%, transparent) 0deg,
-    color-mix(in oklab, var(--color-accent-2) 80%, transparent) 180deg,
-    color-mix(in oklab, var(--color-accent) 80%, transparent) 360deg
-  );
-  -webkit-mask:
-    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
-  mask:
-    radial-gradient(closest-side, transparent calc(50% - 1.5px), #000 calc(50% - 1.5px), #000 calc(50% + 1.5px), transparent calc(50% + 1.5px));
-  /* Slow rotation; desynced per ring via animation-delay so the
-     gradient sweeps look layered. Disabled under reduced-motion. */
-  animation: orbit-ring-spin 60s linear infinite;
-  will-change: transform;
-}
-.hero-orbit-rings__ring--1 {
-  width: 280px;
-  height: 280px;
-  animation-delay: 0s;
-}
-.hero-orbit-rings__ring--2 {
-  width: 360px;
-  height: 360px;
-  animation-delay: -10s;
-  opacity: 0.7;
-}
-.hero-orbit-rings__ring--3 {
-  width: 460px;
-  height: 460px;
-  animation-delay: -22s;
-  opacity: 0.45;
-}
-.hero-orbit-rings__ring--4 {
-  width: 560px;
-  height: 560px;
-  animation-delay: -36s;
-  opacity: 0.25;
-}
-
-@keyframes orbit-ring-spin {
-  /* The rings are centred via `inset: 0; margin: auto`, so a plain
-     `rotate` here keeps them on-axis. */
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-/* ─── Hero orbit — floating decorative orbs ────────────────────── */
-/*   Three soft accent-tinted orbs float around the photo to give
-     the composition depth. They sit on the same plane as the rings
-     (z-index 0) and gently drift via a slow keyframe; the photo +
-     cards paint above them at z-index 2 / 3. */
-
-.hero-orbit-orbs {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: var(--orbit-orbs-opacity);
-}
-.hero-orbit-orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(36px);
-  will-change: transform;
-  animation: orbit-orb-drift 16s ease-in-out infinite;
-}
-.hero-orbit-orb--1 {
-  /* Top-left, accent (purple) */
-  top: 6%;
-  left: 4%;
-  width: 70px;
-  height: 70px;
-  background: color-mix(in oklab, var(--color-accent) 60%, transparent);
-  animation-delay: 0s;
-}
-.hero-orbit-orb--2 {
-  /* Right, accent-2 (cyan) */
-  top: 38%;
-  right: 6%;
-  width: 90px;
-  height: 90px;
-  background: color-mix(in oklab, var(--color-accent-2) 50%, transparent);
-  animation-delay: -5s;
-}
-.hero-orbit-orb--3 {
-  /* Bottom-left, mixed */
-  bottom: 4%;
-  left: 18%;
-  width: 60px;
-  height: 60px;
-  background: color-mix(in oklab, var(--color-accent-2) 35%, var(--color-accent) 35%);
-  animation-delay: -9s;
-}
-@keyframes orbit-orb-drift {
-  0%, 100% { transform: translate(0, 0); }
-  50%      { transform: translate(8px, -10px); }
-}
-
-/* ─── Hero orbit — terminal slot below the photo ───────────────── */
-/*   The real <HeroTerminal /> component renders below the orbit
-     photo+cards composition. We give it a max width and center it
-     so it always reads as a "second half" of the right column. */
-
-.hero-orbit-terminal {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 28rem;
-  display: flex;
-  justify-content: center;
-}
-
-/* ─── Hero terminal — "Always Learning" status pill ────────────── */
-/*   Sits in the right slot of the macOS title bar. Tiny rounded
-     pill with a green dot (uses accent-2 so it picks up the
-     theme's "live" colour). */
-
-.hero-terminal__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.15rem 0.55rem 0.15rem 0.5rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
-  background: color-mix(in oklab, var(--color-card) 60%, transparent);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  line-height: 1;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-fg-2);
-  white-space: nowrap;
-}
-.hero-terminal__status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--color-accent-2);
-  box-shadow: 0 0 8px color-mix(in oklab, var(--color-accent-2) 70%, transparent);
-  animation: caret-blink 1.4s steps(2) infinite;
-}
-.hero-terminal__status-label {
-  color: var(--color-fg-2);
-}
-
-/* Focus chip (left column, with icon). Pixel-accurate to the v3
-   brief — thin border, soft inner fill, no oversized icon plate. */
-.focus-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.55rem;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--color-card) 70%, transparent);
-  color: var(--color-fg);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  line-height: 1;
-}
-.focus-chip__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
   color: var(--color-accent);
-  flex-shrink: 0;
+  font-weight: 600;
 }
-.focus-chip__icon svg { display: block; }
-.focus-chip__label {
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  color: var(--color-fg-2);
-}
-/* FOCUS row — keep the 4 chips + the FOCUS label on a single row
-   at the brief's target viewport. Each child is `shrink-0` so the
-   row never collapses; if the column is genuinely too narrow (a
-   mobile viewport) the row falls back to wrap. */
-.hero-focus { flex-wrap: nowrap; }
-@media (max-width: 1023px) {
-  .hero-focus { flex-wrap: wrap; row-gap: 0.5rem; }
+@media (min-width: 1024px) {
+  .hero-core-stack-label {
+    padding-right: 0.9rem;
+    border-right: 1px solid var(--color-border);
+  }
 }
 
+/* ─── Responsive collapse ────────────────────────────────────────── */
+/*   1024–1149px: the hero is stacked (see the layout rule above), so
+   the stage has the whole container. It is capped and centred so it
+   does not balloon to the full width. */
+@media (min-width: 1024px) and (max-width: 1149px) {
+  .hero-stage {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+}
+
+/*   Below 1024px the two halves of the stage cannot sit side by side
+   without crowding the portrait, so the portrait comes first and the
+   capability cards fall into a 2×2 grid underneath it. The pipeline
+   card drops out of its floating position and flows after the portrait
+   so it can never collide with the card grid. */
 @media (max-width: 1023px) {
-  .hero-orbit {
-    width: 100%;
-    height: auto;
-    padding: 0.75rem 0 1rem;
+  .hero-stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'portrait'
+      'pipeline'
+      'cards';
+    gap: 1.4rem;
+    min-height: 0;
+    padding-bottom: 0;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+  .hero-cap-stack {
+    grid-area: cards;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'photo photo'
-      'tl   tr'
-      'bl   br';
     gap: 0.6rem;
+    /* The desktop column's frame-aligned padding does not apply once
+       the cards become a grid beneath the portrait. */
+    height: auto;
+    padding: 0;
+    justify-content: initial;
   }
-  .hero-orbit__photo {
-    grid-area: photo;
-    justify-self: center;
-    margin-bottom: 0.5rem;
+  /*   In the two-up grid the card must be allowed to shrink to the
+     column width, otherwise the content-width pill would overflow its
+     cell. */
+  .hero-cap-card {
+    min-width: 0;
   }
-  .hero-orbit__card {
+  .hero-portrait-stage {
+    grid-area: portrait;
+    min-height: 0;
+    height: auto;
+    /* The frame is sized in absolute terms here so it stays a snug
+       border around the figure instead of ballooning with the stage. */
+    width: min(20rem, 100%);
+    aspect-ratio: 3 / 4;
+    margin-inline: auto;
+  }
+  /* The frame hugs the figure at this size rather than swallowing it. */
+  .hero-portrait-frame {
+    inset: 5% 9% 5% 9%;
+  }
+  .hero-portrait {
+    padding: 0 6% 0 6%;
+  }
+  .hero-portrait img {
+    max-width: min(16rem, 78%);
+  }
+  .hero-pipeline {
+    grid-area: pipeline;
     position: static;
-    width: auto;
-    justify-self: stretch;
+    width: 100%;
+    margin-top: 0;
   }
-  .hero-orbit__card--tl { grid-area: tl; }
-  .hero-orbit__card--tr { grid-area: tr; }
-  .hero-orbit__card--bl { grid-area: bl; }
-  .hero-orbit__card--br { grid-area: br; }
-  /* Hide the decorative chrome on mobile — the column is too
-     narrow for the orbit rings and orbs to read at small sizes. */
-  .hero-orbit-rings,
-  .hero-orbit-orbs { display: none; }
-  .hero-orbit-terminal { max-width: 100%; }
 }
+
+@media (max-width: 640px) {
+  .hero-cap-stack {
+    grid-template-columns: 1fr;
+  }
+  .hero-portrait-stage {
+    width: min(17rem, 100%);
+    aspect-ratio: 1 / 1;
+  }
+  .hero-portrait-frame {
+    inset: 4% 7% 4% 7%;
+  }
+  .hero-portrait img {
+    max-width: min(14rem, 76%);
+  }
+}
+
 @media (max-width: 480px) {
-  .hero-orbit { gap: 0.45rem; }
-  .hero-orbit__title { font-size: 0.74rem; }
-  .hero-orbit__detail { font-size: 0.62rem; }
+  .hero-cap-card { padding: 0.6rem 0.75rem; gap: 0.6rem; }
+  .hero-cap-icon { width: 32px; height: 32px; }
+  .hero-cap-title { font-size: 0.82rem; }
+  .hero-cap-detail { font-size: 0.56rem; }
+  .hero-cap-tag { font-size: 0.7rem; padding: 0.3rem 0.6rem 0.3rem 0.48rem; }
 }
 
-/* ─── Hero orbit — light-mode tuning ──────────────────────────── */
-/*   Drop the rings + orbs opacity in light mode so they don't read
-     as neon splats on the warm off-white background, and harden the
-     pill border so the "Always Learning" badge still pops. */
-[data-theme='light'] .hero-orbit-wrap {
-  --orbit-rings-opacity: 0.4;
-  --orbit-orbs-opacity: 0.55;
-}
-[data-theme='light'] .hero-terminal__status {
-  border-color: var(--color-border-strong);
-  background: color-mix(in oklab, var(--color-card) 85%, transparent);
-}
-
-/* Reduced motion: freeze the rings + orbs so they sit still, and
-   neutralise the cards' bob (the global block already handles
-   .float-soft). */
 @media (prefers-reduced-motion: reduce) {
-  .hero-orbit-rings__ring,
-  .hero-orbit-orb,
-  .hero-terminal__status-dot {
+  .hero-cap-card,
+  .hero-cap-card:hover {
     animation: none !important;
+    transform: none !important;
   }
-  .hero-orbit__card:hover { transform: none; }
+  .hero-pipeline-active::after { animation: none !important; }
 }

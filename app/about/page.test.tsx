@@ -36,7 +36,6 @@ import AboutPage from './page';
 describe('AboutPage (standalone)', () => {
   beforeEach(() => {
     // Silence the JSON-LD script — testing-library can't traverse it as HTML anyway.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const origWarn = console.warn;
     console.warn = (...args: unknown[]) => {
       const first = args[0];

@@ -1,19 +1,23 @@
-import { Suspense } from 'react';
-import { getSiteSettings } from '@/lib/queries/site';
-import { listExperiencesOrdered } from '@/lib/queries/experiences';
-import { listEducationOrdered } from '@/lib/queries/education';
 import { Hero } from '@/components/site/Hero';
-import { CurrentRole } from '@/components/site/CurrentRole';
-import { FeaturedProjects } from '@/components/site/FeaturedProjects';
-import { ExperienceTimeline } from '@/components/site/ExperienceTimeline';
-import { Recommendations } from '@/components/site/Recommendations';
-import { HowIBuild } from '@/components/site/HowIBuild';
-import { CoreStack } from '@/components/site/CoreStack';
-import { AiDrivenQa } from '@/components/site/AiDrivenQa';
-import { AboutSection } from '@/components/site/AboutSection';
-import { EducationCerts } from '@/components/site/EducationCerts';
+import { ServicesSection } from '@/components/site/ServicesSection';
+import { WorkSection } from '@/components/site/WorkSection';
+import { BlogSection } from '@/components/site/BlogSection';
+import { ExperienceSection } from '@/components/site/ExperienceSection';
+import { ReviewsSection } from '@/components/site/ReviewsSection';
 import { ContactSection } from '@/components/site/ContactSection';
+import { getSiteSettings } from '@/lib/queries/site';
 import { env } from '@/lib/env';
+import { DEFAULT_PROFILE_IMAGE } from '@/lib/constants';
+
+// The home page reads the admin-managed portrait from the database on
+// every request, so it must not be statically prerendered — otherwise
+// the `version` cache-busting token would be frozen at build time and a
+// newly uploaded image would not appear until a redeploy.
+//
+// `revalidatePath('/')` in the upload action still refreshes the
+// route cache, so this stays a fast, ISR-friendly render rather than a
+// full dynamic one where possible.
+export const dynamic = 'force-dynamic';
 
 // SEO: the home page intentionally does NOT set its own `title` so the
 // root layout's strong default ("Md Salekin Newaz — Senior Software QA
@@ -22,14 +26,13 @@ import { env } from '@/lib/env';
 // the most important on-page keyword slot for the user's name query.
 
 export default async function HomePage() {
-  const [site, experiences, education] = await Promise.all([
-    getSiteSettings(),
-    listExperiencesOrdered(),
-    listEducationOrdered(),
-  ]);
-
-  const { identity, sections } = site;
   const siteUrl = env.SITE_URL ?? 'http://localhost:3000';
+
+  // The portrait is admin-managed and persisted in the database. Read
+  // it here so the Hero renders the active image on the server — no
+  // flash of the default portrait, no hardcoded reference in the
+  // component, and no redeploy required after an upload.
+  const site = await getSiteSettings();
 
   // WebSite + WebPage JSON-LD for SEO. The Person block is emitted
   // globally in the root layout; here we just link this page into the
@@ -48,7 +51,7 @@ export default async function HomePage() {
     '@type': 'WebPage',
     '@id': `${siteUrl}/#webpage`,
     url: siteUrl,
-    name: identity.siteTitle,
+    name: 'Md Salekin Newaz — Senior Software QA Engineer',
     inLanguage: 'en',
     isPartOf: { '@id': `${siteUrl}/#website` },
     about: { '@id': `${siteUrl}/#person` },
@@ -58,53 +61,20 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {sections.showHero ? <Hero identity={identity} /> : null}
-
-      {sections.showExperience ? (
-        <CurrentRole experiences={experiences} />
-      ) : null}
-
-      <Suspense fallback={null}>
-        <FeaturedProjects limit={3} />
-      </Suspense>
-
-      {sections.showExperience ? (
-        <section
-          id="experience"
-          tabIndex={-1}
-          className="section-anchor relative py-20 sm:py-28"
-        >
-          <div className="mb-12 flex flex-col gap-3 reveal">
-            <span className="font-mono text-xs uppercase tracking-widest text-muted">
-              Experience
-            </span>
-            <h2 className="heading-display heading-underline text-4xl sm:text-5xl">
-              Where I&apos;ve worked
-            </h2>
-          </div>
-          <ExperienceTimeline experiences={experiences} />
-        </section>
-      ) : null}
-
-      <Recommendations limit={3} />
-
-      <HowIBuild />
-
-      <section
-        id="skills"
-        tabIndex={-1}
-        className="section-anchor relative"
-      >
-        <CoreStack />
-      </section>
-
-      <AiDrivenQa />
-
-      {sections.showAbout ? <AboutSection identity={identity} /> : null}
-
-      {sections.showAbout ? <EducationCerts education={education} /> : null}
-
-      {sections.showContact ? <ContactSection identity={identity} /> : null}
+      <Hero
+        availableForWork={site.availability.availableForWork}
+        profileImage={{
+          position: site.profileImage.position,
+          version: site.profileImage.version,
+          mode: site.profileImage.mode,
+        }}
+      />
+      <ServicesSection />
+      <WorkSection />
+      <BlogSection />
+      <ExperienceSection />
+      <ReviewsSection />
+      <ContactSection />
 
       <script
         type="application/ld+json"

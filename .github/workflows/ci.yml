@@ -1,0 +1,89 @@
+name: CI
+
+# Runs on every push to main and on every pull request targeting main.
+#
+# The v2 redesign branch replaced the Playwright E2E suite with a
+# vitest unit/component suite plus a set of standalone QA scripts
+# under scripts/qa-*.mjs. This workflow mirrors that tooling:
+#
+#   - vitest unit + component tests (vitest run)
+#   - a production build (next build), which is what gates the
+#     Vercel deploy
+#   - auto-deploy to Vercel production on push to main
+#
+# The Vercel CLI is invoked directly rather than the GitHub App
+# because the project was created via CLI, so the GitHub
+# integration isn't installed. `--project` is passed explicitly
+# because the `.vercel/project.json` link file is gitignored and
+# therefore absent on CI.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Test, build & deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare test DB
+        # `next build` renders pages at build time and queries the
+        # DB (Setting, Education, etc.), so the schema + seed data
+        # must exist before the build runs.
+        run: pnpm db:push && pnpm db:seed
+        env:
+          DATABASE_URL: file:./test.db
+          NODE_ENV: test
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+        env:
+          DATABASE_URL: file:./test.db
+          NODE_ENV: test
+
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: file:./test.db
+          NODE_ENV: test
+          ADMIN_PASSWORD: test-admin-pass-1234
+          ADMIN_SESSION_SECRET: ci-build-session-secret-at-least-32-chars
+
+      - name: Deploy to Vercel (production)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: pnpm exec vercel deploy --prod --yes --token "$VERCEL_TOKEN" --project prj_UejPnEPmnIel6eXz3HKsl6imzspm
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

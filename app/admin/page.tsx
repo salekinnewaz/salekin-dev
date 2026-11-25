@@ -12,6 +12,7 @@ import {
 import { env } from '@/lib/env';
 import { AdminForm } from './AdminForm';
 import { AdminMessages } from './AdminMessages';
+import { ProfileImageManager } from './ProfileImageManager';
 import { adminLogoutAction } from '@/lib/actions/admin';
 
 export const metadata: Metadata = {
@@ -108,6 +109,7 @@ export default async function AdminPage() {
             socialX: site.identity.socialX ?? '',
           },
           sections: site.sections,
+          availability: site.availability,
           theme: {
             accentColor: site.theme.accentColor,
             accentColor2: site.theme.accentColor2,
@@ -116,6 +118,13 @@ export default async function AdminPage() {
           skills: site.skills,
           stats: site.stats,
         }}
+      />
+
+      <ProfileImageManager
+        hasCustomImage={site.profileImage.hasCustomImage}
+        position={site.profileImage.position}
+        version={site.profileImage.version}
+        mode={site.profileImage.mode}
       />
 
       <section className="flex flex-col gap-4">

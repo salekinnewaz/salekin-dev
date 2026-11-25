@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { getSiteSettings } from './site';
+import { getSiteSettings, getProfileImageDataUri, MAX_DATA_URI_LENGTH } from './site';
 import { getTestDb } from '../../tests/helpers/db';
 
 // Self-sufficient: each test seeds its own Setting rows so the suite
@@ -79,6 +79,21 @@ describe('queries/site', () => {
     expect(settings.sections.showContact).toBe(true);
   });
 
+  it('reports availability as on by default', async () => {
+    const settings = await getSiteSettings();
+    expect(settings.availability.availableForWork).toBe(true);
+  });
+
+  it('reads the availability flag from its own setting row', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'available_for_work' },
+      update: { value: 'false' },
+      create: { key: 'available_for_work', value: 'false' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.availability.availableForWork).toBe(false);
+  });
+
   it('exposes theme with default accent and dark default', async () => {
     const settings = await getSiteSettings();
     expect(settings.theme.accentColor).toMatch(/^#[0-9a-f]{6}$/i);
@@ -115,5 +130,195 @@ describe('queries/site', () => {
     expect(settings.stats.yearsCoding).toBeGreaterThan(0);
     expect(settings.stats.sitesShipped).toBe(0);
     expect(settings.stats.rolesHeld).toBeGreaterThan(0);
+  });
+
+  // ─── Profile image ───────────────────────────────────────────────
+
+  async function clearProfileRows() {
+    await getTestDb().setting.deleteMany({
+      where: {
+        key: {
+          in: [
+            'profile_image',
+            'profile_image_position',
+            'profile_image_has_alpha',
+            'profile_image_set',
+            'profile_image_mode',
+          ],
+        },
+      },
+    });
+  }
+
+  async function setProfileRow(key: string, value: string) {
+    await getTestDb().setting.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value },
+    });
+  }
+
+  it('reports no custom portrait when nothing is stored', async () => {
+    await clearProfileRows();
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.hasCustomImage).toBe(false);
+    expect(settings.profileImage.position).toBe('50% 30%');
+  });
+
+  it('reports a stored portrait without reading its bytes', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image_set', 'true');
+    await setProfileRow(
+      'profile_image',
+      `data:image/png;base64,${Buffer.from('x').toString('base64')}`,
+    );
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.hasCustomImage).toBe(true);
+    expect(settings.profileImage.position).toBe('50% 30%');
+  });
+
+  it('returns the stored crop position', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image_position', '25% 80%');
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.position).toBe('25% 80%');
+  });
+
+  it('clamps an out-of-range stored crop position', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image_position', '400% 900%');
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.position).toBe('100% 100%');
+  });
+
+  it('falls back to the default crop for a malformed stored position', async () => {
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image_position' },
+      update: { value: 'center top' },
+      create: { key: 'profile_image_position', value: 'center top' },
+    });
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.position).toBe('50% 30%');
+  });
+
+  it('exposes a version token that changes when the portrait changes', async () => {
+    const before = await getSiteSettings();
+    const v1 = before.profileImage.version;
+    await getTestDb().setting.upsert({
+      where: { key: 'profile_image' },
+      update: { value: `data:image/png;base64,${Buffer.from('y').toString('base64')}` },
+      create: { key: 'profile_image', value: `data:image/png;base64,${Buffer.from('y').toString('base64')}` },
+    });
+    const after = await getSiteSettings();
+    expect(after.profileImage.version).not.toBe(v1);
+  });
+
+  // ─── Render mode ─────────────────────────────────────────────────
+
+  it('falls back to the cut-out rendering when the alpha flag is missing', async () => {
+    await clearProfileRows();
+    const settings = await getSiteSettings();
+    // The conservative fallback is the cut-out rendering — the same
+    // letterboxing the shipped default uses.
+    expect(settings.profileImage.mode).toBe('cutout');
+    expect(settings.profileImage.hasAlpha).toBe(true);
+  });
+
+  it('reads the alpha flag from its own row', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image_has_alpha', 'false');
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.mode).toBe('photo');
+    expect(settings.profileImage.hasAlpha).toBe(false);
+  });
+
+  it('lets an explicit render-mode override win over the alpha flag', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image_has_alpha', 'false');
+    await setProfileRow('profile_image_mode', 'cutout');
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.mode).toBe('cutout');
+  });
+
+  it('ignores an unrecognised render-mode override', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image_has_alpha', 'false');
+    await setProfileRow('profile_image_mode', 'nonsense');
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.mode).toBe('photo');
+  });
+
+  it('reports whether a custom portrait is stored', async () => {
+    await clearProfileRows();
+    const empty = await getSiteSettings();
+    expect(empty.profileImage.hasCustomImage).toBe(false);
+
+    await setProfileRow('profile_image_set', 'true');
+    const stored = await getSiteSettings();
+    expect(stored.profileImage.hasCustomImage).toBe(true);
+  });
+
+  it('falls back to the stored row when the set flag is missing', async () => {
+    await clearProfileRows();
+    // No `profile_image_set` row — as if the portrait had been stored
+    // before that flag existed.
+    await setProfileRow(
+      'profile_image',
+      `data:image/png;base64,${Buffer.from('x').toString('base64')}`,
+    );
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.hasCustomImage).toBe(true);
+  });
+
+  it('does not report a legacy portrait with an unusable MIME type', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image', 'data:image/gif;base64,R0lGODlhAQABAAAAACw=');
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.hasCustomImage).toBe(false);
+  });
+
+  it('trusts the set flag over the stored row', async () => {
+    await clearProfileRows();
+    // The flag says "restored to default" while a stale value lingers.
+    await setProfileRow('profile_image_set', 'false');
+    await setProfileRow(
+      'profile_image',
+      `data:image/png;base64,${Buffer.from('x').toString('base64')}`,
+    );
+    const settings = await getSiteSettings();
+    expect(settings.profileImage.hasCustomImage).toBe(false);
+  });
+
+  // ─── The narrow byte read ────────────────────────────────────────
+
+  it('returns the stored portrait bytes through the narrow query', async () => {
+    await clearProfileRows();
+    const dataUri = `data:image/png;base64,${Buffer.from('x').toString('base64')}`;
+    await setProfileRow('profile_image', dataUri);
+    const stored = await getProfileImageDataUri();
+    expect(stored).toBe(dataUri);
+  });
+
+  it('returns null when no portrait is stored', async () => {
+    await clearProfileRows();
+    expect(await getProfileImageDataUri()).toBeNull();
+  });
+
+  it('rejects a stored portrait with an unsupported MIME type', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image', 'data:image/gif;base64,R0lGODlhAQABAAAAACw=');
+    expect(await getProfileImageDataUri()).toBeNull();
+  });
+
+  it('rejects a stored portrait that is not a data URI at all', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image', '/etc/passwd');
+    expect(await getProfileImageDataUri()).toBeNull();
+  });
+
+  it('rejects an over-long stored portrait', async () => {
+    await clearProfileRows();
+    await setProfileRow('profile_image', 'x'.repeat(MAX_DATA_URI_LENGTH + 1));
+    expect(await getProfileImageDataUri()).toBeNull();
   });
 });

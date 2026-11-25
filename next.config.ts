@@ -35,6 +35,21 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Next.js caps a Server Action request body at 1 MB by default. The
+  // admin panel's portrait upload accepts up to 3 MB (see
+  // MAX_IMAGE_BYTES in lib/actions/profile-image.ts), so without this
+  // the limit is unreachable — the platform rejects the request with a
+  // bare 413 before the action's own validation can produce a readable
+  // message.
+  //
+  // 4 MB leaves room for the multipart envelope (boundaries, headers)
+  // on top of a 3 MB file. The hosting platform's own ceiling is about
+  // 4.5 MB, so this stays under it.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '4mb',
+    },
+  },
   // No URL redirects — `app/opengraph-image.tsx` is the single source
   // of truth and is referenced directly from `metadata.openGraph.images`
   // and `metadata.twitter.images` in `app/layout.tsx`.
